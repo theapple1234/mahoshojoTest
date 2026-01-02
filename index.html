@@ -1,0 +1,109 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dominion Rebirth</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@400;500&family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="preload" href="https://cdn.jsdelivr.net/gh/projectnoonnu/2511-1@1.0/HakgyoansimKidaripungseonL.woff2" as="font" type="font/woff2" crossorigin>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    /* Custom font setup for Tailwind CDN */
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    .font-cinzel {
+      font-family: 'Cinzel', serif;
+    }
+    .font-gowun {
+      font-family: 'Gowun Batang', serif;
+    }
+    @font-face {
+        font-family: 'SchoolSafetyKidariBalloon';
+        src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2511-1@1.0/HakgyoansimKidaripungseonL.woff2') format('woff2');
+        font-weight: normal;
+        font-display: swap;
+    }
+    .font-kidari {
+        font-family: 'SchoolSafetyKidariBalloon', sans-serif;
+    }
+    @keyframes fall-and-fade {
+      0% {
+        transform: translate(0, 0) rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translate(var(--x-offset-end, 0), 80vh) rotate(calc(var(--rotation, 0deg) * 3));
+        opacity: 0;
+      }
+    }
+    .sigil-fall-animation {
+      position: fixed;
+      z-index: 100;
+      animation: fall-and-fade 1.5s ease-in forwards;
+      pointer-events: none;
+    }
+    img {
+      filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.5));
+    }
+    .no-glow {
+      filter: none;
+    }
+
+    /* Magical Girl Animation Styles */
+    
+    /* Logo fade out without flashing */
+    .animate-logo-exit {
+        animation: simple-fade-out 1s ease-in-out forwards;
+    }
+
+    /* Controls slide down and fade */
+    .animate-slide-down-exit {
+        animation: slide-down-fade 0.8s ease-in-out forwards;
+    }
+
+    .animate #splash-subtext {
+        animation: text-fade 0.5s ease-in-out forwards;
+    }
+    
+    @keyframes simple-fade-out {
+        0% { transform: scale(1); opacity: 1; }
+        100% { transform: scale(0.95); opacity: 0; }
+    }
+
+    @keyframes slide-down-fade {
+        0% { transform: translateY(0); opacity: 1; }
+        100% { transform: translateY(50px); opacity: 0; }
+    }
+    
+    @keyframes text-fade {
+        to { opacity: 0; }
+    }
+  </style>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react-dom": "https://esm.sh/react-dom@^19.2.3",
+    "path": "https://esm.sh/path@^0.12.7",
+    "url": "https://esm.sh/url@^0.11.4",
+    "fs": "https://esm.sh/fs@^0.0.1-security",
+    "https": "https://esm.sh/https@^1.0.0"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body class="bg-[#0a101f]">
+  <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+  <script src="https://www.youtube.com/iframe_api"></script>
+</body>
+</html>
