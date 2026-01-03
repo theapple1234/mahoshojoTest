@@ -66,7 +66,7 @@ export const FamilyDetailCard: React.FC<{ member: any, theme: any }> = ({ member
             <div className="w-16 h-16 flex-shrink-0 rounded-full overflow-hidden">
                 <div 
                     className={`w-full h-full bg-center bg-cover bg-no-repeat ${theme.imgFilter}`}
-                    style={{ backgroundImage: `url(${member.imageSrc})` }}
+                    style={{ backgroundImage: member.imageSrc ? `url(${member.imageSrc})` : 'none' }}
                     role="img"
                     aria-label={member.type}
                 />
@@ -100,7 +100,7 @@ export const HousingDetailCard: React.FC<{ home: any, theme: any }> = ({ home, t
                 <div className={`w-12 h-12 rounded overflow-hidden`}>
                      <div 
                         className={`w-full h-full bg-center bg-cover bg-no-repeat ${theme.imgFilter}`}
-                        style={{ backgroundImage: `url(${home.imageSrc})` }}
+                        style={{ backgroundImage: home.imageSrc ? `url(${home.imageSrc})` : 'none' }}
                         role="img"
                         aria-label="Home Image"
                     />

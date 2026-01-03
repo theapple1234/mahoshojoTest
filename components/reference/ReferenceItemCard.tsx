@@ -38,10 +38,10 @@ export const ReferenceItemCard: React.FC<ReferenceItemCardProps> = ({ item, isSe
             className={`p-3 rounded-lg border transition-all flex flex-col items-center text-center h-full relative ${borderClass} ${bgClass}`}
             onClick={() => !disabled && onSelect(item.id)}
         >
-            {layout === 'default' && (
+            {layout === 'default' && item.imageSrc && (
                 <img src={item.imageSrc} alt={item.title} className="w-full aspect-[4/3] object-cover mb-3 rounded-md bg-black/20" />
             )}
-            {layout === 'trait' && (
+            {layout === 'trait' && item.imageSrc && (
                 <img src={item.imageSrc} alt={item.title} className="w-16 h-16 object-cover rounded-full mb-2 scale-110" />
             )}
             

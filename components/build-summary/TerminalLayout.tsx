@@ -23,7 +23,7 @@ export const TerminalLayout: React.FC<{ sections: any[] }> = ({ sections }) => {
                     <div 
                         className="w-12 h-12 flex-shrink-0 border border-green-500/20 grayscale contrast-125 bg-black"
                         style={{
-                            backgroundImage: `url(${item.imageSrc})`,
+                            backgroundImage: item.imageSrc ? `url(${item.imageSrc})` : 'none',
                             backgroundSize: 'cover',
                             backgroundPosition: 'center',
                             backgroundRepeat: 'no-repeat'

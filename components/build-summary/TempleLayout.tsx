@@ -22,7 +22,7 @@ export const TempleLayout: React.FC<{ sections: any[] }> = ({ sections }) => {
                 <div 
                     className="w-full h-full sepia-[0.3]"
                     style={{
-                        backgroundImage: `url(${item.imageSrc})`,
+                        backgroundImage: item.imageSrc ? `url(${item.imageSrc})` : 'none',
                         backgroundSize: 'cover',
                         backgroundPosition: 'center',
                         backgroundRepeat: 'no-repeat'

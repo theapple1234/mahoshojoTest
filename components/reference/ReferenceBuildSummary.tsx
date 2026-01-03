@@ -2,6 +2,7 @@
 import React from 'react';
 import * as Constants from '../../constants';
 import type { BuildType, AllBuilds } from '../../types';
+import { ReferenceSection } from './ReferenceSection';
 
 interface ReferenceBuildSummaryProps {
     type: BuildType;
@@ -46,7 +47,7 @@ const renderItem = (id: string, pool: any[], label: string, theme: any) => {
             <div className={`w-12 h-12 flex-shrink-0 rounded bg-black/20 overflow-hidden`}>
                 <div 
                     className={`w-full h-full bg-center bg-contain bg-no-repeat ${theme.imgFilter || ''}`}
-                    style={{ backgroundImage: `url(${item.imageSrc})` }}
+                    style={{ backgroundImage: item.imageSrc ? `url(${item.imageSrc})` : 'none' }}
                     role="img"
                     aria-label={item.title}
                 />
@@ -76,7 +77,7 @@ const renderGrid = (ids: string[] | Set<string> | Map<string, any>, pool: any[],
                             <div className={`w-8 h-8 flex-shrink-0 rounded overflow-hidden`}>
                                 <div 
                                     className={`w-full h-full bg-center bg-contain bg-no-repeat ${theme.imgFilter || ''}`}
-                                    style={{ backgroundImage: `url(${item.imageSrc})` }}
+                                    style={{ backgroundImage: item.imageSrc ? `url(${item.imageSrc})` : 'none' }}
                                     role="img"
                                     aria-label={item.title}
                                 />
@@ -183,7 +184,7 @@ export const ReferenceBuildSummary: React.FC<ReferenceBuildSummaryProps> = ({
                 // Assign names instead of creating duplicate items
                 if (perkId === 'inhuman_form' && selections.inhumanFormBeastName) {
                     item.assignedName = selections.inhumanFormBeastName;
-                    item.isDerived = true; // Optional: Keep for styling if needed, though mostly used for border color
+                    item.isDerived = true; 
                 }
                 if (perkId === 'special_weapon' && selections.specialWeaponName) {
                     item.assignedName = selections.specialWeaponName;
@@ -251,7 +252,7 @@ export const ReferenceBuildSummary: React.FC<ReferenceBuildSummaryProps> = ({
                                         <div className={`w-14 h-14 rounded-full overflow-hidden bg-black shrink-0 ${item.noBorder ? '' : 'border border-purple-500/50'}`}>
                                             <div 
                                                 className="w-full h-full bg-center bg-cover bg-no-repeat"
-                                                style={{ backgroundImage: `url(${item.imageSrc})` }}
+                                                style={{ backgroundImage: item.imageSrc ? `url(${item.imageSrc})` : 'none' }}
                                             />
                                         </div>
                                         <span className="text-[9px] text-purple-200 text-center font-cinzel mt-1 leading-tight bg-black/70 px-1 rounded backdrop-blur-sm max-w-full z-20">
@@ -268,7 +269,6 @@ export const ReferenceBuildSummary: React.FC<ReferenceBuildSummaryProps> = ({
                         <div className="relative w-[65%] h-[65%] rounded-full border border-purple-500/40">
                             {orbit2Items.map((item, idx, arr) => {
                                 let angle = (360 / arr.length) * idx;
-                                // If 4 items, shift by 45 degrees to form an X shape instead of +
                                 if (arr.length === 4) {
                                     angle += 45;
                                 }
@@ -278,7 +278,7 @@ export const ReferenceBuildSummary: React.FC<ReferenceBuildSummaryProps> = ({
                                         <div className={`w-16 h-16 rounded-full border-2 ${item.isDerived ? 'border-cyan-400' : 'border-purple-400'} bg-black overflow-hidden z-10`}>
                                             <div 
                                                 className="w-full h-full bg-center bg-cover bg-no-repeat"
-                                                style={{ backgroundImage: `url(${item.imageSrc})` }}
+                                                style={{ backgroundImage: item.imageSrc ? `url(${item.imageSrc})` : 'none' }}
                                             />
                                         </div>
                                         {item.count && item.count > 1 && (
@@ -308,7 +308,7 @@ export const ReferenceBuildSummary: React.FC<ReferenceBuildSummaryProps> = ({
                                         <div className="w-16 h-16 rounded-full border-2 border-fuchsia-400 bg-black overflow-hidden shadow-[0_0_15px_#d946ef]">
                                              <div 
                                                 className="w-full h-full bg-center bg-cover bg-no-repeat"
-                                                style={{ backgroundImage: `url(${item.imageSrc})` }}
+                                                style={{ backgroundImage: item.imageSrc ? `url(${item.imageSrc})` : 'none' }}
                                             />
                                         </div>
                                         <span className="text-[10px] text-fuchsia-200 text-center font-cinzel mt-1 leading-tight bg-black/70 px-2 py-0.5 rounded backdrop-blur-sm max-w-full z-20">
@@ -324,10 +324,10 @@ export const ReferenceBuildSummary: React.FC<ReferenceBuildSummaryProps> = ({
                     <div className="relative z-10 w-[25%] h-[25%] rounded-full border-4 border-purple-500 shadow-[0_0_50px_rgba(168,85,247,0.5)] bg-black overflow-hidden flex items-center justify-center group">
                         <div 
                             className="absolute inset-0 w-full h-full bg-center bg-cover bg-no-repeat"
-                            style={{ backgroundImage: `url(${visualSrc})` }}
+                            style={{ backgroundImage: visualSrc ? `url(${visualSrc})` : 'none' }}
                         />
                         
-                        {/* Points Overlay - Kept here for Reference Page as requested */}
+                        {/* Points Overlay */}
                         <div className="absolute bottom-2 px-3 py-1 bg-black/60 rounded-full border border-purple-500/30 backdrop-blur-sm z-20 pointer-events-none">
                             <span className="text-purple-100 font-cinzel font-bold text-xs tracking-widest">{pointsSpent} Points</span>
                         </div>
@@ -440,7 +440,7 @@ export const ReferenceBuildSummary: React.FC<ReferenceBuildSummaryProps> = ({
                          {/* Replace img with div background for better html2canvas support */}
                         <div 
                             className={`w-full h-full bg-center bg-cover bg-no-repeat ${theme.imgFilter}`}
-                            style={{ backgroundImage: `url(${visualSrc})` }}
+                            style={{ backgroundImage: visualSrc ? `url(${visualSrc})` : 'none' }}
                             role="img"
                             aria-label="Character Visual"
                         />
@@ -536,6 +536,44 @@ export const ReferenceBuildSummary: React.FC<ReferenceBuildSummaryProps> = ({
                 </div>
             </div>
             
+            {/* Fallback for upload SVG: Ensure width/height is set on the SVG to prevent "width 0" error in html2canvas */}
+            {onImageUpload && !selections.customImage && (
+                 <div className="hidden" aria-hidden="true">
+                    {/* This hidden div ensures the SVG definition is available if needed, though strictly we fix the visible one */}
+                 </div>
+            )}
+            
+            <ReferenceSection title="CUSTOM VISUAL">
+                 <div className="flex justify-center">
+                    <label className={`
+                        relative w-48 aspect-[9/16] border-2 border-dashed rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all overflow-hidden group
+                        ${selections.customImage ? 'border-cyan-500' : 'border-gray-700 hover:border-cyan-500/50 bg-black/20 hover:bg-black/40'}
+                    `}>
+                        <input 
+                            type="file" 
+                            accept="image/*" 
+                            onChange={handleFileChange} 
+                            className="hidden" 
+                        />
+                        {selections.customImage ? (
+                            <>
+                                <img src={selections.customImage} alt="Custom" className="w-full h-full object-cover" />
+                                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                                    <span className="text-xs text-white font-cinzel">Change Image</span>
+                                </div>
+                            </>
+                        ) : (
+                            <>
+                                <svg xmlns="http://www.w3.org/2000/svg" className="text-gray-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="32" height="32">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                <span className="text-xs text-gray-500 font-cinzel">Upload Image</span>
+                            </>
+                        )}
+                    </label>
+                 </div>
+            </ReferenceSection>
+
         </div>
     );
 };
