@@ -30,14 +30,14 @@ export const TerminalLayout: React.FC<{ sections: any[] }> = ({ sections }) => {
                         }}
                     ></div>
                     <div className="flex-grow min-w-0">
-                        <p className="text-[10px] font-bold truncate text-green-300 leading-[1.6]">{item.title}</p>
-                        <p className="text-[9px] opacity-60 truncate leading-[1.6]">ID: {item.id}</p>
-                        {item.count && <p className="text-[9px] text-green-400 mt-0.5 leading-[1.6]">QTY: {item.count}</p>}
+                        <p className="text-[10px] font-bold truncate text-green-300">{item.title}</p>
+                        <p className="text-[9px] opacity-60 truncate">ID: {item.id}</p>
+                        {item.count && <p className="text-[9px] text-green-400 mt-0.5">QTY: {item.count}</p>}
                         {item.assignedName && (
-                            <p className="text-[9px] text-green-200 mt-0.5 border-t border-green-900/50 pt-0.5 truncate leading-[1.6]">[{item.assignedName}]</p>
+                            <p className="text-[9px] text-green-200 mt-0.5 border-t border-green-900/50 pt-0.5 truncate">[{item.assignedName}]</p>
                         )}
                         {item.uniformName && (
-                            <p className="text-[9px] text-green-200 mt-0.5 border-t border-green-900/50 pt-0.5 truncate leading-[1.6]">COSTUME: {item.uniformName}</p>
+                            <p className="text-[9px] text-green-200 mt-0.5 border-t border-green-900/50 pt-0.5 truncate">COSTUME: {item.uniformName}</p>
                         )}
                     </div>
                 </div>
@@ -55,8 +55,7 @@ export const TerminalLayout: React.FC<{ sections: any[] }> = ({ sections }) => {
                     <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
                         <span className="text-green-800">0{sIdx + 1}</span> 
                         <span>{section.title.toUpperCase()}</span>
-                        {/* Added inline min-width to prevent 0-width collapse in html2canvas */}
-                        <div className="h-px bg-green-500/30 flex-grow ml-4 min-w-[50px]" style={{ minWidth: '50px' }}></div>
+                        <div className="h-px bg-green-500/30 flex-grow ml-4"></div>
                     </h3>
                     
                     {/* Family & Housing Special Render for Stage 1 */}

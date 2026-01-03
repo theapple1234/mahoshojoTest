@@ -21,21 +21,6 @@ declare global {
   }
 }
 
-// CSS to shift text upwards during capture to fix html2canvas baseline issues
-// Fixed shift to -7px as requested, applied to all text containers
-const TEXT_SHIFT_CSS = `
-    h1, h2, h3, h4, h5, h6, p, button, label, span, input, textarea, select, strong, em, b, i, li, a {
-        position: relative;
-        top: -7px !important;
-    }
-    /* Reset top for nested elements to prevent double shifting */
-    h1 *, h2 *, h3 *, h4 *, h5 *, h6 *,
-    p *, button *, label *,
-    span *, strong *, em *, b *, i *, li *, a * {
-        top: 0 !important;
-    }
-`;
-
 // -- Helper: Quick Point Calculation for Reference Items --
 const calculateReferencePoints = (type: BuildType, data: any): number => {
     let total = 0;
@@ -199,11 +184,6 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
                     const clonedBody = clonedDoc.body;
                     clonedBody.style.backgroundColor = bgColor;
                     clonedBody.style.width = `${captureWidth}px`;
-
-                    // Always Inject Text Shift CSS
-                    const style = clonedDoc.createElement('style');
-                    style.innerHTML = TEXT_SHIFT_CSS;
-                    clonedDoc.head.appendChild(style);
                 }
             };
 
@@ -251,11 +231,6 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
                                         clonedNode.style.height = 'auto';
                                         clonedNode.style.overflow = 'visible';
                                      }
-                                     
-                                     // Always Inject Text Shift CSS
-                                     const style = clonedDoc.createElement('style');
-                                     style.innerHTML = TEXT_SHIFT_CSS;
-                                     clonedDoc.head.appendChild(style);
                                  }
                              });
                              

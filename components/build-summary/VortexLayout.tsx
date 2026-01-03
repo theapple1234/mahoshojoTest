@@ -75,8 +75,7 @@ export const VortexLayout: React.FC<{ sections: any[], ctx: ICharacterContext, n
         <div className="relative w-full bg-black overflow-hidden flex flex-col items-center justify-start p-20 pb-0">
              {/* Background Spiral - Conic gradients often fail in html2canvas, replacing with radial */}
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,#1a1a2e_0%,#000000_100%)] opacity-80 pointer-events-none h-full"></div>
-            {/* Removed problematic external stardust texture to fix CORS/Canvas issues */}
-            <div className="absolute inset-0 opacity-30 pointer-events-none bg-[radial-gradient(white_1px,transparent_1px)] [background-size:20px_20px]"></div>
+            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20 pointer-events-none"></div>
             
             <div className="absolute top-10 left-0 right-0 z-50">
                  <SummaryHeader theme="dark" />
@@ -209,10 +208,9 @@ export const VortexLayout: React.FC<{ sections: any[], ctx: ICharacterContext, n
             {hasOrigins && (
                 <div className="relative z-50 w-full max-w-6xl mt-[-700px] mb-8 p-8 bg-black/80 border-2 border-purple-500/30 rounded-2xl backdrop-blur-md shadow-[0_0_50px_rgba(168,85,247,0.1)]">
                     <div className="flex items-center gap-4 mb-8">
-                        {/* Added min-w-[50px] inline style to prevent 0-width collapse which crashes html2canvas */}
-                        <div className="h-px bg-gradient-to-r from-transparent to-purple-500/50 flex-grow min-w-[50px]" style={{ minWidth: '50px' }}></div>
+                        <div className="h-px bg-gradient-to-r from-transparent to-purple-500/50 flex-grow"></div>
                         <h3 className="font-cinzel text-2xl text-center tracking-[0.2em] text-purple-200 uppercase whitespace-nowrap drop-shadow-[0_0_8px_rgba(168,85,247,0.5)]">ORIGINS & ASSETS</h3>
-                        <div className="h-px bg-gradient-to-l from-transparent to-purple-500/50 flex-grow min-w-[50px]" style={{ minWidth: '50px' }}></div>
+                        <div className="h-px bg-gradient-to-l from-transparent to-purple-500/50 flex-grow"></div>
                     </div>
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         {familyMembers.length > 0 && (
@@ -286,10 +284,9 @@ export const VortexLayout: React.FC<{ sections: any[], ctx: ICharacterContext, n
             {allCustomSpells.length > 0 && (
                 <div className={`relative z-50 w-full max-w-6xl mb-4 p-8 bg-black/80 border-2 border-purple-500/30 rounded-2xl backdrop-blur-md shadow-[0_0_50px_rgba(168,85,247,0.1)] ${hasOrigins ? 'mt-4' : 'mt-[-700px]'}`}>
                     <div className="flex items-center gap-4 mb-8">
-                        {/* Added min-w-[50px] inline style */}
-                        <div className="h-px bg-gradient-to-r from-transparent to-purple-500/50 flex-grow min-w-[50px]" style={{ minWidth: '50px' }}></div>
+                        <div className="h-px bg-gradient-to-r from-transparent to-purple-500/50 flex-grow"></div>
                         <h3 className="font-cinzel text-2xl text-center tracking-[0.2em] text-purple-200 uppercase whitespace-nowrap drop-shadow-[0_0_8px_rgba(168,85,247,0.5)]">YOUR CUSTOM MAGIC</h3>
-                        <div className="h-px bg-gradient-to-l from-transparent to-purple-500/50 flex-grow min-w-[50px]" style={{ minWidth: '50px' }}></div>
+                        <div className="h-px bg-gradient-to-l from-transparent to-purple-500/50 flex-grow"></div>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {allCustomSpells.map((spell: any, i: number) => (
