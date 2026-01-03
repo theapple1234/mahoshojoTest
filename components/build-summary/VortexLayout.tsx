@@ -86,18 +86,20 @@ export const VortexLayout: React.FC<{ sections: any[], ctx: ICharacterContext, n
                 {/* Center Title Circle - Reduced Size */}
                 <div className="absolute z-[100] flex items-center justify-center w-72 h-72 rounded-full drop-shadow-[0_0_50px_rgba(255,255,255,0.4)] bg-black border-4 border-double border-white/20 group overflow-hidden">
                      {onImageUpload && (
-                        <>
+                        <label htmlFor="vortex-center-upload" className="absolute inset-0 w-full h-full z-50 cursor-pointer">
                             <input 
+                                id="vortex-center-upload"
+                                name="vortex-center-upload"
                                 type="file" 
                                 accept="image/*" 
                                 onChange={handleFileChange} 
-                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-50"
+                                className="sr-only"
                                 title="Change Center Image"
                             />
                             <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-40 rounded-full">
                                 <span className="text-[10px] text-white font-bold uppercase tracking-widest text-center font-cinzel">Change<br/>Image</span>
                             </div>
-                        </>
+                        </label>
                     )}
                      <div 
                         className="w-full h-full bg-center bg-cover bg-no-repeat"
