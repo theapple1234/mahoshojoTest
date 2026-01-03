@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useCharacterContext } from '../context/CharacterContext';
 import { RETIREMENT_INTRO_DATA, RETIREMENT_CHOICES_DATA, CHILD_OF_GOD_DATA } from '../constants';
@@ -74,7 +75,7 @@ const TheHiddenOption: React.FC<{
                 }
             `}
         >
-            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10 pointer-events-none"></div>
+            <div className="absolute inset-0 bg-black/10 pointer-events-none"></div>
             
             <div className="flex flex-col md:flex-row">
                 {/* Image Section */}

@@ -182,7 +182,7 @@ const CustomSpellInput: React.FC<CustomSpellInputProps> = ({
             }
         `}>
             {/* Background Texture */}
-            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10 pointer-events-none"></div>
+            <div className="absolute inset-0 bg-black/10 pointer-events-none"></div>
 
             {/* Header / Status Bar */}
             <div className={`

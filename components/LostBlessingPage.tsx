@@ -112,7 +112,6 @@ export const LostBlessingPage: React.FC<LostBlessingPageProps> = ({ enableEntran
             
             {/* Background Ambience */}
             <div className="fixed inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(88,28,135,0.2),transparent_70%)] pointer-events-none"></div>
-            <div className="fixed inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20 pointer-events-none"></div>
 
             <div className="max-w-7xl mx-auto relative z-10 space-y-12 sinthru-text-shadow">
                 

@@ -311,7 +311,7 @@ export const MapSelectionModal: React.FC<MapSelectionModalProps> = ({
                     </div>
 
                     {/* Main Grid */}
-                    <div className="flex-grow overflow-y-auto p-6 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]">
+                    <div className="flex-grow overflow-y-auto p-6 bg-[#0f0f10]">
                         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
                             {BLESSING_GROUPS[activeTab].items.map(item => {
                                 const isSelected = selectedIds.has(item.id);
@@ -425,4 +425,3 @@ export const MapSelectionModal: React.FC<MapSelectionModalProps> = ({
         document.body
     );
 };
-    
