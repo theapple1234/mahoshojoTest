@@ -209,11 +209,10 @@ export const VortexLayout: React.FC<{ sections: any[], ctx: ICharacterContext, n
             {hasOrigins && (
                 <div className="relative z-50 w-full max-w-6xl mt-[-700px] mb-8 p-8 bg-black/80 border-2 border-purple-500/30 rounded-2xl backdrop-blur-md shadow-[0_0_50px_rgba(168,85,247,0.1)]">
                     <div className="flex items-center gap-4 mb-8">
-                        {/* Added min-w-[50px] to dividers to prevent 0-width collapse in html2canvas */}
-                        <div className="h-px bg-gradient-to-r from-transparent to-purple-500/50 flex-grow min-w-[50px]"></div>
+                        {/* Added min-w-[50px] inline style to prevent 0-width collapse which crashes html2canvas */}
+                        <div className="h-px bg-gradient-to-r from-transparent to-purple-500/50 flex-grow min-w-[50px]" style={{ minWidth: '50px' }}></div>
                         <h3 className="font-cinzel text-2xl text-center tracking-[0.2em] text-purple-200 uppercase whitespace-nowrap drop-shadow-[0_0_8px_rgba(168,85,247,0.5)]">ORIGINS & ASSETS</h3>
-                        {/* Added min-w-[50px] to dividers to prevent 0-width collapse in html2canvas */}
-                        <div className="h-px bg-gradient-to-l from-transparent to-purple-500/50 flex-grow min-w-[50px]"></div>
+                        <div className="h-px bg-gradient-to-l from-transparent to-purple-500/50 flex-grow min-w-[50px]" style={{ minWidth: '50px' }}></div>
                     </div>
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         {familyMembers.length > 0 && (
@@ -287,11 +286,10 @@ export const VortexLayout: React.FC<{ sections: any[], ctx: ICharacterContext, n
             {allCustomSpells.length > 0 && (
                 <div className={`relative z-50 w-full max-w-6xl mb-4 p-8 bg-black/80 border-2 border-purple-500/30 rounded-2xl backdrop-blur-md shadow-[0_0_50px_rgba(168,85,247,0.1)] ${hasOrigins ? 'mt-4' : 'mt-[-700px]'}`}>
                     <div className="flex items-center gap-4 mb-8">
-                        {/* Added min-w-[50px] to dividers to prevent 0-width collapse in html2canvas */}
-                        <div className="h-px bg-gradient-to-r from-transparent to-purple-500/50 flex-grow min-w-[50px]"></div>
+                        {/* Added min-w-[50px] inline style */}
+                        <div className="h-px bg-gradient-to-r from-transparent to-purple-500/50 flex-grow min-w-[50px]" style={{ minWidth: '50px' }}></div>
                         <h3 className="font-cinzel text-2xl text-center tracking-[0.2em] text-purple-200 uppercase whitespace-nowrap drop-shadow-[0_0_8px_rgba(168,85,247,0.5)]">YOUR CUSTOM MAGIC</h3>
-                        {/* Added min-w-[50px] to dividers to prevent 0-width collapse in html2canvas */}
-                        <div className="h-px bg-gradient-to-l from-transparent to-purple-500/50 flex-grow min-w-[50px]"></div>
+                        <div className="h-px bg-gradient-to-l from-transparent to-purple-500/50 flex-grow min-w-[50px]" style={{ minWidth: '50px' }}></div>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {allCustomSpells.map((spell: any, i: number) => (

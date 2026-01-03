@@ -19,16 +19,16 @@ export const ArcaneLayout: React.FC<{ sections: any[] }> = ({ sections }) => {
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3">
             {items.map((item: any, idx: number) => (
                 <div key={`${item.id}-${idx}`} className="bg-slate-900/60 border border-slate-700/50 hover:border-cyan-500/40 rounded-lg overflow-hidden group transition-all flex flex-col relative">
-                    <div className="relative w-full aspect-square overflow-hidden border-b border-white/5 bg-black/40">
-                        {/* Changed from img to div with background-image to force crop/cover behavior properly */}
+                    {/* Replaced aspect-square with padding-bottom hack (100%) to ensure height in html2canvas */}
+                    <div className="relative w-full pt-[100%] overflow-hidden border-b border-white/5 bg-black/40">
                         <div 
-                            className="w-full h-full opacity-80 group-hover:opacity-100 transition-all duration-500 group-hover:scale-110 bg-center bg-cover bg-no-repeat"
+                            className="absolute inset-0 w-full h-full opacity-80 group-hover:opacity-100 transition-all duration-500 group-hover:scale-110 bg-center bg-cover bg-no-repeat"
                             style={{ backgroundImage: `url(${item.imageSrc})` }}
                             role="img"
                             aria-label={item.title}
                         />
                         {item.count && item.count > 1 && (
-                            <div className="absolute top-1 right-1 bg-black/90 text-cyan-300 font-mono text-[9px] px-1.5 py-0.5 rounded border border-cyan-500/30">
+                            <div className="absolute top-1 right-1 bg-black/90 text-cyan-300 font-mono text-[9px] px-1.5 py-0.5 rounded border border-cyan-500/30 z-10">
                                 x{item.count}
                             </div>
                         )}
@@ -58,13 +58,12 @@ export const ArcaneLayout: React.FC<{ sections: any[] }> = ({ sections }) => {
             {sections.map(section => (
                 <div key={section.id} className="animate-fade-in-up">
                     <div className="flex items-center gap-4 mb-6">
-                        {/* Added min-w-[50px] to prevent 0-width collapse which crashes html2canvas createPattern */}
-                        <div className="h-px bg-gradient-to-r from-transparent to-cyan-500/50 flex-grow min-w-[50px]"></div>
+                        {/* Added inline min-width to strictly enforce dimension preventing html2canvas gradient error */}
+                        <div className="h-px bg-gradient-to-r from-transparent to-cyan-500/50 flex-grow min-w-[50px]" style={{ minWidth: '50px' }}></div>
                         <h3 className="font-cinzel text-2xl text-center tracking-[0.2em] text-cyan-200 uppercase whitespace-nowrap drop-shadow-[0_0_8px_rgba(6,182,212,0.5)]">
                             {section.title}
                         </h3>
-                        {/* Added min-w-[50px] to prevent 0-width collapse which crashes html2canvas createPattern */}
-                        <div className="h-px bg-gradient-to-l from-transparent to-cyan-500/50 flex-grow min-w-[50px]"></div>
+                        <div className="h-px bg-gradient-to-l from-transparent to-cyan-500/50 flex-grow min-w-[50px]" style={{ minWidth: '50px' }}></div>
                     </div>
                     
                     {/* Family & Housing Special Render for Stage 1 */}

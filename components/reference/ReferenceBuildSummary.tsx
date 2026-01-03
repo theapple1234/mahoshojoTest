@@ -183,7 +183,7 @@ export const ReferenceBuildSummary: React.FC<ReferenceBuildSummaryProps> = ({
                 // Assign names instead of creating duplicate items
                 if (perkId === 'inhuman_form' && selections.inhumanFormBeastName) {
                     item.assignedName = selections.inhumanFormBeastName;
-                    item.isDerived = true; // Optional: Keep for styling if needed, though mostly used for border color
+                    item.isDerived = true; 
                 }
                 if (perkId === 'special_weapon' && selections.specialWeaponName) {
                     item.assignedName = selections.specialWeaponName;
@@ -212,9 +212,9 @@ export const ReferenceBuildSummary: React.FC<ReferenceBuildSummaryProps> = ({
             }
         };
 
-        addSpells(selections.powerLevelMap, Infinity); // Default
+        addSpells(selections.powerLevelMap, Infinity); 
         addSpells(selections.signaturePowerMap, selections.perks.get('signature_power') || 0);
-        addSpells(selections.specialWeaponMap, Infinity); // Fixed limit
+        addSpells(selections.specialWeaponMap, Infinity); 
         addSpells(selections.darkMagicianMap, selections.perks.get('dark_magician') || 0);
         addSpells(selections.attunedSpellMap, selections.perks.get('attuned_spell') || 0);
         addSpells(selections.magicalBeastMap, selections.magicalBeastCount || 0);
@@ -234,7 +234,7 @@ export const ReferenceBuildSummary: React.FC<ReferenceBuildSummaryProps> = ({
                         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(76,29,149,0.3),transparent_70%)]"></div>
                     </div>
                     
-                    {/* Ring 3 (Outer) - Traits & Spells - Not clipped, allowing overflow */}
+                    {/* Ring 3 (Outer) - Traits & Spells */}
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                         <div className="relative w-[90%] h-[90%] rounded-full border border-purple-500/20">
                             {orbit3Items.map((item, idx, arr) => {
@@ -268,7 +268,6 @@ export const ReferenceBuildSummary: React.FC<ReferenceBuildSummaryProps> = ({
                         <div className="relative w-[65%] h-[65%] rounded-full border border-purple-500/40">
                             {orbit2Items.map((item, idx, arr) => {
                                 let angle = (360 / arr.length) * idx;
-                                // If 4 items, shift by 45 degrees to form an X shape instead of +
                                 if (arr.length === 4) {
                                     angle += 45;
                                 }
@@ -327,7 +326,7 @@ export const ReferenceBuildSummary: React.FC<ReferenceBuildSummaryProps> = ({
                             style={{ backgroundImage: `url(${visualSrc})` }}
                         />
                         
-                        {/* Points Overlay - Kept here for Reference Page as requested */}
+                        {/* Points Overlay */}
                         <div className="absolute bottom-2 px-3 py-1 bg-black/60 rounded-full border border-purple-500/30 backdrop-blur-sm z-20 pointer-events-none">
                             <span className="text-purple-100 font-cinzel font-bold text-xs tracking-widest">{pointsSpent} Points</span>
                         </div>
@@ -436,10 +435,10 @@ export const ReferenceBuildSummary: React.FC<ReferenceBuildSummaryProps> = ({
             <div className="grid grid-cols-12 gap-6 flex-grow">
                 {/* Visual Column */}
                 <div className="col-span-12 md:col-span-4 space-y-6">
-                    <div className={`aspect-[9/16] ${theme.cardBg} border-2 ${theme.cardBorder} rounded-lg overflow-hidden relative shadow-lg group`}>
-                         {/* Replace img with div background for better html2canvas support */}
-                        <div 
-                            className={`w-full h-full bg-center bg-cover bg-no-repeat ${theme.imgFilter}`}
+                     {/* Replaced aspect-ratio with padding-bottom hack (16:9 = 177.77%) for html2canvas reliability */}
+                    <div className={`relative w-full pt-[177.77%] ${theme.cardBg} border-2 ${theme.cardBorder} rounded-lg overflow-hidden shadow-lg group`}>
+                         <div 
+                            className={`absolute inset-0 w-full h-full bg-center bg-cover bg-no-repeat ${theme.imgFilter}`}
                             style={{ backgroundImage: `url(${visualSrc})` }}
                             role="img"
                             aria-label="Character Visual"

@@ -55,7 +55,8 @@ export const TerminalLayout: React.FC<{ sections: any[] }> = ({ sections }) => {
                     <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
                         <span className="text-green-800">0{sIdx + 1}</span> 
                         <span>{section.title.toUpperCase()}</span>
-                        <div className="h-px bg-green-500/30 flex-grow ml-4"></div>
+                        {/* Added inline min-width to prevent 0-width collapse in html2canvas */}
+                        <div className="h-px bg-green-500/30 flex-grow ml-4 min-w-[50px]" style={{ minWidth: '50px' }}></div>
                     </h3>
                     
                     {/* Family & Housing Special Render for Stage 1 */}
