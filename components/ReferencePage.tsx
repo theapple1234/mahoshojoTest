@@ -422,18 +422,8 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
                 <aside className="w-full lg:w-96 bg-black/20 border-r border-gray-800 p-4 shrink-0">
                     <div className="flex justify-between items-center mb-4">
                         <h3 className="font-bold text-gray-400 uppercase text-xs tracking-wider">Saved {activeTab}</h3>
-                        <label className="text-xs text-cyan-400 hover:text-cyan-200 underline cursor-pointer">
-                            Import
-                            <input 
-                                id="import-build-file"
-                                name="import-build-file"
-                                type="file" 
-                                ref={fileInputRef} 
-                                className="hidden" 
-                                accept=".json" 
-                                onChange={handleFileChange} 
-                            />
-                        </label>
+                        <button onClick={handleImportClick} className="text-xs text-cyan-400 hover:text-cyan-200 underline">Import</button>
+                        <input type="file" ref={fileInputRef} className="hidden" accept=".json" onChange={handleFileChange} />
                     </div>
                     <div className="space-y-2">
                         {Object.keys(allBuilds[activeTab]).map(buildName => (
@@ -458,8 +448,6 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
                      {/* Control Bar */}
                     <div className="mb-8 flex flex-wrap gap-4 items-center bg-black/40 p-4 rounded-lg border border-gray-800">
                         <input 
-                            id="build-name-input"
-                            name="build-name-input"
                             type="text" 
                             value={currentName} 
                             onChange={(e) => setCurrentName(e.target.value)} 

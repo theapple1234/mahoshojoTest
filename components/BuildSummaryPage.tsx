@@ -141,13 +141,11 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
 
         try {
             // 1. Capture Main Build
-            // Ensure appendix is hidden first to get a clean main build image
             if (showReferenceAppendix) {
                 setShowReferenceAppendix(false);
-                await new Promise(resolve => setTimeout(resolve, 300)); // Allow DOM update
+                await new Promise(resolve => setTimeout(resolve, 300));
             }
             
-            // Wait for fonts to be ready
             try {
                 await document.fonts.ready;
             } catch (e) {
@@ -156,7 +154,6 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
 
             const element = summaryContentRef.current;
             
-            // Calculate a sufficiently wide viewport to prevent text wrapping if font fallback occurs
             const captureWidth = Math.max(element.scrollWidth, 1600); 
 
             const options: any = {
@@ -164,33 +161,34 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
                 useCORS: true,
                 scale: 2,
                 logging: false,
-                // Do NOT set height or windowHeight. Let html2canvas calculate height automatically based on content.
-                // This prevents cutting off the bottom if text wraps and increases total height.
                 windowWidth: captureWidth, 
                 onclone: (clonedDoc: Document) => {
                     const clonedElement = clonedDoc.querySelector('[data-capture-target]') as HTMLElement;
                     if (clonedElement) {
-                        // Ensure container can expand freely
                         clonedElement.style.overflow = 'visible';
                         clonedElement.style.height = 'auto';
                         clonedElement.style.maxHeight = 'none';
                         clonedElement.style.minHeight = '100%';
-                        
-                        // Force desktop-like width constraints on children if needed
                         clonedElement.style.width = `${captureWidth}px`;
+                        
+                        // FIX: Remove Vortex Scaling specifically to prevent 0-dimension bugs on nested elements
+                        const vortexContainer = clonedElement.querySelector('.vortex-scale-container') as HTMLElement;
+                        if (vortexContainer) {
+                            // Reset transform and margins to render at full natural size
+                            vortexContainer.style.transform = 'none';
+                            vortexContainer.style.marginTop = '0';
+                            vortexContainer.style.marginBottom = '0';
+                        }
                     }
                     
-                    // Force background color on body to prevent transparency artifacts
                     const clonedBody = clonedDoc.body;
                     clonedBody.style.backgroundColor = bgColor;
                     clonedBody.style.width = `${captureWidth}px`;
                 }
             };
 
-            // Fix for Vortex Layout needing extra space and specific width
             if (template === 'vortex') {
                 options.windowWidth = 2600;
-                // Vortex needs plenty of height space, but auto-height usually works better than fixed
             }
 
             const mainCanvas = await window.html2canvas(element, options);
@@ -202,9 +200,8 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
                 const hasReferenceContent = Object.values(referenceBuilds).some(cat => Object.keys(cat).length > 0);
                 
                 if (hasReferenceContent) {
-                    // Show appendix so we can capture elements
                     setShowReferenceAppendix(true);
-                    await new Promise(resolve => setTimeout(resolve, 500)); // Wait for render
+                    await new Promise(resolve => setTimeout(resolve, 500)); 
 
                     const appendixElement = document.getElementById('reference-appendix');
                     if (appendixElement) {
@@ -214,9 +211,8 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
                              const name = item.dataset.name || `ref-${i}`;
                              const type = item.dataset.type || 'misc';
                              
-                             // Calculate dimensions for reference card
                              const rect = item.getBoundingClientRect();
-                             const refWidth = Math.max(rect.width, 900); // Ensure width
+                             const refWidth = Math.max(rect.width, 900); 
                              
                              const refCanvas = await window.html2canvas(item, {
                                  backgroundColor: bgColor,
@@ -225,7 +221,6 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
                                  logging: false,
                                  windowWidth: refWidth,
                                  onclone: (clonedDoc: Document) => {
-                                     // Similar expansion logic for reference cards
                                      const clonedNode = clonedDoc.querySelector(`[data-name="${name}"]`) as HTMLElement;
                                      if (clonedNode) {
                                         clonedNode.style.height = 'auto';
@@ -236,12 +231,10 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
                              
                              downloadImage(refCanvas, `seinaru-${type}-${name}-${template}.png`);
                              
-                             // Add delay between downloads
                              await new Promise(r => setTimeout(r, 400));
                          }
                     }
                     
-                    // Hide after done
                     setShowReferenceAppendix(false);
                 } else {
                      alert("No reference builds found to download.");
@@ -267,11 +260,14 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
             reference: JSON.parse(refBuilds),
             version: '1.0'
         };
-        const dbRequest = indexedDB.open('SeinaruMagecraftFullSaves', 1);
+        const dbRequest = indexedDB.open('SeinaruMagecraftFullSaves', 2);
         dbRequest.onupgradeneeded = (event) => {
             const db = (event.target as IDBOpenDBRequest).result;
             if (!db.objectStoreNames.contains('saves')) {
                 db.createObjectStore('saves', { keyPath: 'name' });
+            }
+             if (!db.objectStoreNames.contains('save_slots')) {
+                db.createObjectStore('save_slots', { keyPath: 'id' });
             }
         };
         dbRequest.onsuccess = (event) => {
@@ -309,7 +305,6 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
 
     const containerBgClass = template === 'temple' ? 'bg-[#f8f5f2]' : (template === 'default' ? 'bg-[#0a0f1e]' : 'bg-black');
     
-    // Theme colors for Appendix Header
     const appendixHeaderClass = 
         template === 'terminal' ? 'text-green-500 border-green-500/50' :
         template === 'temple' ? 'text-amber-800 border-amber-800/30' :
@@ -354,7 +349,6 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
                         <div className="flex-grow">
                             {template === 'default' && (
                                 <div className="p-8 bg-[#0a0f1e] min-h-full relative overflow-hidden">
-                                    {/* Using a cleaner gradient instead of blur to avoid render issues */}
                                     <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[radial-gradient(circle,rgba(22,78,99,0.3)_0%,transparent_70%)] pointer-events-none -translate-y-1/2 translate-x-1/2"></div>
                                     <ArcaneLayout sections={sections} />
                                 </div>
@@ -396,12 +390,10 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
                                                     <div className="grid grid-cols-1 xl:grid-cols-2 gap-12">
                                                         {buildKeys.map(key => {
                                                             const buildData = builds[key].data;
-                                                            // Normalize data for display
                                                             const normalizedData = {
                                                                 ...buildData,
                                                                 perks: buildData.perks instanceof Map ? buildData.perks : new Map(Array.isArray(buildData.perks) ? buildData.perks : []),
                                                                 traits: buildData.traits instanceof Set ? buildData.traits : new Set(Array.isArray(buildData.traits) ? buildData.traits : []),
-                                                                // Convert all Map-like arrays back to Maps/Sets if needed by sub-components
                                                                 specialWeaponMap: new Set(buildData.specialWeaponMap || []),
                                                                 signaturePowerMap: new Set(buildData.signaturePowerMap || []),
                                                                 darkMagicianMap: new Set(buildData.darkMagicianMap || []),
@@ -421,7 +413,6 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
                                                                         pointsSpent={cost}
                                                                         isSunForgerActive={isSunForgerActive}
                                                                         template={template}
-                                                                        // No interactive image upload in static render
                                                                     />
                                                                 </div>
                                                             );
@@ -435,7 +426,7 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
                             )}
                         </div>
 
-                        {/* Points Summary Breakdown - Inside Image Capture Area */}
+                        {/* Points Summary Breakdown */}
                         <div className={`w-full p-4 flex justify-center items-center gap-6 text-xs font-mono tracking-wide ${
                             template === 'temple' ? 'bg-[#f4f1ea] border-t border-amber-900/20 text-slate-600' : 
                             template === 'terminal' ? 'bg-black border-t border-green-500/50 text-green-500' :
@@ -531,7 +522,6 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
                                 <span>BROWSER SAVE</span>
                             </button>
                             
-                            {/* Improved Download Menu */}
                             <div className="relative">
                                 <button 
                                     onClick={() => {

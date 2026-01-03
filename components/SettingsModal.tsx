@@ -385,15 +385,7 @@ export const SettingsModal: React.FC = () => {
                             <span className="text-[9px] text-cyan-500/70 font-mono tracking-tight group-hover:text-cyan-400/80">{language === 'en' ? 'Save as PNG' : 'PNG로 저장'}</span>
                         </div>
                     </button>
-                    <input 
-                        id="settings-load-file"
-                        name="settings-load-file"
-                        type="file" 
-                        ref={fileInputRef} 
-                        style={{ display: 'none' }} 
-                        accept=".json" 
-                        onChange={handleFileChange} 
-                    />
+                    <input type="file" ref={fileInputRef} style={{ display: 'none' }} accept=".json" onChange={handleFileChange} />
                 </div>
             </section>
         </div>

@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { SummaryHeader, FamilyDetailCard, HousingDetailCard, CustomSpellCard } from './BuildSummaryShared';
 
 export const TempleLayout: React.FC<{ sections: any[] }> = ({ sections }) => {
@@ -21,12 +21,12 @@ export const TempleLayout: React.FC<{ sections: any[] }> = ({ sections }) => {
                 {/* Use background-image instead of img for reliable cropping in html2canvas */}
                 <div 
                     className="w-full h-full sepia-[0.3]"
-                    style={{
+                    style={item.imageSrc ? {
                         backgroundImage: `url(${item.imageSrc})`,
                         backgroundSize: 'cover',
                         backgroundPosition: 'center',
                         backgroundRepeat: 'no-repeat'
-                    }}
+                    } : undefined}
                     role="img"
                     aria-label={item.title}
                 ></div>

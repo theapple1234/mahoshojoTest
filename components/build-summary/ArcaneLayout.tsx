@@ -23,7 +23,7 @@ export const ArcaneLayout: React.FC<{ sections: any[] }> = ({ sections }) => {
                         {/* Changed from img to div with background-image to force crop/cover behavior properly */}
                         <div 
                             className="w-full h-full opacity-80 group-hover:opacity-100 transition-all duration-500 group-hover:scale-110 bg-center bg-cover bg-no-repeat"
-                            style={{ backgroundImage: `url(${item.imageSrc})` }}
+                            style={item.imageSrc ? { backgroundImage: `url(${item.imageSrc})` } : undefined}
                             role="img"
                             aria-label={item.title}
                         />

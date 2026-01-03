@@ -22,12 +22,12 @@ export const TerminalLayout: React.FC<{ sections: any[] }> = ({ sections }) => {
                 <div key={`${item.id}-${idx}`} className={`border ${item.isLostPower ? 'border-green-400 bg-green-900/30' : 'border-green-500/30 bg-green-900/10'} p-2 flex items-start gap-3 hover:bg-green-900/20 transition-colors`}>
                     <div 
                         className="w-12 h-12 flex-shrink-0 border border-green-500/20 grayscale contrast-125 bg-black"
-                        style={{
+                        style={item.imageSrc ? {
                             backgroundImage: `url(${item.imageSrc})`,
                             backgroundSize: 'cover',
                             backgroundPosition: 'center',
                             backgroundRepeat: 'no-repeat'
-                        }}
+                        } : undefined}
                     ></div>
                     <div className="flex-grow min-w-0">
                         <p className="text-[10px] font-bold truncate text-green-300">{item.title}</p>

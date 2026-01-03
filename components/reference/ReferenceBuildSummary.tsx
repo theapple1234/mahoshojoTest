@@ -132,9 +132,6 @@ export const ReferenceBuildSummary: React.FC<ReferenceBuildSummaryProps> = ({
 
     const visualSrc = selections.customImage || BUILD_INTROS[type].imageSrc;
     const hasDiscount = discount > 0 || isSunForgerActive;
-    
-    // Generate unique ID suffix based on type and sanitized name
-    const uniqueIdSuffix = `${type}-${name.replace(/[^a-z0-9]/gi, '-')}`;
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -336,20 +333,18 @@ export const ReferenceBuildSummary: React.FC<ReferenceBuildSummaryProps> = ({
                         </div>
 
                         {onImageUpload && (
-                            <label htmlFor={`vortex-img-upload-${uniqueIdSuffix}`} className="absolute inset-0 w-full h-full z-50 cursor-pointer">
+                            <>
                                 <input 
-                                    id={`vortex-img-upload-${uniqueIdSuffix}`}
-                                    name={`vortex-img-upload-${uniqueIdSuffix}`}
                                     type="file" 
                                     accept="image/*" 
                                     onChange={handleFileChange} 
-                                    className="hidden"
+                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-50"
                                     title="Change Image"
                                 />
                                 <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-40">
                                     <span className="text-[10px] text-white font-bold uppercase tracking-widest text-center">Change<br/>Image</span>
                                 </div>
-                            </label>
+                            </>
                         )}
                     </div>
                 </div>
@@ -451,16 +446,9 @@ export const ReferenceBuildSummary: React.FC<ReferenceBuildSummaryProps> = ({
                         />
                          {onImageUpload && (
                             <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity z-20">
-                                <label htmlFor={`arcane-img-upload-${uniqueIdSuffix}`} className="cursor-pointer px-3 py-1.5 bg-black/60 border border-white/30 rounded text-xs text-white uppercase tracking-widest font-bold hover:bg-black/80 hover:border-white/60 transition-all">
+                                <label className="cursor-pointer px-3 py-1.5 bg-black/60 border border-white/30 rounded text-xs text-white uppercase tracking-widest font-bold hover:bg-black/80 hover:border-white/60 transition-all">
                                     Change Image
-                                    <input 
-                                        id={`arcane-img-upload-${uniqueIdSuffix}`}
-                                        name={`arcane-img-upload-${uniqueIdSuffix}`}
-                                        type="file" 
-                                        accept="image/*" 
-                                        onChange={handleFileChange} 
-                                        className="hidden" 
-                                    />
+                                    <input type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
                                 </label>
                             </div>
                         )}
