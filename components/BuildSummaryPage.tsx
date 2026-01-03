@@ -22,11 +22,11 @@ declare global {
 }
 
 // CSS to shift text upwards during capture to fix html2canvas baseline issues
-// Increased shift to -5px as requested to fix alignment
+// Increased shift to -10px as requested, controlled by toggle
 const TEXT_SHIFT_CSS = `
     h1, h2, h3, h4, h5, h6, p, button, label, span, input, textarea, select, strong, em, b, i {
         position: relative;
-        top: -5px !important;
+        top: -10px !important;
     }
     /* Reset top for nested elements to prevent double shifting */
     h1 *, h2 *, h3 *, h4 *, h5 *, h6 *,
@@ -110,6 +110,7 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
     const [showTemplateSelector, setShowTemplateSelector] = useState(false);
     const [showDownloadMenu, setShowDownloadMenu] = useState(false);
     const [customImage, setCustomImage] = useState<string | null>(null);
+    const [isTextShiftEnabled, setIsTextShiftEnabled] = useState(false);
     
     // State for Reference Page Append
     const [referenceBuilds, setReferenceBuilds] = useState<AllBuilds>({ companions: {}, weapons: {}, beasts: {}, vehicles: {} });
@@ -200,10 +201,12 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
                     clonedBody.style.backgroundColor = bgColor;
                     clonedBody.style.width = `${captureWidth}px`;
 
-                    // Inject Text Shift CSS to fix html2canvas rendering offset
-                    const style = clonedDoc.createElement('style');
-                    style.innerHTML = TEXT_SHIFT_CSS;
-                    clonedDoc.head.appendChild(style);
+                    // Inject Text Shift CSS only if enabled
+                    if (isTextShiftEnabled) {
+                        const style = clonedDoc.createElement('style');
+                        style.innerHTML = TEXT_SHIFT_CSS;
+                        clonedDoc.head.appendChild(style);
+                    }
                 }
             };
 
@@ -252,10 +255,12 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
                                         clonedNode.style.overflow = 'visible';
                                      }
                                      
-                                     // Inject Text Shift CSS
-                                     const style = clonedDoc.createElement('style');
-                                     style.innerHTML = TEXT_SHIFT_CSS;
-                                     clonedDoc.head.appendChild(style);
+                                     // Inject Text Shift CSS only if enabled
+                                     if (isTextShiftEnabled) {
+                                        const style = clonedDoc.createElement('style');
+                                        style.innerHTML = TEXT_SHIFT_CSS;
+                                        clonedDoc.head.appendChild(style);
+                                     }
                                  }
                              });
                              
@@ -498,44 +503,62 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
                 {/* Footer Action Bar */}
                 <footer className="relative z-[150] bg-[#0a0f1e]/95 border-t border-cyan-900/50 flex flex-col">
                     <div className="p-4 flex flex-col md:flex-row items-center gap-4 justify-between">
-                        {/* Template Switcher */}
-                        <div className="relative">
+                        <div className="flex items-center gap-4">
+                            {/* Template Switcher */}
+                            <div className="relative">
+                                <button 
+                                    onClick={() => {
+                                        setShowTemplateSelector(!showTemplateSelector);
+                                        setShowDownloadMenu(false);
+                                    }}
+                                    className="flex items-center gap-2 px-5 py-2 font-cinzel text-sm text-white font-bold bg-cyan-800/80 border-2 border-cyan-500 rounded-lg hover:bg-cyan-600 hover:border-cyan-300 hover:shadow-[0_0_20px_rgba(6,182,212,0.4)] transition-all"
+                                >
+                                    <TemplateIcon />
+                                    <div className="flex flex-col items-start leading-none">
+                                        <span className="text-[8px] text-cyan-400 font-normal tracking-wider mb-0.5">DOWNLOAD STYLE</span>
+                                        <span>{
+                                            template === 'temple' ? 'Divine (Temple)' :
+                                            template === 'vortex' ? 'Spiral (Vortex)' :
+                                            template === 'terminal' ? 'Cyber (Terminal)' :
+                                            'Arcane (Default)'
+                                        }</span>
+                                    </div>
+                                </button>
+
+                                {/* Template Popup */}
+                                {showTemplateSelector && (
+                                    <div className="absolute bottom-full left-0 mb-2 w-48 bg-black/95 border border-gray-700 rounded-lg shadow-xl overflow-hidden animate-fade-in-up z-50">
+                                        <button onClick={() => { setTemplate('default'); setShowTemplateSelector(false); }} className={`w-full text-left px-4 py-3 text-xs font-cinzel hover:bg-white/10 ${template === 'default' ? 'text-cyan-400' : 'text-gray-300'}`}>
+                                            Arcane (Default)
+                                        </button>
+                                        <button onClick={() => { setTemplate('temple'); setShowTemplateSelector(false); }} className={`w-full text-left px-4 py-3 text-xs font-cinzel hover:bg-white/10 ${template === 'temple' ? 'text-amber-400' : 'text-gray-300'}`}>
+                                            Temple (Divine)
+                                        </button>
+                                        <button onClick={() => { setTemplate('vortex'); setShowTemplateSelector(false); }} className={`w-full text-left px-4 py-3 text-xs font-cinzel hover:bg-white/10 ${template === 'vortex' ? 'text-purple-400' : 'text-gray-300'}`}>
+                                            Vortex (Spiral)
+                                        </button>
+                                        <button onClick={() => { setTemplate('terminal'); setShowTemplateSelector(false); }} className={`w-full text-left px-4 py-3 text-xs font-mono hover:bg-white/10 ${template === 'terminal' ? 'text-green-400' : 'text-gray-300'}`}>
+                                            Terminal (Cyber)
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                            
+                            {/* Text Shift Toggle Button */}
                             <button 
-                                onClick={() => {
-                                    setShowTemplateSelector(!showTemplateSelector);
-                                    setShowDownloadMenu(false);
-                                }}
-                                className="flex items-center gap-2 px-5 py-2 font-cinzel text-sm text-white font-bold bg-cyan-800/80 border-2 border-cyan-500 rounded-lg hover:bg-cyan-600 hover:border-cyan-300 hover:shadow-[0_0_20px_rgba(6,182,212,0.4)] transition-all"
+                                onClick={() => setIsTextShiftEnabled(!isTextShiftEnabled)}
+                                className={`flex items-center gap-2 px-4 py-2 font-cinzel text-xs font-bold border-2 rounded-lg transition-all ${
+                                    isTextShiftEnabled 
+                                        ? 'bg-indigo-900/60 border-indigo-400 text-indigo-200 hover:bg-indigo-800 hover:border-indigo-300 shadow-[0_0_15px_rgba(129,140,248,0.3)]' 
+                                        : 'bg-gray-900/40 border-gray-600 text-gray-400 hover:border-gray-400 hover:text-gray-300'
+                                }`}
+                                title="Shift text upwards by 10px during capture to fix alignment issues"
                             >
-                                <TemplateIcon />
-                                <div className="flex flex-col items-start leading-none">
-                                    <span className="text-[8px] text-cyan-400 font-normal tracking-wider mb-0.5">DOWNLOAD STYLE</span>
-                                    <span>{
-                                        template === 'temple' ? 'Divine (Temple)' :
-                                        template === 'vortex' ? 'Spiral (Vortex)' :
-                                        template === 'terminal' ? 'Cyber (Terminal)' :
-                                        'Arcane (Default)'
-                                    }</span>
+                                <div className="flex flex-col items-center leading-none">
+                                    <span className="text-[8px] uppercase mb-0.5 opacity-70">Alignment</span>
+                                    <span>{isTextShiftEnabled ? 'RAISED' : 'NORMAL'}</span>
                                 </div>
                             </button>
-
-                            {/* Template Popup */}
-                            {showTemplateSelector && (
-                                <div className="absolute bottom-full left-0 mb-2 w-48 bg-black/95 border border-gray-700 rounded-lg shadow-xl overflow-hidden animate-fade-in-up z-50">
-                                    <button onClick={() => { setTemplate('default'); setShowTemplateSelector(false); }} className={`w-full text-left px-4 py-3 text-xs font-cinzel hover:bg-white/10 ${template === 'default' ? 'text-cyan-400' : 'text-gray-300'}`}>
-                                        Arcane (Default)
-                                    </button>
-                                    <button onClick={() => { setTemplate('temple'); setShowTemplateSelector(false); }} className={`w-full text-left px-4 py-3 text-xs font-cinzel hover:bg-white/10 ${template === 'temple' ? 'text-amber-400' : 'text-gray-300'}`}>
-                                        Temple (Divine)
-                                    </button>
-                                    <button onClick={() => { setTemplate('vortex'); setShowTemplateSelector(false); }} className={`w-full text-left px-4 py-3 text-xs font-cinzel hover:bg-white/10 ${template === 'vortex' ? 'text-purple-400' : 'text-gray-300'}`}>
-                                        Vortex (Spiral)
-                                    </button>
-                                    <button onClick={() => { setTemplate('terminal'); setShowTemplateSelector(false); }} className={`w-full text-left px-4 py-3 text-xs font-mono hover:bg-white/10 ${template === 'terminal' ? 'text-green-400' : 'text-gray-300'}`}>
-                                        Terminal (Cyber)
-                                    </button>
-                                </div>
-                            )}
                         </div>
 
                         <div className="flex items-center gap-4 w-full md:w-auto justify-end">
