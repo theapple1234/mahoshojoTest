@@ -17,8 +17,19 @@ export const TempleLayout: React.FC<{ sections: any[] }> = ({ sections }) => {
 
     const renderItemCard = (item: any, idx: number) => (
         <div key={`${item.id}-${idx}`} className="flex flex-col w-48 group break-inside-avoid">
-            <div className={`h-48 w-48 rounded-t-full overflow-hidden border-4 ${item.isLostPower ? 'border-purple-300 shadow-purple-500/20' : 'border-amber-100'} shadow-md group-hover:border-amber-300 transition-all relative`}>
-                <img src={item.imageSrc} alt={item.title} className="w-full h-full object-cover sepia-[0.3]" />
+            <div className={`h-48 w-48 rounded-t-full overflow-hidden border-4 ${item.isLostPower ? 'border-purple-300 shadow-purple-500/20' : 'border-amber-100'} shadow-md group-hover:border-amber-300 transition-all relative bg-gray-200`}>
+                {/* Use background-image instead of img for reliable cropping in html2canvas */}
+                <div 
+                    className="w-full h-full sepia-[0.3]"
+                    style={{
+                        backgroundImage: `url(${item.imageSrc})`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        backgroundRepeat: 'no-repeat'
+                    }}
+                    role="img"
+                    aria-label={item.title}
+                ></div>
                 {item.assignedName && (
                     <div className="absolute bottom-0 left-0 right-0 bg-white/90 p-1 text-center border-t border-amber-100">
                         <p className="text-[10px] text-amber-800 font-bold truncate">{item.assignedName}</p>

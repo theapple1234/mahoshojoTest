@@ -209,7 +209,7 @@ export const ReferenceBuildSummary: React.FC<ReferenceBuildSummaryProps> = ({
             <div className="flex flex-col items-center bg-black p-8 rounded-xl shadow-2xl border-4 border-double border-purple-900/30">
                 {/* Header */}
                 <div className="text-center mb-6">
-                    <p className="font-mono text-[10px] text-purple-400/60 uppercase tracking-[0.5em] mb-2">Seinaru Magecraft CYOA</p>
+                    <p className="font-mono text-[10px] text-purple-400/60 uppercase tracking-[0.5em] mb-2">Seinaru Magecraft Girls</p>
                     <h1 className="font-cinzel text-3xl font-bold text-white tracking-[0.1em] mb-1 uppercase">{name}</h1>
                     <p className="font-cinzel text-sm text-purple-400 tracking-widest">{type.toUpperCase()} BUILD</p>
                 </div>
@@ -299,7 +299,13 @@ export const ReferenceBuildSummary: React.FC<ReferenceBuildSummaryProps> = ({
 
                     {/* Center */}
                     <div className="relative z-10 w-[25%] h-[25%] rounded-full border-4 border-purple-500 shadow-[0_0_50px_rgba(168,85,247,0.5)] bg-black overflow-hidden flex items-center justify-center group">
-                        <img src={visualSrc} alt="" className="absolute inset-0 w-full h-full object-cover opacity-60" />
+                        <img src={visualSrc} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                        
+                        {/* Points Overlay */}
+                        <div className="absolute bottom-2 px-3 py-1 bg-black/60 rounded-full border border-purple-500/30 backdrop-blur-sm z-20 pointer-events-none">
+                            <span className="text-purple-100 font-cinzel font-bold text-xs tracking-widest">{pointsSpent} Points</span>
+                        </div>
+
                         {onImageUpload && (
                             <>
                                 <input 
@@ -314,11 +320,6 @@ export const ReferenceBuildSummary: React.FC<ReferenceBuildSummaryProps> = ({
                                 </div>
                             </>
                         )}
-                        <div className="relative z-10 text-center pointer-events-none p-2 bg-black/40 rounded">
-                            <h1 className="text-xl font-bold text-white tracking-widest uppercase mb-1">{name}</h1>
-                            <p className="text-purple-300 text-xs tracking-widest uppercase">{type.toUpperCase()}</p>
-                            <p className="text-white font-mono text-sm mt-1">{pointsSpent} Points</p>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -382,7 +383,7 @@ export const ReferenceBuildSummary: React.FC<ReferenceBuildSummaryProps> = ({
             {/* Header */}
             <div className={`text-center mb-8 border-b-2 ${theme.divider} pb-6`}>
                 <p className={`font-mono text-[10px] ${theme.textDim} uppercase tracking-[0.5em] mb-2`}>
-                    {isTerminal ? 'Seinaru Magecraft CYOA' : 'Seinaru Magecraft CYOA'}
+                    {isTerminal ? 'Seinaru Magecraft Girls' : 'Seinaru Magecraft Girls'}
                 </p>
                 <h1 className={`${theme.fontHead} text-3xl font-bold ${theme.textMain} tracking-[0.1em] mb-1 uppercase`}>{name}</h1>
                 <p className={`${theme.fontHead} text-sm ${theme.textAccent} tracking-widest`}>{type.toUpperCase()} BUILD</p>

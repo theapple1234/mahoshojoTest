@@ -37,15 +37,15 @@ const Counter: React.FC<CounterProps> = ({ label, count, onCountChange, unit, co
 );
 
 const PARENT_IMAGES = [
-    '/images/PZJmzncs-parent1.png',
-    '/images/DPffzsyr-parent2.png'
+    'https://i.ibb.co/PZJmzncs/parent1.png',
+    'https://i.ibb.co/DPffzsyr/parent2.png'
 ];
 
 const SIBLING_IMAGES = [
-    '/images/m58qFCRf-sib1.png',
-    '/images/99DpjRKC-sib2.png',
-    '/images/7JSPLK9W-sib3.png',
-    '/images/Fk5N4YbF-sib4.png'
+    'https://i.ibb.co/m58qFCRf/sib1.png',
+    'https://i.ibb.co/99DpjRKC/sib2.png',
+    'https://i.ibb.co/7JSPLK9W/sib3.png',
+    'https://i.ibb.co/Fk5N4YbF/sib4.png'
 ];
 
 export const PageOne: React.FC = () => {
@@ -124,7 +124,7 @@ export const PageOne: React.FC = () => {
         <section className="flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-12 mb-16">
             <div className="flex-shrink-0 relative">
             <img 
-                src="/images/DDHNTZDF-main2.png" 
+                src="https://i.ibb.co/DDHNTZDF/main2.png" 
                 alt="Yasmin, the guide" 
                 className="w-96 md:w-[36rem]"
             />
@@ -141,7 +141,7 @@ export const PageOne: React.FC = () => {
                 <p>The crowd gathers closely around that swirling blue vortex, beholding in awe as the Mother of Azure guides the universe’s hand in the miraculous creation of life…</p>
             </div>
             <img 
-                src="/images/5gP1n3vK-main3.jpg" 
+                src="https://i.ibb.co/5gP1n3vK/main3.jpg" 
                 alt="Swirling blue vortex" 
                 className="rounded-lg shadow-lg shadow-blue-500/20 w-full max-w-lg mx-auto lg:mx-0" 
             />
@@ -176,7 +176,7 @@ export const PageOne: React.FC = () => {
                     description="for use on Stolen Blessings, enchantments, and other magical boons" 
                     color="purple" 
                     title="You start with" 
-                    backgroundImage="/images/Q3X6rTbD-BP.png"
+                    backgroundImage="https://i.ibb.co/Q3X6rTbD/BP.png"
                 />
                 <PointCard 
                     amount={100} 
@@ -184,7 +184,7 @@ export const PageOne: React.FC = () => {
                     description="for use on friends, opportunities, strokes of luck, and other material comforts" 
                     color="green" 
                     title="You start with" 
-                    backgroundImage="/images/fYwqrgdr-FP.png"
+                    backgroundImage="https://i.ibb.co/fYwqrgdr/FP.png"
                 />
             </div>
             <div className="mt-6">
@@ -203,7 +203,7 @@ export const PageOne: React.FC = () => {
             <div className="flex flex-col md:flex-row justify-center items-start gap-12 lg:gap-24 mb-12">
             {/* Parents Selector */}
             <div className="flex flex-col items-center flex-1">
-                <img src="/images/PZJmzncs-parent1.png" className="w-40 h-40 rounded-full mb-4" alt="Parent icon" />
+                <img src="https://i.ibb.co/PZJmzncs/parent1.png" className="w-40 h-40 rounded-full mb-4" alt="Parent icon" />
                 <h3 className="font-cinzel text-xl font-bold tracking-wider">PARENTS</h3>
                 <div className="flex items-center justify-center gap-4 my-2 text-white">
                 <button onClick={() => handleNumParentsChange(numParents - 1)} disabled={numParents === 0} className="px-3 py-1 rounded-md bg-gray-800/50 border border-gray-700 hover:bg-gray-700 disabled:opacity-50 transition-colors text-lg">-</button>
@@ -223,7 +223,7 @@ export const PageOne: React.FC = () => {
             </div>
             {/* Siblings Selector */}
             <div className="flex flex-col items-center flex-1">
-                <img src="/images/m58qFCRf-sib1.png" className="w-40 h-40 rounded-full mb-4" alt="Sibling icon" />
+                <img src="https://i.ibb.co/m58qFCRf/sib1.png" className="w-40 h-40 rounded-full mb-4" alt="Sibling icon" />
                 <h3 className="font-cinzel text-xl font-bold tracking-wider">SIBLINGS</h3>
                 <div className="flex items-center justify-center gap-4 my-2 text-white">
                 <button onClick={() => handleNumSiblingsChange(numSiblings - 1)} disabled={numSiblings === 0} className="px-3 py-1 rounded-md bg-gray-800/50 border border-gray-700 hover:bg-gray-700 disabled:opacity-50 transition-colors text-lg">-</button>
@@ -542,7 +542,7 @@ export const PageOne: React.FC = () => {
             <SectionHeader>DESIGN YOURSELF AND YOUR ALTER EGO</SectionHeader>
             <div className="flex flex-col md:flex-row items-center gap-8 mb-12 max-w-6xl mx-auto px-4">
                  <div className="hidden md:block w-96 h-96 flex-shrink-0 rounded-full overflow-hidden border-4 border-gray-700 shadow-xl shadow-purple-900/20">
-                    <img src="/images/hxkBp4M6-main4.jpg" alt="Alter Ego" className="w-full h-full object-cover" />
+                    <img src="https://i.ibb.co/hxkBp4M6/main4.jpg" alt="Alter Ego" className="w-full h-full object-cover" />
                  </div>
                  <div className="flex-grow border-l-2 border-gray-600 pl-6 py-2">
                     <p className="text-gray-300 leading-relaxed text-justify text-sm">

@@ -392,7 +392,7 @@ export const CompellingWillSection: React.FC = () => {
                 <SectionHeader>Telekinetics</SectionHeader>
                 <div className={`my-4 max-w-sm mx-auto p-4 border rounded-lg transition-all bg-black/20 ${ ctx.isTelekineticsBoosted ? 'border-amber-400 ring-2 ring-amber-400/50 cursor-pointer hover:border-amber-300' : isTelekineticsBoostDisabled ? 'border-gray-700 opacity-50 cursor-not-allowed' : 'border-gray-700 hover:border-amber-400/50 cursor-pointer'}`} onClick={!isTelekineticsBoostDisabled ? () => ctx.handleCompellingWillBoostToggle('telekinetics') : undefined}>
                     <div className="flex items-center justify-center gap-4">
-                        <img src="/images/zTm8fcLb-kaarn.png" alt="Kaarn Sigil" className="w-16 h-16"/>
+                        <img src="https://i.ibb.co/zTm8fcLb/kaarn.png" alt="Kaarn Sigil" className="w-16 h-16"/>
                         <div className="text-left">
                             <h4 className="font-cinzel text-lg font-bold text-amber-300 tracking-widest">{ctx.isTelekineticsBoosted ? 'BOOSTED' : 'BOOST'}</h4>
                             {!ctx.isTelekineticsBoosted && <p className="text-xs text-gray-400 mt-1">Activating this will consume one Kaarn sigil.</p>}
@@ -441,7 +441,7 @@ export const CompellingWillSection: React.FC = () => {
                 <SectionHeader>Metathermics</SectionHeader>
                 <div className={`my-4 max-w-sm mx-auto p-4 border rounded-lg transition-all bg-black/20 ${ ctx.isMetathermicsBoosted ? 'border-amber-400 ring-2 ring-amber-400/50 cursor-pointer hover:border-amber-300' : isMetathermicsBoostDisabled ? 'border-gray-700 opacity-50 cursor-not-allowed' : 'border-gray-700 hover:border-amber-400/50 cursor-pointer'}`} onClick={!isMetathermicsBoostDisabled ? () => ctx.handleCompellingWillBoostToggle('metathermics') : undefined}>
                     <div className="flex items-center justify-center gap-4">
-                        <img src="/images/Dg6nz0R1-purth.png" alt="Purth Sigil" className="w-16 h-16"/>
+                        <img src="https://i.ibb.co/Dg6nz0R1/purth.png" alt="Purth Sigil" className="w-16 h-16"/>
                         <div className="text-left">
                             <h4 className="font-cinzel text-lg font-bold text-amber-300 tracking-widest">{ctx.isMetathermicsBoosted ? 'BOOSTED' : 'BOOST'}</h4>
                             {!ctx.isMetathermicsBoosted && <p className="text-xs text-gray-400 mt-1">Activating this will consume one Purth sigil.</p>}

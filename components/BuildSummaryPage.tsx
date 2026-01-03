@@ -146,25 +146,50 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
                 setShowReferenceAppendix(false);
                 await new Promise(resolve => setTimeout(resolve, 300)); // Allow DOM update
             }
+            
+            // Wait for images to be potentially ready
+            await document.fonts.ready;
+
+            const element = summaryContentRef.current;
+            
+            // Calculate dimensions explicitly to prevent layout shifts
+            // We force a minimum width to ensure the layout looks like desktop (prevent text wrapping)
+            const captureWidth = Math.max(element.scrollWidth, 1440); 
+            const captureHeight = element.scrollHeight;
 
             const options: any = {
                 backgroundColor: bgColor, 
                 useCORS: true,
                 scale: 2,
-                logging: false
+                logging: false,
+                width: captureWidth,
+                height: captureHeight,
+                windowWidth: captureWidth, // Force desktop layout
+                windowHeight: captureHeight,
+                onclone: (clonedDoc: Document) => {
+                    // Ensure the cloned element handles overflow correctly
+                    const clonedElement = clonedDoc.querySelector('[data-capture-target]') as HTMLElement;
+                    if (clonedElement) {
+                        clonedElement.style.overflow = 'visible';
+                        clonedElement.style.height = 'auto';
+                        clonedElement.style.maxHeight = 'none';
+                    }
+                    
+                    // Force background color on body/container to prevent transparency issues
+                    const clonedBody = clonedDoc.body;
+                    clonedBody.style.backgroundColor = bgColor;
+                }
             };
 
-            // Fix for Vortex Layout cutting off
+            // Fix for Vortex Layout needing extra space
             if (template === 'vortex') {
-                // Max radius is 1050px. Items extend outwards ~100-150px.
-                // Total required width = (1050 + 150) * 2 = 2400px minimum.
-                // We set a safe margin to 2600px width to ensure nothing is clipped.
                 options.width = 2600;
                 options.windowWidth = 2600;
-                options.windowHeight = 4000; // Ensure enough height for the long vortex tail
+                // Vortex often extends far down, ensure height catches it
+                options.height = Math.max(captureHeight, 4000); 
             }
 
-            const mainCanvas = await window.html2canvas(summaryContentRef.current, options);
+            const mainCanvas = await window.html2canvas(element, options);
             
             downloadImage(mainCanvas, `seinaru-build-${template}-${timestamp}.png`);
 
@@ -175,7 +200,7 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
                 if (hasReferenceContent) {
                     // Show appendix so we can capture elements
                     setShowReferenceAppendix(true);
-                    await new Promise(resolve => setTimeout(resolve, 500)); // Wait for render and images to load
+                    await new Promise(resolve => setTimeout(resolve, 500)); // Wait for render
 
                     const appendixElement = document.getElementById('reference-appendix');
                     if (appendixElement) {
@@ -185,16 +210,24 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
                              const name = item.dataset.name || `ref-${i}`;
                              const type = item.dataset.type || 'misc';
                              
+                             // Calculate dimensions for reference card
+                             const rect = item.getBoundingClientRect();
+                             const refWidth = Math.max(rect.width, 800);
+                             
                              const refCanvas = await window.html2canvas(item, {
                                  backgroundColor: bgColor,
                                  useCORS: true,
                                  scale: 2,
-                                 logging: false
+                                 logging: false,
+                                 width: refWidth,
+                                 windowWidth: refWidth,
+                                 height: item.scrollHeight,
+                                 windowHeight: item.scrollHeight
                              });
                              
                              downloadImage(refCanvas, `seinaru-${type}-${name}-${template}.png`);
                              
-                             // Add delay between downloads to prevent browser blocking
+                             // Add delay between downloads
                              await new Promise(r => setTimeout(r, 400));
                          }
                     }
@@ -208,7 +241,7 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
 
         } catch (error) {
             console.error("Error generating images:", error);
-            alert("Sorry, there was an error generating the images.");
+            alert("Error generating images. Please try a different browser if this persists.");
             setShowReferenceAppendix(false);
         }
     };
@@ -307,11 +340,13 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
 
                 {/* Main Content Area */}
                 <main className="flex-grow overflow-y-auto bg-black relative">
-                     <div ref={summaryContentRef} className={`min-h-full flex flex-col ${containerBgClass}`}>
+                     {/* Add data-capture-target attribute to be found by onclone */}
+                     <div ref={summaryContentRef} data-capture-target="true" className={`min-h-full flex flex-col ${containerBgClass}`}>
                         <div className="flex-grow">
                             {template === 'default' && (
-                                <div className="p-8 bg-[#0a0f1e] min-h-full">
-                                    <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-cyan-900/10 rounded-full blur-[100px] pointer-events-none -translate-y-1/2 translate-x-1/2"></div>
+                                <div className="p-8 bg-[#0a0f1e] min-h-full relative overflow-hidden">
+                                    {/* Using a cleaner gradient instead of blur to avoid render issues */}
+                                    <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[radial-gradient(circle,rgba(22,78,99,0.3)_0%,transparent_70%)] pointer-events-none -translate-y-1/2 translate-x-1/2"></div>
                                     <ArcaneLayout sections={sections} />
                                 </div>
                             )}
@@ -323,7 +358,7 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
                                     name={currentBuildName}
                                     type="Full Character" 
                                     pointsSpent={pointsSpent}
-                                    visualSrc={customImage || "/images/Z6tHPxPB-symbol-transparent.png"}
+                                    visualSrc={customImage || "https://i.ibb.co/Z6tHPxPB/symbol-transparent.png"}
                                     onImageUpload={handleImageUpload}
                                 />
                             )}

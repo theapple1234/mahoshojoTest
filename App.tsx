@@ -24,12 +24,12 @@ const LostBlessingPage = React.lazy(() => import('./components/LostBlessingPage'
 const PAGE_TITLES = ['YOUR BIRTH', 'YOUR SCHOOLING', 'SIGILS & BLESSINGS', 'DESIGN YOUR MAGIC', 'YOUR CAREER', 'YOUR RETIREMENT'];
 const PAGE_BACKGROUNDS = ['bg-[#0a101f]', 'bg-[#2a201c]', 'bg-[#100c14]', 'bg-[#1a1412]', 'bg-[#09110e]', 'bg-[#0c0c0e]'];
 const PAGE_HEADERS = [
-    "/images/0pnyNKFq-main1.jpg", 
-    "/images/4nrwRMyD-main1.png", 
-    "/images/JRGRMRFH-main1.png", 
-    "/images/sJFF0vY2-page4main.jpg", 
-    "/images/RGRMNF8H-main1.jpg", 
-    "/images/Jw995hSG-endmain.jpg"
+    "https://i.ibb.co/0pnyNKFq/main1.jpg", 
+    "https://i.ibb.co/4nrwRMyD/main1.png", 
+    "https://i.ibb.co/JRGRMRFH/main1.png", 
+    "https://i.ibb.co/sJFF0vY2/page4main.jpg", 
+    "https://i.ibb.co/RGRMNF8H/main1.jpg", 
+    "https://i.ibb.co/Jw995hSG/endmain.jpg"
 ];
 
 // Icons

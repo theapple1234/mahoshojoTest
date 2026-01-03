@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useCharacterContext } from '../context/CharacterContext';
 import { CompanionSection } from './reference/CompanionSection';
@@ -365,9 +366,9 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
     const netPoints = pointsSpent - discount;
 
     return (
-        <div className={`fixed inset-0 bg-[#0a101f] z-[100] overflow-y-auto overflow-x-hidden transition-opacity duration-300 ${isTransparent ? 'opacity-15' : 'opacity-100'}`}>
+        <div className={`fixed inset-0 bg-[#0a101f] z-[100] overflow-y-auto overflow-x-hidden transition-opacity duration-300 ${isTransparent ? 'opacity-15 pointer-events-none' : 'opacity-100'}`}>
              {/* Header */}
-            <header className="sticky top-0 z-50 bg-[#0a101f]/95 backdrop-blur-md border-b border-gray-800 p-4 flex justify-between items-center">
+            <header className="sticky top-0 z-50 bg-[#0a101f]/95 backdrop-blur-md border-b border-gray-800 p-4 flex justify-between items-center pointer-events-auto">
                 <div className="flex items-center gap-4">
                     <h2 className="font-cinzel text-2xl text-white tracking-widest">REFERENCE PAGE</h2>
                     <div className="flex bg-black/40 rounded p-1">

@@ -14,28 +14,28 @@ export const RETIREMENT_CHOICES_DATA: ChoiceItem[] = [
         title: 'ENTER THE AETHER',
         cost: '',
         description: "The Aether is a megaverse almost comparable to our own which we managed to connect to through the Greater Net during the V.A.P.; however, being part of our local network, it's considered a subverse and is thus affected by our destabilization problems. It is described as a patchwork quilt of countless procedurally generated verses, each with their own strange denizens, mysteries to be solved and adventures to be had. The societies there work entirely different from our own, so it might be a breath of fresh air if our world is feeling dull. Best for the adventurous types, though it can be dangerous.",
-        imageSrc: '/images/v45DyXN1-d1.jpg'
+        imageSrc: 'https://i.ibb.co/v45DyXN1/d1.jpg'
     },
     {
         id: 'enter_sunset_city',
         title: 'ENTER SUNSET CITY',
         cost: '',
         description: "Sunset City is the nickname of a megaverse created by the combined resources of Red-Jade Council, initially devised for themselves but eventually opened up to the general public once they had the processing power. Unlike our world and the Aether, it is a place of absolute relaxation, and you feel a sort of tranquility just walking along its beautiful streets. Its appearance changes from person to person depending on your preferences, and there's leagues of virtual assistants mulling around ready to follow your demands. No adventuring, but lots of relaxing, swimming, gaming, and etc to be had.",
-        imageSrc: '/images/fbR41bq-d2.jpg'
+        imageSrc: 'https://i.ibb.co/fbR41bq/d2.jpg'
     },
     {
         id: 'experience_reincarnation',
         title: 'EXPERIENCE REINCARNATION',
         cost: '',
         description: "Don't quite want to abandon this world just yet? You can always just be reborn as a brand new mage, and relive your childhood all over again with a different loving family. The exact extent of your memory retention is up to you. Maybe you want to keep your past memories up to a certain point? Maybe just certain pleasant memories while scrapping the bad ones? Just enough to retain your personality? Or maybe you want a complete blank slate? It's pretty much up to you. You can also choose whether the public will know your previous identity, or if they'll all just be told that you're a brand new mage.",
-        imageSrc: '/images/gXmq9Sp-d3.jpg'
+        imageSrc: 'https://i.ibb.co/gXmq9Sp/d3.jpg'
     },
     {
         id: 'give_yourself_unto_the_void',
         title: 'GIVE YOURSELF UNTO THE VOID',
         cost: '',
         description: "Oh. You want to...? Well, I don't judge. But I must make it absolutely clear that this is {i}game{/i} over. It's the exact sort of death you'd experience if you died in combat: an endless, eternal oblivion. You're just going to be gone. It's odd, but a few people do choose this option, for their own reasons. We make sure their last moments are filled with untold bliss as their minds are filled with all of their loveliest memories played a million times over in an instant, before they sink into the cool waters of oblivion.\n\nJust know that we'll miss you...",
-        imageSrc: '/images/932tfRMM-d4.jpg'
+        imageSrc: 'https://i.ibb.co/932tfRMM/d4.jpg'
     },
 ];
 
@@ -50,5 +50,5 @@ Do you think we're merely sadists? Have you seen her quarters? She practically l
 Damn it, think about what you're doing. Do you know what things were like before? We'd been forsaken by our only god. The planet dried up, and almost every harvest died in the scorching heat. Globe-spanning wars were fought over what little resources remained, despotic warlords having entire populations massacred over a single well's worth of water. Plagues battered the few wartorn survivors, leaving living corpses limping through the streets, their flesh sloughing from their bones. What were we supposed to do? We're not proud of what we've done, but it was a grim necessity. None of us would be here otherwise.
 
 Would you really doom the entire world for the sake of a single child?`,
-    imageSrc: '/images/GfZ2DQwh-d5.jpg'
+    imageSrc: 'https://i.ibb.co/GfZ2DQwh/d5.jpg'
 }];

@@ -135,16 +135,16 @@ const UniformIcon: React.FC = () => (
 );
 
 const UNIFORM_SQUARE_IMAGES: Record<string, string> = {
-    'idol': '/images/WvchRHJJ-uni1square.jpg',
-    'witchy': '/images/dJX4K5L4-uni2square.png',
-    'boyish': '/images/4ZXPyyZb-uni3square.jpg',
-    'high_tech': '/images/YB1tLH4f-uni4square.jpg',
-    'animal_themed': '/images/XxZ5Sspd-uni5square.jpg',
-    'old_timey': '/images/r2hDt27q-uni6square.jpg',
-    'oriental': '/images/3mdhV9G2-uni7square.jpg',
-    'custom': '/images/vC5G31jM-uni8square.png',
+    'idol': 'https://i.ibb.co/WvchRHJJ/uni1square.jpg',
+    'witchy': 'https://i.ibb.co/dJX4K5L4/uni2square.png',
+    'boyish': 'https://i.ibb.co/4ZXPyyZb/uni3square.jpg',
+    'high_tech': 'https://i.ibb.co/YB1tLH4f/uni4square.jpg',
+    'animal_themed': 'https://i.ibb.co/XxZ5Sspd/uni5square.jpg',
+    'old_timey': 'https://i.ibb.co/r2hDt27q/uni6square.jpg',
+    'oriental': 'https://i.ibb.co/3mdhV9G2/uni7square.jpg',
+    'custom': 'https://i.ibb.co/vC5G31jM/uni8square.png',
 };
-const UNIDENTIFIED_IMAGE = '/images/HfL17Fvn-uniquestionsquare.jpg';
+const UNIDENTIFIED_IMAGE = 'https://i.ibb.co/HfL17Fvn/uniquestionsquare.jpg';
 
 const formatCost = (cost: string | undefined) => {
     if (!cost) return '';
@@ -391,7 +391,7 @@ export const PageFive: React.FC = () => {
                     <h1 className="text-5xl font-bold font-cinzel my-2 text-white drop-shadow-[0_0_10px_rgba(34,197,94,0.5)]">{CAREER_INTRO_DATA.title}</h1>
                     <div className="h-px w-full bg-gradient-to-r from-transparent via-green-500/50 to-transparent my-6"></div>
                     <p className="text-gray-300 leading-relaxed whitespace-pre-wrap font-sans text-sm md:text-base">{renderFormattedText(CAREER_INTRO_DATA.description)}</p>
-                    <img src="/images/99KvcyT0-main3.jpg" alt="Career Path" className="mt-6 rounded-lg shadow-lg shadow-green-900/20 w-64 mx-auto lg:mx-0 border border-green-500/30 opacity-90 hover:opacity-100 transition-opacity" />
+                    <img src="https://i.ibb.co/99KvcyT0/main3.jpg" alt="Career Path" className="mt-6 rounded-lg shadow-lg shadow-green-900/20 w-64 mx-auto lg:mx-0 border border-green-500/30 opacity-90 hover:opacity-100 transition-opacity" />
                 </div>
             </section>
             
@@ -477,7 +477,7 @@ export const PageFive: React.FC = () => {
                 <div className="mt-8">
                     <div className="relative flex flex-row items-start p-6 bg-black/80 border-2 border-green-500/30 rounded-lg gap-6 overflow-hidden">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-green-500/5 rounded-full blur-3xl"></div>
-                        <img src="/images/wNfdjNJ0-c25.png" alt="Create your own companion" className="w-2/5 sm:w-1/3 aspect-[4/3] object-cover object-left rounded-sm flex-shrink-0" />
+                        <img src="https://i.ibb.co/wNfdjNJ0/c25.png" alt="Create your own companion" className="w-2/5 sm:w-1/3 aspect-[4/3] object-cover object-left rounded-sm flex-shrink-0" />
                         <div className="flex flex-col flex-grow relative z-10">
                             <p className="text-gray-300 text-sm leading-relaxed mb-4">
                                 {renderFormattedText("Same as last time, if none of the options above suffice (or you're playing Multiplayer), you can create your own colleague! If you spend {fp}-4 FP{/fp}, you can create a companion with 25 Companion Points on the {i}Reference page{/i}; if you spend {fp}-6 FP{/fp}, you are given 35 Companion Points instead; and if you spend {fp}-8 FP{/fp}, you are given 50 Companion Points.")}

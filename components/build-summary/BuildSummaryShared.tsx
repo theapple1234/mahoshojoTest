@@ -33,7 +33,7 @@ export const SummaryHeader: React.FC<{ theme: 'dark' | 'light' | 'cyber' }> = ({
          return (
             <div className="border-b border-green-500/50 pb-4 mb-8 flex justify-between items-end">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tighter text-green-500">SEINARU_MAGECRAFT_CYOA</h1>
+                    <h1 className="text-3xl font-bold tracking-tighter text-green-500">SEINARU_MAGECRAFT_GIRLS</h1>
                     <p className="text-[10px] text-green-700 font-mono mt-1 uppercase tracking-widest">Original by NXTUB | Interactive by SAVIAPPLE</p>
                 </div>
             </div>
@@ -42,7 +42,7 @@ export const SummaryHeader: React.FC<{ theme: 'dark' | 'light' | 'cyber' }> = ({
     if (theme === 'light') {
         return (
             <div className="flex flex-col items-center mb-10 border-b-2 border-amber-200 pb-6">
-                <h1 className="font-cinzel text-5xl font-bold text-slate-900 tracking-wider">Seinaru Magecraft CYOA</h1>
+                <h1 className="font-cinzel text-5xl font-bold text-slate-900 tracking-wider">Seinaru Magecraft Girls</h1>
                 <p className="font-serif text-[10px] text-slate-500 uppercase tracking-[0.2em] mt-3">Original by NXTUB | Interactive by SAVIAPPLE</p>
             </div>
         );
@@ -50,7 +50,7 @@ export const SummaryHeader: React.FC<{ theme: 'dark' | 'light' | 'cyber' }> = ({
     // Dark/Default
     return (
         <div className="flex flex-col items-center mb-10 border-b border-cyan-900/30 pb-6">
-             <h1 className="font-cinzel text-4xl font-bold text-white tracking-[0.1em] text-shadow-glow">SEINARU MAGECRAFT CYOA</h1>
+             <h1 className="font-cinzel text-4xl font-bold text-white tracking-[0.1em] text-shadow-glow">SEINARU MAGECRAFT GIRLS</h1>
              <p className="font-cinzel text-[10px] text-gray-500 mt-3 tracking-[0.3em] uppercase">Original by NXTUB | Interactive by SAVIAPPLE</p>
         </div>
     );

@@ -43,7 +43,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onStart, isExiting }
         <div className={`relative flex flex-col items-center justify-center mb-6 ${isExiting ? 'animate-logo-exit' : ''}`}>
             <img 
               id="splash-image" 
-              src="/images/Z6tHPxPB-symbol-transparent.png" 
+              src="https://i.ibb.co/Z6tHPxPB/symbol-transparent.png" 
               alt="Symbol" 
               className="max-w-2xl w-3/4 md:w-1/2 no-glow relative z-0 opacity-90"
             />

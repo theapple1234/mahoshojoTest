@@ -193,6 +193,9 @@ export const SecretTransition: React.FC<SecretTransitionProps> = ({ onComplete }
                                 muted={false}
                                 onTimeUpdate={handleTimeUpdate}
                                 onEnded={handleVideoEnded}
+                                onLoadedMetadata={(e) => {
+                                    e.currentTarget.currentTime = 0.3;
+                                }}
                             />
                             
                             {/* CRT Overlay Effects Container - Fades out as blackout fades in */}

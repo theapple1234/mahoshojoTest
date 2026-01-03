@@ -73,8 +73,9 @@ export const VortexLayout: React.FC<{ sections: any[], ctx: ICharacterContext, n
 
     return (
         <div className="relative w-full bg-black overflow-hidden flex flex-col items-center justify-start p-20 pb-0">
-             {/* Background Spiral */}
-            <div className="absolute inset-0 bg-[conic-gradient(from_0deg_at_50%_50%,#000000_0%,#1a1a2e_100%)] opacity-50 pointer-events-none h-full"></div>
+             {/* Background Spiral - Conic gradients often fail in html2canvas, replacing with radial */}
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,#1a1a2e_0%,#000000_100%)] opacity-80 pointer-events-none h-full"></div>
+            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20 pointer-events-none"></div>
             
             <div className="absolute top-10 left-0 right-0 z-50">
                  <SummaryHeader theme="dark" />
@@ -100,7 +101,7 @@ export const VortexLayout: React.FC<{ sections: any[], ctx: ICharacterContext, n
                         </>
                     )}
                      <img 
-                        src={visualSrc || "/images/Z6tHPxPB-symbol-transparent.png"} 
+                        src={visualSrc || "https://i.ibb.co/Z6tHPxPB/symbol-transparent.png"} 
                         alt="Seinaru Symbol" 
                         className="w-full h-full object-cover rounded-full drop-shadow-[0_0_20px_rgba(255,255,255,0.6)]"
                      />

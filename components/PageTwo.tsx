@@ -137,7 +137,7 @@ export const PageTwo: React.FC = () => {
             {/* Stage II: Your Schooling Section */}
             <section className="flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-12 mb-16">
                 <div className="flex-shrink-0 relative">
-                    <img src="/images/YBY6X7dF-main2.jpg" alt="Student" className="w-96 md:w-[36rem] rounded-full border-4 border-gray-700" />
+                    <img src="https://i.ibb.co/YBY6X7dF/main2.jpg" alt="Student" className="w-96 md:w-[36rem] rounded-full border-4 border-gray-700" />
                 </div>
                 <div className="max-w-2xl text-center lg:text-left">
                     <h2 className="text-2xl font-cinzel tracking-widest text-gray-400">STAGE II</h2>
@@ -148,7 +148,7 @@ export const PageTwo: React.FC = () => {
                         <br/><br/>
                         Fortunately, most of the things that would ordinarily require blunt memorization were instead magically transmitted directly into your mind. Therefore, by the time you were roughly ten, you already had the knowledge of a college grad (by real world standards). Thus began your real education: your assignment to your Dominion's prestigious school of magecraft! The studying you're doing here will define your future career, but don't get too stressed out. Graduation rates are near 100%, and enrollment is free, allowing you to take as much time as you need to accomplish your goals: many students have been here for decades!
                     </p>
-                    <img src="/images/zhnmY0f0-main3.jpg" alt="Classroom" className="rounded-lg shadow-lg shadow-orange-500/10 w-full max-w-md mx-auto lg:mx-0" />
+                    <img src="https://i.ibb.co/zhnmY0f0/main3.jpg" alt="Classroom" className="rounded-lg shadow-lg shadow-orange-500/10 w-full max-w-md mx-auto lg:mx-0" />
                 </div>
             </section>
 
@@ -178,7 +178,7 @@ export const PageTwo: React.FC = () => {
             {/* Boarding School Section */}
             <div className="my-16 bg-gradient-to-b from-[#2a1d15]/80 to-[#1f1612]/80 backdrop-blur-sm border border-yellow-900/70 rounded-xl p-8 shadow-2xl shadow-black/40">
                 <div className="flex flex-col md:flex-row items-center gap-8 max-w-5xl mx-auto">
-                    <img src="/images/B2VMLm0N-boarding.jpg" alt="Dormitory" className="w-full md:w-80 h-auto object-cover rounded-md flex-shrink-0" />
+                    <img src="https://i.ibb.co/B2VMLm0N/boarding.jpg" alt="Dormitory" className="w-full md:w-80 h-auto object-cover rounded-md flex-shrink-0" />
                     <div>
                         <p className="text-gray-300 text-sm leading-relaxed mb-4">
                             Since commuting across even vast distances is extremely quick for a Mage, you have two options: either stay home with your family and simply travel to school every day, or move into one of the dorms during your education.
@@ -317,7 +317,7 @@ export const PageTwo: React.FC = () => {
                  <div className="mt-8">
                     <div className="relative flex flex-row items-start p-6 bg-black/40 border border-yellow-800/60 rounded-lg gap-6">
                         <img 
-                            src="/images/BHnbDZyY-new.jpg" 
+                            src="https://i.ibb.co/BHnbDZyY/new.jpg" 
                             alt="Create your own companion" 
                             className="w-2/5 sm:w-1/3 aspect-[4/3] object-cover object-left rounded-md flex-shrink-0"
                         />
