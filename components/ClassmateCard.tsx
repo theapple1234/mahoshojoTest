@@ -37,16 +37,16 @@ const UniformIcon: React.FC = () => (
 );
 
 const UNIFORM_SQUARE_IMAGES: Record<string, string> = {
-    'idol': 'https://i.ibb.co/WvchRHJJ/uni1square.jpg',
-    'witchy': 'https://i.ibb.co/dJX4K5L4/uni2square.png',
-    'boyish': 'https://i.ibb.co/4ZXPyyZb/uni3square.jpg',
-    'high_tech': 'https://i.ibb.co/YB1tLH4f/uni4square.jpg',
-    'animal_themed': 'https://i.ibb.co/XxZ5Sspd/uni5square.jpg',
-    'old_timey': 'https://i.ibb.co/r2hDt27q/uni6square.jpg',
-    'oriental': 'https://i.ibb.co/3mdhV9G2/uni7square.jpg',
-    'custom': 'https://i.ibb.co/vC5G31jM/uni8square.png',
+    'idol': '/images/WvchRHJJ-uni1square.jpg',
+    'witchy': '/images/dJX4K5L4-uni2square.png',
+    'boyish': '/images/4ZXPyyZb-uni3square.jpg',
+    'high_tech': '/images/YB1tLH4f-uni4square.jpg',
+    'animal_themed': '/images/XxZ5Sspd-uni5square.jpg',
+    'old_timey': '/images/r2hDt27q-uni6square.jpg',
+    'oriental': '/images/3mdhV9G2-uni7square.jpg',
+    'custom': '/images/vC5G31jM-uni8square.png',
 };
-const UNIDENTIFIED_IMAGE = 'https://i.ibb.co/HfL17Fvn/uniquestionsquare.jpg';
+const UNIDENTIFIED_IMAGE = '/images/HfL17Fvn-uniquestionsquare.jpg';
 
 // Collect all power data for grade lookup
 const ALL_POWERS = [

@@ -86,7 +86,7 @@ export const PageThree: React.FC = () => {
 
                 <div className="flex flex-col md:flex-row gap-8 max-w-7xl mx-auto items-center bg-black/20 p-8 rounded-lg border border-gray-800">
                     <div className="md:w-1/3">
-                        <img src="https://i.ibb.co/YBjFrHDz/main2.jpg" alt="Path of Magic" className="rounded-lg shadow-lg shadow-purple-500/20 w-full" />
+                        <img src="/images/YBjFrHDz-main2.jpg" alt="Path of Magic" className="rounded-lg shadow-lg shadow-purple-500/20 w-full" />
                     </div>
                     <div className="md:w-2/3 text-gray-300 text-sm space-y-4">
                         <p>Your time at the academy has taught you so much. Of course, it hasn't given you anything you didn't already possess; it merely showed you how to make full use of the potential that's been inside you all along. The deeper you delved into the inner workings of magecraft, the more your nights were beset by strange dreams of murky glimpses of a higher realm, reminding you of your smallness in a great and terrifying multiverse.</p>
@@ -95,7 +95,7 @@ export const PageThree: React.FC = () => {
                 </div>
                 
                 <div className="flex justify-center my-8">
-                    <img src="https://i.ibb.co/rGnyWCV6/main3.png" alt="Sigil Tree Example" className="max-w-lg" />
+                    <img src="/images/rGnyWCV6-main3.png" alt="Sigil Tree Example" className="max-w-lg" />
                 </div>
 
                 <div className="max-w-4xl mx-auto p-6 bg-black/20 border border-gray-800 rounded-lg">

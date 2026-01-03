@@ -122,11 +122,11 @@ export const LostBlessingPage: React.FC<LostBlessingPageProps> = ({ enableEntran
                     <div className="lg:w-1/3 flex-shrink-0">
                         <div className="relative h-full min-h-[300px] rounded-3xl overflow-hidden border-2 border-purple-500/50 shadow-[0_0_20px_rgba(168,85,247,0.3)] bg-black/40">
                             <img 
-                                src="https://i.ibb.co/FLDtz723/main1.jpg" 
+                                src="/images/FLDtz723-main1.jpg" 
                                 alt="The Lost Daughter" 
                                 className="absolute inset-0 w-full h-full object-cover"
                                 onError={(e) => {
-                                    e.currentTarget.src = "https://i.ibb.co/sv6z0RJZ/c13.jpg"; // Fallback to Illuse or similar dark aesthetic image
+                                    e.currentTarget.src = "/images/sv6z0RJZ-c13.jpg"; // Fallback to Illuse or similar dark aesthetic image
                                 }}
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
@@ -190,7 +190,7 @@ export const LostBlessingPage: React.FC<LostBlessingPageProps> = ({ enableEntran
                                                 }`}></div>
                                                 
                                                 <img 
-                                                    src="https://i.ibb.co/nq80Y3pk/sinthru.png" 
+                                                    src="/images/nq80Y3pk-sinthru.png" 
                                                     alt="Sigil" 
                                                     className={`w-14 h-14 object-contain relative z-10 transition-all duration-300 ${isSelected ? 'drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]' : 'opacity-70 group-hover:opacity-100'}`}
                                                 />

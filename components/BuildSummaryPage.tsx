@@ -358,7 +358,7 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
                                     name={currentBuildName}
                                     type="Full Character" 
                                     pointsSpent={pointsSpent}
-                                    visualSrc={customImage || "https://i.ibb.co/Z6tHPxPB/symbol-transparent.png"}
+                                    visualSrc={customImage || "/images/Z6tHPxPB-symbol-transparent.png"}
                                     onImageUpload={handleImageUpload}
                                 />
                             )}

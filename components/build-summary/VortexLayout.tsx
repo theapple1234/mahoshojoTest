@@ -101,7 +101,7 @@ export const VortexLayout: React.FC<{ sections: any[], ctx: ICharacterContext, n
                         </>
                     )}
                      <img 
-                        src={visualSrc || "https://i.ibb.co/Z6tHPxPB/symbol-transparent.png"} 
+                        src={visualSrc || "/images/Z6tHPxPB-symbol-transparent.png"} 
                         alt="Seinaru Symbol" 
                         className="w-full h-full object-cover rounded-full drop-shadow-[0_0_20px_rgba(255,255,255,0.6)]"
                      />
