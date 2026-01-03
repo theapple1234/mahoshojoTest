@@ -20,12 +20,15 @@ export const TerminalLayout: React.FC<{ sections: any[] }> = ({ sections }) => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {items.map((item: any, idx: number) => (
                 <div key={`${item.id}-${idx}`} className={`border ${item.isLostPower ? 'border-green-400 bg-green-900/30' : 'border-green-500/30 bg-green-900/10'} p-2 flex items-start gap-3 hover:bg-green-900/20 transition-colors`}>
-                    <img 
-                        src={item.imageSrc}
-                        alt=""
-                        className="w-12 h-12 flex-shrink-0 border border-green-500/20 grayscale contrast-125 bg-black object-cover"
-                        crossOrigin="anonymous"
-                    />
+                    <div 
+                        className="w-12 h-12 flex-shrink-0 border border-green-500/20 grayscale contrast-125 bg-black"
+                        style={{
+                            backgroundImage: `url(${item.imageSrc})`,
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center',
+                            backgroundRepeat: 'no-repeat'
+                        }}
+                    ></div>
                     <div className="flex-grow min-w-0">
                         <p className="text-[10px] font-bold truncate text-green-300">{item.title}</p>
                         <p className="text-[9px] opacity-60 truncate">ID: {item.id}</p>
@@ -45,7 +48,19 @@ export const TerminalLayout: React.FC<{ sections: any[] }> = ({ sections }) => {
     return (
         <div className="bg-black p-8 font-mono text-green-500 space-y-12 border-x-4 border-green-900/30 min-h-screen relative">
             <SummaryHeader theme="cyber" />
-            <div className="absolute inset-0 bg-[linear-gradient(rgba(0,255,0,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,0,0.03)_1px,transparent_1px)] bg-[size:20px_20px] pointer-events-none"></div>
+            
+            {/* Replaced CSS Gradient background with SVG Pattern for html2canvas compatibility */}
+            <div className="absolute inset-0 pointer-events-none opacity-20">
+                <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <pattern id="terminal-grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                            <rect width="20" height="20" fill="transparent"/>
+                            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(0, 255, 0, 0.3)" strokeWidth="1"/>
+                        </pattern>
+                    </defs>
+                    <rect width="100%" height="100%" fill="url(#terminal-grid)" />
+                </svg>
+            </div>
 
             {sections.map((section, sIdx) => (
                 <div key={section.id}>

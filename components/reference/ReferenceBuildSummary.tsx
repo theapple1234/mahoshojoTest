@@ -229,9 +229,9 @@ export const ReferenceBuildSummary: React.FC<ReferenceBuildSummaryProps> = ({
                 </div>
 
                 <div className="relative w-full aspect-square flex items-center justify-center p-10 font-cinzel text-white">
-                    {/* Background Circle - Clipped for Gradient */}
+                    {/* Background Circle - Clipped for Gradient - Added bg-no-repeat */}
                     <div className="absolute inset-0 rounded-full bg-black overflow-hidden pointer-events-none">
-                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(76,29,149,0.3),transparent_70%)]"></div>
+                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(76,29,149,0.3),transparent_70%)] bg-no-repeat"></div>
                     </div>
                     
                     {/* Ring 3 (Outer) - Traits & Spells - Not clipped, allowing overflow */}

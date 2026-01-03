@@ -64,11 +64,11 @@ export const FamilyDetailCard: React.FC<{ member: any, theme: any }> = ({ member
     return (
         <div className={`p-3 rounded-lg border flex items-start gap-4 ${theme.cardBg} ${theme.cardBorder}`}>
             <div className="w-16 h-16 flex-shrink-0 rounded-full overflow-hidden">
-                <img 
-                    src={member.imageSrc} 
-                    alt={member.type}
-                    className={`w-full h-full object-cover ${theme.imgFilter}`}
-                    crossOrigin="anonymous"
+                <div 
+                    className={`w-full h-full bg-center bg-cover bg-no-repeat ${theme.imgFilter}`}
+                    style={{ backgroundImage: `url(${member.imageSrc})` }}
+                    role="img"
+                    aria-label={member.type}
                 />
             </div>
             <div className="flex-grow min-w-0 flex flex-col justify-center">
@@ -98,11 +98,11 @@ export const HousingDetailCard: React.FC<{ home: any, theme: any }> = ({ home, t
         <div className={`p-3 rounded-lg border flex flex-col gap-2 ${theme.cardBg} ${theme.cardBorder}`}>
             <div className="flex items-center gap-3 border-b border-white/10 pb-2">
                 <div className={`w-12 h-12 rounded overflow-hidden`}>
-                     <img 
-                        src={home.imageSrc} 
-                        alt="Home Image"
-                        className={`w-full h-full object-cover ${theme.imgFilter}`}
-                        crossOrigin="anonymous"
+                     <div 
+                        className={`w-full h-full bg-center bg-cover bg-no-repeat ${theme.imgFilter}`}
+                        style={{ backgroundImage: `url(${home.imageSrc})` }}
+                        role="img"
+                        aria-label="Home Image"
                     />
                 </div>
                 <div>

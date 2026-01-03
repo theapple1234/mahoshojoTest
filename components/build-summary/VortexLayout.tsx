@@ -73,8 +73,8 @@ export const VortexLayout: React.FC<{ sections: any[], ctx: ICharacterContext, n
 
     return (
         <div className="relative w-full bg-black overflow-hidden flex flex-col items-center justify-start p-20 pb-0">
-             {/* Background Spiral - Conic gradients often fail in html2canvas, replacing with radial */}
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,#1a1a2e_0%,#000000_100%)] opacity-80 pointer-events-none h-full"></div>
+             {/* Background Spiral - Added bg-no-repeat to prevent html2canvas crashing on createPattern */}
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,#1a1a2e_0%,#000000_100%)] bg-no-repeat opacity-80 pointer-events-none h-full"></div>
             
             <div className="absolute top-10 left-0 right-0 z-50">
                  <SummaryHeader theme="dark" />
@@ -99,19 +99,17 @@ export const VortexLayout: React.FC<{ sections: any[], ctx: ICharacterContext, n
                             </div>
                         </>
                     )}
-                     <img 
-                        src={visualSrc || "/images/Z6tHPxPB-symbol-transparent.png"}
-                        alt="Visual"
-                        className="w-full h-full object-cover"
-                        crossOrigin="anonymous"
+                     <div 
+                        className="w-full h-full bg-center bg-cover bg-no-repeat"
+                        style={{ backgroundImage: `url(${visualSrc || "/images/Z6tHPxPB-symbol-transparent.png"})` }}
                      />
                 </div>
 
                 {/* Using fixed dimensions instead of w-full aspect-square to prevent collapse in html2canvas */}
                 <div className="relative w-[2400px] h-[2400px] flex items-center justify-center p-10 font-cinzel text-white">
-                    {/* Background Circle - Clipped for Gradient */}
+                    {/* Background Circle - Added bg-no-repeat */}
                     <div className="absolute inset-0 rounded-full bg-black overflow-hidden pointer-events-none">
-                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(76,29,149,0.3),transparent_70%)]"></div>
+                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(76,29,149,0.3),transparent_70%)] bg-no-repeat"></div>
                     </div>
                     
                     {ringsConfig.map((config, ringIndex) => {
@@ -177,11 +175,9 @@ export const VortexLayout: React.FC<{ sections: any[], ctx: ICharacterContext, n
                                         >
                                             <div className="relative">
                                                 <div className={`w-24 h-24 rounded-full border-2 ${borderClass} overflow-hidden bg-black group-hover:scale-110 group-hover:z-50 transition-all duration-300 relative z-10`}>
-                                                    <img 
-                                                        src={imageSrc}
-                                                        alt={item.title}
-                                                        className="w-full h-full object-cover opacity-80 group-hover:opacity-100"
-                                                        crossOrigin="anonymous"
+                                                    <div 
+                                                        className="w-full h-full opacity-80 group-hover:opacity-100 bg-center bg-cover bg-no-repeat"
+                                                        style={{ backgroundImage: `url(${imageSrc})` }}
                                                     />
                                                 </div>
                                                 {item.count && item.count > 1 && (
@@ -202,8 +198,6 @@ export const VortexLayout: React.FC<{ sections: any[], ctx: ICharacterContext, n
                             </div>
                         );
                     })}
-
-                    {/* Removed the Points overlay circle as requested */}
                 </div>
             </div>
             
@@ -223,7 +217,7 @@ export const VortexLayout: React.FC<{ sections: any[], ctx: ICharacterContext, n
                                     {familyMembers.map((member: any, i: number) => (
                                         <div key={member.id} className="flex gap-3 bg-slate-900/40 border border-purple-500/20 p-3 rounded-lg">
                                             <div className="w-16 h-16 rounded-full overflow-hidden flex-shrink-0">
-                                                <img src={member.imageSrc} alt="" className="w-full h-full object-cover" crossOrigin="anonymous" />
+                                                <img src={member.imageSrc} alt="" className="w-full h-full object-cover" />
                                             </div>
                                             <div className="flex-grow min-w-0">
                                                 <p className="text-xs font-bold text-purple-200">{member.title}</p>
@@ -250,7 +244,7 @@ export const VortexLayout: React.FC<{ sections: any[], ctx: ICharacterContext, n
                                         return (
                                             <div key={home.id} className="flex gap-3 bg-slate-900/40 border border-purple-500/20 p-3 rounded-lg">
                                                  <div className="w-16 h-16 rounded overflow-hidden flex-shrink-0 border border-purple-500/30">
-                                                    <img src={home.imageSrc} alt="" className="w-full h-full object-cover" crossOrigin="anonymous" />
+                                                    <img src={home.imageSrc} alt="" className="w-full h-full object-cover" />
                                                 </div>
                                                 <div className="flex-grow min-w-0">
                                                     <div className="flex justify-between items-start mb-1">
