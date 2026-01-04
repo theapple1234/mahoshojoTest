@@ -31,7 +31,7 @@ export const TerminalLayout: React.FC<{ sections: any[] }> = ({ sections }) => {
                     ></div>
                     <div className="flex-grow min-w-0">
                         <p className="text-xs font-bold truncate text-green-500 mb-0.5 leading-loose">{item.title}</p>
-                        <p className="text-[9px] opacity-60 truncate">ID: {item.id}</p>
+                        <p className="text-[9px] opacity-60 truncate leading-loose">ID: {item.id}</p>
                         {item.count && <p className="text-[9px] text-green-400 mt-0.5">QTY: {item.count}</p>}
                         {item.assignedName && (
                             <p className="text-[9px] text-green-200 mt-0.5 border-t border-green-900/50 pt-0.5 truncate leading-loose">[{item.assignedName}]</p>

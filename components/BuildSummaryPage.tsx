@@ -222,21 +222,9 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
                         // Inject style to raise text by 7.5px (default)
                         const style = clonedDoc.createElement('style');
                         style.innerHTML = `
-                            /* 모든 텍스트 요소에 대해 위치 보정 시도 */
-                            h1, h2, h3, h4, h5, h6, p, label, button, a, span, div, li {
-                                /* position: relative가 이미 있는 요소들이 망가지지 않도록 주의 */
-                            }
-
-                            /* 안전한 방식: 뱃지로 추정되는 요소들만 타겟팅 */
                             h1, h2, h3, h4, h5, h6, p, label, button, a, div > span:not(.absolute) {
                                 position: relative;
                                 top: -7.5px;
-                            }
-                            
-                            /* 뱃지 안의 텍스트가 div로 되어있다면 아래를 추가해보세요 */
-                            .border div, .rounded div { 
-                                 position: relative;
-                                 top: -7.5px;
                             }
                         `;
                         clonedDoc.head.appendChild(style);
@@ -260,6 +248,15 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
                                 }
                             }
                         });
+
+                        // For terminal template: Force inline filter styles for grayscale images
+                        if (template === 'terminal') {
+                            const grayscaleElements = clonedElement.querySelectorAll('.grayscale');
+                            grayscaleElements.forEach((el: any) => {
+                                el.style.filter = "grayscale(100%) contrast(1.25)";
+                                el.style.webkitFilter = "grayscale(100%) contrast(1.25)";
+                            });
+                        }
                     }
                     
                     // Force background color on body to prevent transparency artifacts
@@ -312,6 +309,15 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
                                      if (clonedNode) {
                                         clonedNode.style.height = 'auto';
                                         clonedNode.style.overflow = 'visible';
+
+                                        // For terminal template: Force inline filter styles for grayscale images inside reference cards
+                                        if (template === 'terminal') {
+                                            const grayscaleElements = clonedNode.querySelectorAll('.grayscale');
+                                            grayscaleElements.forEach((el: any) => {
+                                                el.style.filter = "grayscale(100%) contrast(1.25)";
+                                                el.style.webkitFilter = "grayscale(100%) contrast(1.25)";
+                                            });
+                                        }
                                      }
 
                                      // Inject style to raise text by 7.5px

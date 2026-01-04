@@ -57,9 +57,7 @@ export const SummaryHeader: React.FC<{ theme: 'dark' | 'light' | 'cyber' }> = ({
 };
 
 export const FamilyDetailCard: React.FC<{ member: any, theme: any }> = ({ member, theme }) => {
-    const badgeClass = theme.isLight 
-        ? 'bg-amber-100/50 text-amber-900 border-amber-200' 
-        : (theme.isTerminal ? 'bg-green-900/40 text-green-300 border-green-700' : 'bg-white/10 text-gray-300 border-white/10');
+    const itemTextColor = theme.isTerminal ? 'text-green-400' : theme.isLight ? 'text-amber-800' : 'text-gray-400';
 
     return (
         <div className={`p-3 rounded-lg border flex items-start gap-4 ${theme.cardBg} ${theme.cardBorder}`}>
@@ -76,10 +74,10 @@ export const FamilyDetailCard: React.FC<{ member: any, theme: any }> = ({ member
                     {member.title} 
                 </p>
                 {member.note && <p className={`text-[11px] ${theme.textDim} font-normal mb-2 leading-tight ${theme.isTerminal ? 'font-galmuri' : ''}`}>"{member.note}"</p>}
-                <div className="flex flex-wrap gap-1.5">
+                <div className="flex flex-wrap gap-x-3 gap-y-1">
                     {member.traits.map((t: any, i: number) => (
-                        <span key={i} className={`text-[9px] px-2 py-0.5 rounded border flex items-center gap-1 ${theme.fontBody} ${badgeClass}`}>
-                            {t.title}
+                        <span key={i} className={`text-[10px] flex items-center gap-1 ${theme.fontBody} ${itemTextColor}`}>
+                            <span className="opacity-50">•</span> {t.title}
                             {t.assignedName && <span className={`${theme.textAccent} font-bold`}>[{t.assignedName}]</span>}
                         </span>
                     ))}
@@ -90,13 +88,12 @@ export const FamilyDetailCard: React.FC<{ member: any, theme: any }> = ({ member
 };
 
 export const HousingDetailCard: React.FC<{ home: any, theme: any }> = ({ home, theme }) => {
-    const badgeClass = theme.isLight
-        ? 'bg-amber-100/50 text-amber-900 border-amber-200'
-        : (theme.isTerminal ? 'bg-green-900/40 text-green-300 border-green-700' : 'bg-black/30 text-gray-400 border-white/10');
+    const itemTextColor = theme.isTerminal ? 'text-green-400' : theme.isLight ? 'text-amber-800' : 'text-gray-400';
+    const dividerColor = theme.isTerminal ? 'border-green-500/20' : theme.isLight ? 'border-amber-900/10' : 'border-white/10';
 
     return (
         <div className={`p-3 rounded-lg border flex flex-col gap-2 ${theme.cardBg} ${theme.cardBorder}`}>
-            <div className="flex items-center gap-3 border-b border-white/10 pb-2">
+            <div className={`flex items-center gap-3 border-b ${dividerColor} pb-2`}>
                 <div className={`w-12 h-12 rounded overflow-hidden flex-shrink-0`}>
                      <div 
                         className={`w-full h-full bg-center bg-cover bg-no-repeat ${theme.imgFilter}`}
@@ -113,11 +110,12 @@ export const HousingDetailCard: React.FC<{ home: any, theme: any }> = ({ home, t
                 </div>
             </div>
             {home.upgrades.length > 0 && (
-                 <div className="flex flex-wrap gap-1">
+                 <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1 pl-1">
                     {home.upgrades.map((u: any, i: number) => (
-                        <span key={i} className={`text-[9px] px-1.5 py-0.5 rounded border ${theme.fontBody} ${badgeClass}`}>
+                        <span key={i} className={`text-[10px] ${theme.fontBody} ${itemTextColor}`}>
+                             <span className="opacity-50 mr-1">•</span>
                             {u.title}
-                            {u.extraInfo && <span className={theme.isLight ? "ml-1 text-amber-700" : "ml-1 text-gray-500"}>({u.extraInfo})</span>}
+                            {u.extraInfo && <span className={theme.isLight ? "ml-1 text-amber-600" : "ml-1 text-gray-500"}>({u.extraInfo})</span>}
                             {u.assignedName && <span className={`ml-1 ${theme.textAccent}`}>[{u.assignedName}]</span>}
                         </span>
                     ))}

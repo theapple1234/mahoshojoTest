@@ -1,3 +1,4 @@
+
 /* Custom font setup for Tailwind CDN */
 body {
   font-family: 'Inter', sans-serif;
@@ -21,13 +22,13 @@ body {
     font-family: 'SchoolSafetyKidariBalloon', sans-serif;
 }
 @font-face {
-    font-family: 'Galmuri11Condensed';
-    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2506-1@1.0/Galmuri11-Condensed.woff2') format('woff2');
+    font-family: 'Galmuri11Bold';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2506-1@1.0/Galmuri11-Bold.woff2') format('woff2');
     font-weight: normal;
     font-style: normal;
 }
 .font-galmuri {
-    font-family: 'Galmuri11Condensed', monospace;
+    font-family: 'Galmuri11Bold', monospace;
 }
 @keyframes fall-and-fade {
   0% {
