@@ -20,6 +20,15 @@ body {
 .font-kidari {
     font-family: 'SchoolSafetyKidariBalloon', sans-serif;
 }
+@font-face {
+    font-family: 'Galmuri11Condensed';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2506-1@1.0/Galmuri11-Condensed.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+}
+.font-galmuri {
+    font-family: 'Galmuri11Condensed', monospace;
+}
 @keyframes fall-and-fade {
   0% {
     transform: translate(0, 0) rotate(0deg);

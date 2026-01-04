@@ -33,8 +33,8 @@ export const SummaryHeader: React.FC<{ theme: 'dark' | 'light' | 'cyber' }> = ({
          return (
             <div className="border-b border-green-500/50 pb-4 mb-8 flex justify-between items-end">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tighter text-green-500">SEINARU_MAGECRAFT_GIRLS</h1>
-                    <p className="text-[10px] text-green-700 font-mono mt-1 uppercase tracking-widest">Original by NXTUB | Interactive by SAVIAPPLE</p>
+                    <h1 className="text-3xl font-bold tracking-tighter text-green-500 font-galmuri">SEINARU_MAGECRAFT_GIRLS</h1>
+                    <p className="text-[10px] text-green-700 font-galmuri mt-1 uppercase tracking-widest">Original by NXTUB | Interactive by SAVIAPPLE</p>
                 </div>
             </div>
         );
@@ -72,13 +72,13 @@ export const FamilyDetailCard: React.FC<{ member: any, theme: any }> = ({ member
                 />
             </div>
             <div className="flex-grow min-w-0 flex flex-col justify-center">
-                <p className={`text-sm font-bold ${theme.textMain} mb-1 uppercase tracking-wide`}>
+                <p className={`text-sm font-bold ${theme.textMain} mb-1 uppercase tracking-wide ${theme.fontBody}`}>
                     {member.title} 
                 </p>
-                {member.note && <p className={`text-[11px] ${theme.textDim} font-normal mb-2 leading-tight ${theme.isTerminal ? 'font-sans' : ''}`}>"{member.note}"</p>}
+                {member.note && <p className={`text-[11px] ${theme.textDim} font-normal mb-2 leading-tight ${theme.isTerminal ? 'font-galmuri' : ''}`}>"{member.note}"</p>}
                 <div className="flex flex-wrap gap-1.5">
                     {member.traits.map((t: any, i: number) => (
-                        <span key={i} className={`text-[9px] px-2 py-0.5 rounded border flex items-center gap-1 ${badgeClass}`}>
+                        <span key={i} className={`text-[9px] px-2 py-0.5 rounded border flex items-center gap-1 ${theme.fontBody} ${badgeClass}`}>
                             {t.title}
                             {t.assignedName && <span className={`${theme.textAccent} font-bold`}>[{t.assignedName}]</span>}
                         </span>
@@ -106,16 +106,16 @@ export const HousingDetailCard: React.FC<{ home: any, theme: any }> = ({ home, t
                     />
                 </div>
                 <div>
-                    <p className={`text-sm font-bold ${theme.textMain} mb-1 uppercase tracking-wide`}>{home.title}</p>
-                    <p className={`text-[10px] ${theme.textDim} uppercase tracking-wider`}>{home.dominion} • {home.type}</p>
-                    {home.stats && <p className={`text-[10px] ${theme.textAccent} font-mono mt-0.5`}>{home.stats}</p>}
-                    {home.mythicalPet && <p className={`text-[10px] text-pink-400 font-mono mt-0.5`}>Pet: {home.mythicalPet}</p>}
+                    <p className={`text-sm font-bold ${theme.textMain} mb-1 uppercase tracking-wide ${theme.fontBody}`}>{home.title}</p>
+                    <p className={`text-[10px] ${theme.textDim} uppercase tracking-wider ${theme.fontBody}`}>{home.dominion} • {home.type}</p>
+                    {home.stats && <p className={`text-[10px] ${theme.textAccent} font-mono mt-0.5 ${theme.fontBody}`}>{home.stats}</p>}
+                    {home.mythicalPet && <p className={`text-[10px] text-pink-400 font-mono mt-0.5 ${theme.fontBody}`}>Pet: {home.mythicalPet}</p>}
                 </div>
             </div>
             {home.upgrades.length > 0 && (
                  <div className="flex flex-wrap gap-1">
                     {home.upgrades.map((u: any, i: number) => (
-                        <span key={i} className={`text-[9px] px-1.5 py-0.5 rounded border ${badgeClass}`}>
+                        <span key={i} className={`text-[9px] px-1.5 py-0.5 rounded border ${theme.fontBody} ${badgeClass}`}>
                             {u.title}
                             {u.extraInfo && <span className={theme.isLight ? "ml-1 text-amber-700" : "ml-1 text-gray-500"}>({u.extraInfo})</span>}
                             {u.assignedName && <span className={`ml-1 ${theme.textAccent}`}>[{u.assignedName}]</span>}
@@ -147,37 +147,37 @@ export const CustomSpellCard: React.FC<{ spell: any, index: number, theme: any }
     return (
         <div className={`p-4 rounded-lg border-2 flex flex-col gap-2 relative overflow-hidden ${borderColor} ${bgClass}`}>
             {isMilgrath && (
-                <div className={`absolute top-0 right-0 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest ${isTerminal ? 'bg-green-500 text-black' : isTemple ? 'bg-amber-200 text-amber-900' : 'bg-cyan-500 text-black'}`}>
+                <div className={`absolute top-0 right-0 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest ${isTerminal ? 'bg-green-500 text-black font-galmuri' : isTemple ? 'bg-amber-200 text-amber-900' : 'bg-cyan-500 text-black'}`}>
                     MILGRATH
                 </div>
             )}
             
             <div className="flex items-center gap-3 border-b border-gray-500/20 pb-2 mb-1">
                 <div className={`w-8 h-8 flex items-center justify-center rounded-full border ${borderColor} ${isMilgrath ? 'bg-white/10' : 'bg-transparent'}`}>
-                    <span className={`font-cinzel font-bold text-lg ${titleColor}`}>{index + 1}</span>
+                    <span className={`${theme.fontHead} font-bold text-lg ${titleColor}`}>{index + 1}</span>
                 </div>
-                <h4 className={`font-cinzel font-bold text-sm tracking-wide ${titleColor}`}>
+                <h4 className={`${theme.fontHead} font-bold text-sm tracking-wide ${titleColor}`}>
                     CUSTOM SPELL
                 </h4>
             </div>
 
-            <p className={`text-xs whitespace-pre-wrap leading-relaxed ${isTerminal ? 'font-sans text-green-400' : isTemple ? 'font-serif text-slate-800' : 'font-sans text-gray-300'}`}>
+            <p className={`text-xs whitespace-pre-wrap leading-relaxed ${isTerminal ? 'font-galmuri text-green-400' : isTemple ? 'font-serif text-slate-800' : 'font-sans text-gray-300'}`}>
                 {spell.description}
             </p>
 
             {isMilgrath && spell.mialgrathDescription && (
                 <div className={`mt-2 pt-2 border-t border-dashed ${isTerminal ? 'border-green-800' : 'border-gray-500/30'}`}>
-                    <p className={`text-[10px] font-bold uppercase tracking-wider mb-1 ${isTerminal ? 'text-green-400' : isTemple ? 'text-amber-600' : 'text-cyan-400'}`}>
+                    <p className={`text-[10px] font-bold uppercase tracking-wider mb-1 ${isTerminal ? 'text-green-400 font-galmuri' : isTemple ? 'text-amber-600' : 'text-cyan-400'}`}>
                         Override Effect
                     </p>
-                    <p className={`text-xs ${isTerminal ? 'font-sans text-green-600' : isTemple ? 'text-slate-600' : 'text-gray-400'}`}>
+                    <p className={`text-xs ${isTerminal ? 'font-galmuri text-green-600' : isTemple ? 'text-slate-600' : 'text-gray-400'}`}>
                         {spell.mialgrathDescription}
                     </p>
                 </div>
             )}
 
             {spell.assignedEntityName && (
-                 <div className={`mt-2 inline-flex items-center px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide border ${isTerminal ? 'border-green-700 bg-green-900/40 text-green-300' : isTemple ? 'border-amber-200 bg-amber-100 text-amber-800' : 'border-gray-600 bg-gray-800 text-gray-300'}`}>
+                 <div className={`mt-2 inline-flex items-center px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide border ${isTerminal ? 'border-green-700 bg-green-900/40 text-green-300 font-galmuri' : isTemple ? 'border-amber-200 bg-amber-100 text-amber-800' : 'border-gray-600 bg-gray-800 text-gray-300'}`}>
                     <span className="mr-2 opacity-70">{spell.assignedEntityType}:</span>
                     <span>{spell.assignedEntityName}</span>
                 </div>

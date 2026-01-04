@@ -219,12 +219,12 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
                         clonedElement.style.minHeight = '100%';
                         clonedElement.style.width = `${captureWidth}px`;
                     
-                        // Inject style to raise text by 7px
+                        // Inject style to raise text by 7.5px
                         const style = clonedDoc.createElement('style');
                         style.innerHTML = `
                             h1, h2, h3, h4, h5, h6, p, label, button, a, div > span:not(.absolute) {
                                 position: relative;
-                                top: -7px;
+                                top: -7.5px;
                             }
                         `;
                         clonedDoc.head.appendChild(style);
@@ -282,12 +282,12 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
                                         clonedNode.style.overflow = 'visible';
                                      }
 
-                                     // Inject style to raise text by 7px
+                                     // Inject style to raise text by 7.5px
                                      const style = clonedDoc.createElement('style');
                                      style.innerHTML = `
                                          h1, h2, h3, h4, h5, h6, p, label, button, a, div > span:not(.absolute) {
                                              position: relative;
-                                             top: -7px;
+                                             top: -7.5px;
                                          }
                                      `;
                                      clonedDoc.head.appendChild(style);

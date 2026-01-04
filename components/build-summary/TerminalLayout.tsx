@@ -12,8 +12,8 @@ export const TerminalLayout: React.FC<{ sections: any[] }> = ({ sections }) => {
         imgFilter: "grayscale contrast-125",
         isTerminal: true,
         isLight: false,
-        fontHead: "font-mono",
-        fontBody: "font-mono"
+        fontHead: "font-galmuri",
+        fontBody: "font-galmuri"
     };
     
     const renderItemsGrid = (items: any[]) => (
@@ -46,7 +46,7 @@ export const TerminalLayout: React.FC<{ sections: any[] }> = ({ sections }) => {
     );
 
     return (
-        <div className="bg-black p-8 font-mono text-green-500 space-y-12 border-x-4 border-green-900/30 min-h-screen relative">
+        <div className="bg-black p-8 font-galmuri text-green-500 space-y-12 border-x-4 border-green-900/30 min-h-screen relative">
             <SummaryHeader theme="cyber" />
             <div className="absolute inset-0 bg-[linear-gradient(rgba(0,255,0,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,0,0.03)_1px,transparent_1px)] bg-[size:20px_20px] pointer-events-none"></div>
 
@@ -63,13 +63,13 @@ export const TerminalLayout: React.FC<{ sections: any[] }> = ({ sections }) => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                             {section.familyDetails?.length > 0 && (
                                 <div className="space-y-2 border border-green-900/50 p-2">
-                                    <h5 className="font-mono text-xs text-green-700 font-bold uppercase tracking-widest">&gt;&gt; LINEAGE_DATA</h5>
+                                    <h5 className="font-galmuri text-xs text-green-700 font-bold uppercase tracking-widest">&gt;&gt; LINEAGE_DATA</h5>
                                     {section.familyDetails.map((m: any) => <FamilyDetailCard key={m.id} member={m} theme={theme} />)}
                                 </div>
                             )}
                             {section.housingDetails?.length > 0 && (
                                 <div className="space-y-2 border border-green-900/50 p-2">
-                                    <h5 className="font-mono text-xs text-green-700 font-bold uppercase tracking-widest">&gt;&gt; ASSET_ALLOCATION</h5>
+                                    <h5 className="font-galmuri text-xs text-green-700 font-bold uppercase tracking-widest">&gt;&gt; ASSET_ALLOCATION</h5>
                                     {section.housingDetails.map((h: any) => <HousingDetailCard key={h.id} home={h} theme={theme} />)}
                                 </div>
                             )}
@@ -81,9 +81,9 @@ export const TerminalLayout: React.FC<{ sections: any[] }> = ({ sections }) => {
                         <div className="space-y-6">
                             {section.blessingGroups.map((group: any) => (
                                 <div key={group.title} className="border-l-2 border-green-800 pl-4 py-1">
-                                    <h4 className="font-mono text-xs text-green-600 mb-3 font-bold uppercase tracking-wider flex flex-wrap gap-2 items-center">
+                                    <h4 className="font-galmuri text-xs text-green-600 mb-3 font-bold uppercase tracking-wider flex flex-wrap gap-2 items-center">
                                         <span>&gt;&gt; GROUP: {group.title.replace(/ /g, '_')}</span>
-                                        {group.engraving && <span className="text-[9px] text-green-800 normal-case font-mono">:: {group.engraving} ::</span>}
+                                        {group.engraving && <span className="text-[9px] text-green-800 normal-case font-galmuri">:: {group.engraving} ::</span>}
                                         
                                         {/* Boost Indicators */}
                                         {group.activeBoosts && group.activeBoosts.length > 0 && (
@@ -106,7 +106,7 @@ export const TerminalLayout: React.FC<{ sections: any[] }> = ({ sections }) => {
 
                     {section.customSpells && section.customSpells.length > 0 && (
                         <div className="mt-8 border-t border-green-900/50 pt-4">
-                             <h4 className="font-mono text-sm text-green-600 mb-4 font-bold">&gt;&gt; CUSTOM_PROTOCOLS</h4>
+                             <h4 className="font-galmuri text-sm text-green-600 mb-4 font-bold">&gt;&gt; CUSTOM_PROTOCOLS</h4>
                              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                 {section.customSpells.map((spell: any, i: number) => (
                                     <CustomSpellCard key={spell.id} spell={spell} index={i} theme={theme} />
