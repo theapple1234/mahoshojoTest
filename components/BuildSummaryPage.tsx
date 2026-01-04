@@ -184,8 +184,6 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
             return;
         }
 
-        // Removed File System Access check. 
-        // We now enforce JSZip/FileSaver for bundle downloads to ensure it goes to the default downloads folder.
         if (includeReference && (!window.JSZip || !window.saveAs)) {
             alert('Zip libraries not loaded. Please refresh or check connection.');
             return;
@@ -193,9 +191,14 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
 
         setShowDownloadMenu(false);
 
-        const timestamp = new Date().toISOString().slice(0,10);
-        // Clean filename safe string
-        const baseName = currentBuildName ? `Build_${currentBuildName.replace(/[\/\\?%*:|"<> ]/g, '_')}` : `Build_${timestamp}`;
+        // Generate Filename: Build_YYYY-MM-DD_HH-mm
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const mins = String(now.getMinutes()).padStart(2, '0');
+        const baseName = `Build_${year}-${month}-${day}_${hours}-${mins}`;
 
         setIsGenerating(true);
         const bgColor = template === 'temple' ? '#f8f5f2' : '#000000';
@@ -296,11 +299,10 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
             } else {
                 // Build + Reference: Zip Download (forced)
                 const zip = new window.JSZip();
-                // Create a folder inside the zip to keep it organized
-                const folder = zip.folder(baseName);
                 
-                if (folder && mainBlob) {
-                    folder.file("Full_Build.png", mainBlob);
+                // Add Main Build directly to ZIP root
+                if (mainBlob) {
+                    zip.file("Full_Build.png", mainBlob);
                 }
 
                 // 2. Capture References
@@ -351,9 +353,10 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
                              
                              const refBlob = await new Promise<Blob | null>(resolve => refCanvas.toBlob(resolve, 'image/png'));
                              
-                             if (refBlob && folder) {
+                             if (refBlob) {
                                  const safeRefName = refName.replace(/[\/\\?%*:|"<>]/g, '_');
-                                 folder.file(`${safeRefName}.png`, refBlob);
+                                 // Add Reference images directly to ZIP root
+                                 zip.file(`${safeRefName}.png`, refBlob);
                              }
                              
                              // Add small delay between captures

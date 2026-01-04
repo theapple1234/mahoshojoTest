@@ -87,10 +87,10 @@ export const TerminalLayout: React.FC<{ sections: any[] }> = ({ sections }) => {
                                         
                                         {/* Boost Indicators */}
                                         {group.activeBoosts && group.activeBoosts.length > 0 && (
-                                            <div className="flex gap-2 ml-2">
+                                            <div className="flex gap-3 ml-2 items-center">
                                                 {group.activeBoosts.map((boost: string, idx: number) => (
-                                                    <span key={idx} className="text-[9px] text-green-500 uppercase tracking-tight">
-                                                        // {boost}_BOOST_ACTIVE
+                                                    <span key={idx} className="text-[10px] font-bold text-green-400 uppercase tracking-wider flex items-center gap-1">
+                                                        <span className="text-green-500 font-bold">[+]</span> {boost}_BOOST
                                                     </span>
                                                 ))}
                                             </div>

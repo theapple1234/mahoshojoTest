@@ -58,8 +58,10 @@ export const SummaryHeader: React.FC<{ theme: 'dark' | 'light' | 'cyber' }> = ({
 
 export const FamilyDetailCard: React.FC<{ member: any, theme: any }> = ({ member, theme }) => {
     const itemTextColor = theme.isTerminal ? 'text-green-400' : theme.isLight ? 'text-amber-800' : 'text-gray-400';
-    const noteLeading = theme.isTerminal ? 'leading-[2.5]' : 'leading-tight';
-    const detailLeading = theme.isTerminal ? 'leading-[2.5]' : '';
+    
+    // Unified leading
+    const noteLeading = 'leading-[2.5]';
+    const detailLeading = 'leading-[2.5]';
 
     return (
         <div className={`p-3 rounded-lg border flex items-start gap-4 ${theme.cardBg} ${theme.cardBorder}`}>
@@ -92,7 +94,9 @@ export const FamilyDetailCard: React.FC<{ member: any, theme: any }> = ({ member
 export const HousingDetailCard: React.FC<{ home: any, theme: any }> = ({ home, theme }) => {
     const itemTextColor = theme.isTerminal ? 'text-green-400' : theme.isLight ? 'text-amber-800' : 'text-gray-400';
     const dividerColor = theme.isTerminal ? 'border-green-500/20' : theme.isLight ? 'border-amber-900/10' : 'border-white/10';
-    const detailLeading = theme.isTerminal ? 'leading-[2.5]' : '';
+    
+    // Unified leading
+    const detailLeading = 'leading-[2.5]';
 
     return (
         <div className={`p-3 rounded-lg border flex flex-col gap-2 ${theme.cardBg} ${theme.cardBorder}`}>
@@ -132,7 +136,9 @@ export const CustomSpellCard: React.FC<{ spell: any, index: number, theme: any }
     const isTerminal = theme.isTerminal;
     const isTemple = theme.cardBg.includes('white');
     const isMilgrath = spell.mialgrathApplied;
-    const leadingClass = isTerminal ? 'leading-[2.5]' : 'leading-relaxed';
+    
+    // Unified leading
+    const leadingClass = 'leading-[2.5]';
 
     const borderColor = isMilgrath 
         ? (isTerminal ? 'border-green-400' : isTemple ? 'border-amber-500' : 'border-cyan-400') 
