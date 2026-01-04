@@ -229,7 +229,7 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
                         `;
                         clonedDoc.head.appendChild(style);
 
-                        // Special exceptions for Trait titles to raise them by 10px
+                        // Traits to target for box lowering
                         const traitsToAdjust = [
                             "LOADED (Parent only)", "GREAT CHEF", "CREATIVE SAVANT", 
                             "BLESSED (Female only)", "BADASS", "BRILLIANT", "ROLE MODEL", 
@@ -239,12 +239,13 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
                             "FORGIVING (Parent/Older Sibling only)"
                         ];
                         
-                        const allElements = clonedElement.querySelectorAll('*');
-                        allElements.forEach((el: any) => {
-                            if (el.childNodes.length === 1 && el.childNodes[0].nodeType === 3) {
+                        // Lower the specific trait boxes by 10px
+                        const allSpans = clonedElement.querySelectorAll('span');
+                        allSpans.forEach((el: any) => {
+                            if (el.classList.contains('border') && el.classList.contains('rounded') && el.classList.contains('flex')) {
                                 const text = el.innerText;
                                 if (traitsToAdjust.some(t => text.includes(t))) {
-                                    el.style.top = '-10px';
+                                    el.style.top = '10px';
                                 }
                             }
                         });
