@@ -94,6 +94,25 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
         else return { ...vehicleSelections, perks: Array.from(vehicleSelections.perks.entries()), traits: Array.from(vehicleSelections.traits) };
     }
 
+    const updateInternalBuildReferences = (newBuilds: AllBuilds, oldName: string, newName: string) => {
+        // When renaming a Beast, update Companions referencing it
+        if (activeTab === 'beasts') {
+            Object.values(newBuilds.companions).forEach(comp => {
+                if (comp.data.inhumanFormBeastName === oldName) {
+                    comp.data.inhumanFormBeastName = newName;
+                }
+            });
+        }
+        // When renaming a Weapon, update Companions referencing it
+        if (activeTab === 'weapons') {
+             Object.values(newBuilds.companions).forEach(comp => {
+                if (comp.data.specialWeaponName === oldName) {
+                    comp.data.specialWeaponName = newName;
+                }
+            });
+        }
+    };
+
     const saveToName = (name: string, originalName?: string) => {
         const dataToSave = getPayload();
         const buildData: SavedBuildData = {
@@ -102,9 +121,15 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
         };
         const newBuilds = { ...allBuilds };
         
-        // If renaming, delete the old entry
+        // If renaming, delete the old entry and update references
         if (originalName && originalName !== name) {
             delete newBuilds[activeTab][originalName];
+            
+            // 1. Update Context References (Application State)
+            ctx.updateReferenceName(activeTab, originalName, name);
+            
+            // 2. Update Internal Build References (Saved Data)
+            updateInternalBuildReferences(newBuilds, originalName, name);
         }
         
         newBuilds[activeTab][name] = buildData;
@@ -119,7 +144,7 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
         if (!currentName.trim()) return;
         if (!originalLoadedName) return;
 
-        // Validation happens in render via disabled state, but double check
+        // If renaming, checking if target name exists
         if (currentName !== originalLoadedName) {
             if (allBuilds[activeTab][currentName]) {
                 if (!confirm(`Build "${currentName}" already exists. Overwrite?`)) return;
@@ -577,18 +602,14 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
     const validationErrors = useMemo(() => {
         const errors: string[] = [];
         
-        // 1. Rename Protection (If editing and name changed)
-        if (originalLoadedName && currentName !== originalLoadedName) {
-            const originalUsages = getBuildUsages(originalLoadedName);
-            if (originalUsages.length > 0) {
-                errors.push(`Cannot rename "${originalLoadedName}" because it is currently assigned to:`);
-                originalUsages.forEach(u => errors.push(`- ${u}`));
-                return errors; // Block rename entirely if used
-            }
-        }
+        // 1. Rename Protection (Removed: We allow renaming now via propagation)
+        // If it's a rename, we don't block. We update references.
 
         // 2. Overwrite / Update Constraints (Target Name)
         // If we are saving (new or overwrite), check if the resulting build violates where the target name is used.
+        // NOTE: When renaming, 'currentName' is the NEW name. If new name is used elsewhere, we check that too.
+        // But usually new name is unique.
+        
         const targetUsages = getBuildUsages(currentName);
         if (targetUsages.length > 0) {
             const violations = getValidationErrors(currentName);

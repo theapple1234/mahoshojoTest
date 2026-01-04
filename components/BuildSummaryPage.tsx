@@ -123,7 +123,7 @@ const GeneratingOverlay: React.FC<{ template: TemplateType }> = ({ template }) =
             </div>
             
             <h3 className={`font-cinzel text-2xl ${colorClass} tracking-[0.3em] uppercase animate-pulse mb-2 text-center`}>
-                Inscribing Reality...
+                Inscribing Builds...
             </h3>
             <p className={`${subTextClass} font-mono text-xs uppercase tracking-wider`}>
                 Please wait while the construct is finalized

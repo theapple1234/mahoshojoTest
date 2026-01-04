@@ -141,12 +141,23 @@ export const CustomSpellCard: React.FC<{ spell: any, index: number, theme: any }
     const bgClass = isMilgrath
         ? (isTerminal ? 'bg-green-900/30' : isTemple ? 'bg-amber-50' : 'bg-cyan-900/20')
         : (isTerminal ? 'bg-black' : isTemple ? 'bg-white' : 'bg-black/40');
+    
+    const iconClass = isTerminal 
+        ? 'drop-shadow-[0_0_8px_rgba(74,222,128,0.8)] sepia-[0.5] hue-rotate-[90deg]'
+        : isTemple 
+            ? 'drop-shadow-[0_0_8px_rgba(245,158,11,0.6)] sepia-[0.8]'
+            : 'drop-shadow-[0_0_8px_rgba(34,211,238,0.8)]';
 
     return (
         <div className={`p-4 rounded-lg border-2 flex flex-col gap-2 relative overflow-hidden ${borderColor} ${bgClass}`}>
             {isMilgrath && (
-                <div className={`absolute top-0 right-0 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest ${isTerminal ? 'bg-green-500 text-black font-galmuri' : isTemple ? 'bg-amber-200 text-amber-900' : 'bg-cyan-500 text-black'}`}>
-                    MILGRATH
+                <div className="absolute top-2 right-2">
+                    <img 
+                        src="/images/nsKwSt0b-mialgrath.png" 
+                        alt="Milgrath" 
+                        className={`w-6 h-6 object-contain ${iconClass}`}
+                        title="Milgrath Override"
+                    />
                 </div>
             )}
             

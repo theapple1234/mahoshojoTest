@@ -5,7 +5,7 @@ import { usePageThreeState } from '../hooks/usePageThreeState';
 import { usePageFourState } from '../hooks/usePageFourState';
 import { usePageFiveState } from '../hooks/usePageFiveState';
 import { usePageSixState } from '../hooks/usePageSixState';
-import type { SigilCounts } from '../types';
+import type { SigilCounts, BuildType } from '../types';
 
 export type PageOneState = ReturnType<typeof usePageOneState>;
 export type PageTwoState = ReturnType<typeof usePageTwoState>;
@@ -47,6 +47,7 @@ export interface ICharacterContext extends
   miscFpCosts: number;
   refreshBuildCosts: () => void;
   buildsRefreshTrigger: number;
+  updateReferenceName: (type: BuildType, oldName: string, newName: string) => void;
   
   // Secret Transition
   hasSeenSecretTransition: boolean;

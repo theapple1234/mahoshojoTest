@@ -249,6 +249,12 @@ export const SettingsModal: React.FC = () => {
             try {
                 const json = e.target?.result as string;
                 const data = JSON.parse(json);
+
+                // Basic validation: ensure data is an object and has at least one expected key
+                if (!data || typeof data !== 'object' || (!data.character && !data.reference)) {
+                    throw new Error("Invalid structure");
+                }
+
                 if (data.reference) {
                     localStorage.setItem(STORAGE_KEY, JSON.stringify(data.reference));
                     refreshBuildCosts();
@@ -259,7 +265,8 @@ export const SettingsModal: React.FC = () => {
                 showNotification(language === 'en' ? "File Loaded!" : "파일 로드됨!");
                 toggleSettings();
             } catch (error: any) {
-                showNotification("Error loading file.", 'error');
+                const errorMsg = language === 'en' ? "Invalid file format." : "적절한 파일이 아닙니다.";
+                showNotification(errorMsg, 'error');
             }
         };
         reader.readAsText(file);

@@ -11,6 +11,7 @@ import { useSigilCalculation } from './useSigilCalculation';
 import { useCostCalculation } from './useCostCalculation';
 import { usePersistence } from './usePersistence';
 import type { ICharacterContext, GlobalNotification } from './CharacterContextTypes';
+import type { BuildType } from '../types';
 
 const CharacterContext = createContext<ICharacterContext | undefined>(undefined);
 
@@ -92,6 +93,104 @@ export const CharacterProvider: React.FC<{ children: ReactNode }> = ({ children 
         selectedMiscActivityIds: pageTwoState.selectedMiscActivityIds
     });
     const pageSixState = usePageSixState();
+
+    // Centralized Rename Logic
+    const updateReferenceName = useCallback((type: BuildType, oldName: string, newName: string) => {
+        // Page 1
+        if (type === 'vehicles') {
+            if (pageOneState.assignedVehicleName === oldName) pageOneState.handleAssignVehicle(newName);
+        }
+        if (type === 'beasts') {
+            if (pageOneState.mythicalPetBeastName === oldName) pageOneState.handleAssignMythicalPet(newName);
+            if (pageOneState.inhumanAppearanceBeastName === oldName) pageOneState.handleAssignInhumanAppearance(newName);
+            pageOneState.vacationHomes.forEach(h => {
+                if (h.mythicalPetName === oldName) pageOneState.updateVacationHome(h.id, { mythicalPetName: newName });
+            });
+        }
+        if (type === 'companions') {
+            pageOneState.blessedCompanions.forEach((name, id) => {
+                if (name === oldName) pageOneState.handleAssignBlessedCompanion(id, newName);
+            });
+        }
+
+        // Page 2
+        if (type === 'companions') {
+            pageTwoState.customClassmates.forEach(c => {
+                if (c.companionName === oldName) pageTwoState.handleAssignCustomClassmateName(c.id, newName);
+            });
+        }
+
+        // Page 3
+        if (type === 'beasts') {
+            if (pageThreeState.mageFamiliarBeastName === oldName) pageThreeState.handleMageFamiliarBeastAssign(newName);
+            pageThreeState.beastmasterBeastNames.forEach((name, idx) => {
+                if (name === oldName) pageThreeState.handleBeastmasterBeastAssign(idx, newName);
+            });
+            if (pageThreeState.shedHumanityBeastName === oldName) pageThreeState.handleShedHumanityBeastAssign(newName);
+            if (pageThreeState.malrayootsMageFormName === oldName) pageThreeState.handleMalrayootsMageFormAssign(newName);
+            if (pageThreeState.malrayootsUniversalFormName === oldName) pageThreeState.handleMalrayootsUniversalFormAssign(newName);
+            if (pageThreeState.undeadBeastName === oldName) pageThreeState.handleUndeadBeastAssign(newName);
+            pageThreeState.livingInhabitants.forEach(i => {
+                if (i.beastName === oldName) pageThreeState.assignLivingInhabitantBeast(i.id, i.type!, newName);
+            });
+            if (pageThreeState.overlordBeastName === oldName) pageThreeState.handleOverlordBeastAssign(newName);
+            if (pageThreeState.naniteFormBeastName === oldName) pageThreeState.handleNaniteFormBeastAssign(newName);
+            if (pageThreeState.roboticistIBeastName === oldName) pageThreeState.handleRoboticistIBeastAssign(newName);
+            if (pageThreeState.onisBlessingGuardianName === oldName) pageThreeState.handleOnisBlessingGuardianAssign(newName);
+        }
+        if (type === 'companions') {
+            pageThreeState.humanMarionetteCompanionNames.forEach((name, idx) => {
+                if (name === oldName) pageThreeState.handleHumanMarionetteCompanionAssign(idx, newName);
+            });
+            if (pageThreeState.undeadThrallCompanionName === oldName) pageThreeState.handleUndeadThrallCompanionAssign(newName);
+            pageThreeState.verseAttendantCompanionNames.forEach((name, idx) => {
+                if (name === oldName) pageThreeState.handleVerseAttendantCompanionAssign(idx, newName);
+            });
+            if (pageThreeState.roboticistCompanionName === oldName) pageThreeState.handleRoboticistCompanionAssign(newName);
+            if (pageThreeState.personificationBuildName === oldName) pageThreeState.handlePersonificationBuildAssign(newName);
+        }
+        if (type === 'weapons') {
+            const weaponHandlers = [
+                { current: pageThreeState.goodTidingsWeaponName, set: pageThreeState.handleGoodTidingsWeaponAssign },
+                { current: pageThreeState.compellingWillWeaponName, set: pageThreeState.handleCompellingWillWeaponAssign },
+                { current: pageThreeState.thermalWeaponryWeaponName, set: pageThreeState.handleThermalWeaponryWeaponAssign },
+                { current: pageThreeState.worldlyWisdomWeaponName, set: pageThreeState.handleWorldlyWisdomWeaponAssign },
+                { current: pageThreeState.bitterDissatisfactionWeaponName, set: pageThreeState.handleBitterDissatisfactionWeaponAssign },
+                { current: pageThreeState.lostHopeWeaponName, set: pageThreeState.handleLostHopeWeaponAssign },
+                { current: pageThreeState.fallenPeaceWeaponName, set: pageThreeState.handleFallenPeaceWeaponAssign },
+                { current: pageThreeState.graciousDefeatWeaponName, set: pageThreeState.handleGraciousDefeatWeaponAssign },
+                { current: pageThreeState.closedCircuitsWeaponName, set: pageThreeState.handleClosedCircuitsWeaponAssign },
+                { current: pageThreeState.heavilyArmedWeaponName, set: pageThreeState.handleHeavilyArmedWeaponAssign },
+                { current: pageThreeState.righteousCreationWeaponName, set: pageThreeState.handleRighteousCreationWeaponAssign },
+                { current: pageThreeState.weaponsmithWeaponName, set: pageThreeState.handleWeaponsmithWeaponAssign },
+            ];
+            weaponHandlers.forEach(h => {
+                if (h.current === oldName) h.set(newName);
+            });
+        }
+        if (type === 'vehicles') {
+            if (pageThreeState.masterMechanicVehicleName === oldName) pageThreeState.handleMasterMechanicVehicleAssign(newName);
+        }
+
+        // Page 4
+        pageFourState.customSpells.forEach(s => {
+             const singularType = type.slice(0, -1); // 'companion', 'beast', 'weapon', 'vehicle'
+             if (s.assignedEntityName === oldName && s.assignedEntityType === singularType) {
+                 pageFourState.handleAssignEntityToSpell(s.id, s.assignedEntityType, newName);
+             }
+        });
+
+        // Page 5
+        if (type === 'companions') {
+            if (pageFiveState.joysOfParentingCompanionName === oldName) pageFiveState.handleJoysOfParentingCompanionAssign(newName);
+            pageFiveState.customColleagues.forEach(c => {
+                if (c.companionName === oldName) pageFiveState.handleAssignCustomColleagueName(c.id, newName);
+            });
+            if (pageFiveState.mentee?.type === 'custom' && pageFiveState.mentee.name === oldName) {
+                pageFiveState.handleMenteeSelect({ ...pageFiveState.mentee, name: newName });
+            }
+        }
+    }, [pageOneState, pageTwoState, pageThreeState, pageFourState, pageFiveState]);
     
     // --- SIDE EFFECTS ---
     useEffect(() => {
@@ -377,13 +476,14 @@ export const CharacterProvider: React.FC<{ children: ReactNode }> = ({ children 
       setBgmVideoId,
       serializeState,
       loadState,
-      loadFullBuild, // Exposed
+      loadFullBuild, 
       isDebugOpen,
       toggleDebug,
       debugLog,
       addDebugLog,
       debugFileContent,
       setDebugFileContent,
+      updateReferenceName, // Exposed
       ...pageOneState,
       ...pageTwoState,
       ...pageThreeState,
