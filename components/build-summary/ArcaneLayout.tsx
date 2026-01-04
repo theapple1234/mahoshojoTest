@@ -34,7 +34,7 @@ export const ArcaneLayout: React.FC<{ sections: any[] }> = ({ sections }) => {
                         )}
                     </div>
                     <div className="p-2 flex flex-col flex-grow">
-                        <h4 className="font-cinzel text-[10px] font-bold text-gray-300 group-hover:text-white leading-relaxed mb-1 truncate">{item.title}</h4>
+                        <h4 className="font-cinzel text-[10px] font-bold text-gray-300 group-hover:text-white leading-loose mb-1 truncate">{item.title}</h4>
                         {item.cost && <p className="text-[9px] text-cyan-500/60 font-mono mt-auto leading-normal">{item.cost}</p>}
                         {item.assignedName && (
                             <div className="mt-1 pt-1 border-t border-white/5">
