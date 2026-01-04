@@ -1,4 +1,117 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <path d="M16 2L2 16L16 30L30 16L16 2Z" fill="#38bdf8" />
-  <path d="M16 6L6 16L16 26L26 16L16 6Z" fill="#0a101f" />
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <defs>
+    <!-- Gemstone Gradient: Deep pink to purple -->
+    <radialGradient id="gemGradient" cx="0.5" cy="0.5" r="0.5" fx="0.3" fy="0.3">
+      <stop offset="0%" stop-color="#ffd1dc" />
+      <stop offset="30%" stop-color="#ff69b4" />
+      <stop offset="80%" stop-color="#c71585" />
+      <stop offset="100%" stop-color="#800080" />
+    </radialGradient>
+    
+    <!-- Primary Star Gradient: Soft pink to white -->
+    <linearGradient id="primaryStarGradient" x1="0.5" y1="0" x2="0.5" y2="1">
+      <stop offset="0%" stop-color="#fff5f8" />
+      <stop offset="50%" stop-color="#ffc0cb" />
+      <stop offset="100%" stop-color="#ff69b4" />
+    </linearGradient>
+
+    <!-- Secondary Star Gradient: Lavender -->
+    <linearGradient id="secondaryStarGradient" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#e6e6fa" />
+      <stop offset="100%" stop-color="#9370db" />
+    </linearGradient>
+
+    <!-- Gold Gradient for Borders -->
+    <linearGradient id="goldGradient" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fffacd" />
+      <stop offset="40%" stop-color="#ffd700" />
+      <stop offset="100%" stop-color="#b8860b" />
+    </linearGradient>
+
+    <!-- Stained Glass Background Pattern Colors -->
+    <linearGradient id="glassPink" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ff9a9e" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#fad0c4" stop-opacity="0.8"/>
+    </linearGradient>
+    <linearGradient id="glassPurple" x1="1" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#a18cd1" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#fbc2eb" stop-opacity="0.8"/>
+    </linearGradient>
+
+    <!-- Glow Filter -->
+    <filter id="magicGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="1" result="blur" />
+      <feColorMatrix in="blur" type="matrix" values="
+          0 0 0 0 1
+          0 0 0 0 0.4
+          0 0 0 0 0.7
+          0 0 0 0.5 0" result="coloredBlur" />
+      <feMerge>
+        <feMergeNode in="coloredBlur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Stained Glass Background -->
+  <g clip-path="url(#circleClip)">
+    <defs>
+      <clipPath id="circleClip">
+        <circle cx="32" cy="32" r="28" />
+      </clipPath>
+    </defs>
+    
+    <!-- Background Circle Fill (Dark base) -->
+    <circle cx="32" cy="32" r="28" fill="#2d1b2e" />
+
+    <!-- Glass Segments -->
+    <path d="M32 32 L32 0 L64 0 L64 32 Z" fill="url(#glassPink)" />
+    <path d="M32 32 L64 32 L64 64 L32 64 Z" fill="url(#glassPurple)" />
+    <path d="M32 32 L32 64 L0 64 L0 32 Z" fill="url(#glassPink)" />
+    <path d="M32 32 L0 32 L0 0 L32 0 Z" fill="url(#glassPurple)" />
+    
+    <!-- Diagonal Cuts for Mosaic look -->
+    <path d="M32 32 L60 4 L64 32 Z" fill="#ffb7b2" opacity="0.4" />
+    <path d="M32 32 L4 60 L32 64 Z" fill="#ffb7b2" opacity="0.4" />
+    <path d="M32 32 L4 4 L0 32 Z" fill="#cd9cf2" opacity="0.4" />
+    <path d="M32 32 L60 60 L64 32 Z" fill="#cd9cf2" opacity="0.4" />
+    
+    <!-- Lead Lines for Glass -->
+    <path d="M32 4 L32 60 M4 32 L60 32 M12 12 L52 52 M52 12 L12 52" stroke="#4a2c4a" stroke-width="0.5" />
+  </g>
+
+  <!-- Decorative Outer Ring -->
+  <circle cx="32" cy="32" r="28" stroke="url(#goldGradient)" stroke-width="2" fill="none" />
+
+  <!-- Background Diagonal Star (Secondary) -->
+  <g transform="rotate(45 32 32)">
+    <path d="M32 10 L38 26 L54 32 L38 38 L32 54 L26 38 L10 32 L26 26 Z" 
+          fill="url(#secondaryStarGradient)" 
+          stroke="url(#goldGradient)" 
+          stroke-width="1" 
+          filter="url(#magicGlow)" />
+  </g>
+
+  <!-- Main Cardinal Star (Primary) -->
+  <path d="M32 2 L40 24 L62 32 L40 40 L32 62 L24 40 L2 32 L24 24 Z" 
+        fill="url(#primaryStarGradient)" 
+        stroke="url(#goldGradient)" 
+        stroke-width="1.5" 
+        filter="url(#magicGlow)" />
+
+  <!-- Inner Gold Setting -->
+  <circle cx="32" cy="32" r="10" stroke="url(#goldGradient)" stroke-width="2" fill="none" />
+  
+  <!-- Central Gemstone -->
+  <circle cx="32" cy="32" r="8" fill="url(#gemGradient)" stroke="#fff" stroke-width="0.5" />
+
+  <!-- Gem Highlights -->
+  <ellipse cx="29" cy="28" rx="2.5" ry="1.5" fill="#ffffff" opacity="0.9" transform="rotate(-45 29 28)" />
+  <circle cx="35" cy="35" r="0.8" fill="#ffffff" opacity="0.7" />
+  
+  <!-- Static Sparkles -->
+  <path d="M32 4 L33 7 L36 8 L33 9 L32 12 L31 9 L28 8 L31 7 Z" fill="#fff" opacity="0.8" />
+  <path d="M50 15 L50.5 16.5 L52 17 L50.5 17.5 L50 19 L49.5 17.5 L48 17 L49.5 16.5 Z" fill="#fff" opacity="0.6" />
+  <path d="M14 49 L14.5 50.5 L16 51 L14.5 51.5 L14 53 L13.5 51.5 L12 51 L13.5 50.5 Z" fill="#fff" opacity="0.6" />
+
 </svg>

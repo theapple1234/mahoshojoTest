@@ -171,6 +171,32 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
     const pointsSpent = 100 - ctx.blessingPoints; 
     const isSunForgerActive = ctx.selectedStarCrossedLovePacts.has('sun_forgers_boon');
 
+    // -- Helper: Generate Filename with User Input --
+    const generateDownloadFilename = () => {
+        const wantToName = window.confirm("Do you want to enter a build name for this file?");
+        let fileNameBase = "";
+        
+        if (wantToName) {
+            const inputName = window.prompt("Enter build name:");
+            if (inputName && inputName.trim()) {
+                 const safeName = inputName.trim().replace(/[\\/:*?"<>|]/g, '_'); // Sanitize illegal chars
+                 fileNameBase = `Build_${safeName}`;
+            }
+        }
+
+        if (!fileNameBase) {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const mins = String(now.getMinutes()).padStart(2, '0');
+            const secs = String(now.getSeconds()).padStart(2, '0');
+            fileNameBase = `Build_${year}-${month}-${day}_${hours}-${mins}-${secs}`;
+        }
+        return fileNameBase;
+    };
+
     const downloadImage = (canvas: HTMLCanvasElement, filename: string) => {
         const link = document.createElement('a');
         link.download = filename;
@@ -189,17 +215,10 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
             return;
         }
 
+        // Generate Filename first so we don't interrupt the spinner later
+        const baseName = generateDownloadFilename();
+
         setShowDownloadMenu(false);
-
-        // Generate Filename: Build_YYYY-MM-DD_HH-mm
-        const now = new Date();
-        const year = now.getFullYear();
-        const month = String(now.getMonth() + 1).padStart(2, '0');
-        const day = String(now.getDate()).padStart(2, '0');
-        const hours = String(now.getHours()).padStart(2, '0');
-        const mins = String(now.getMinutes()).padStart(2, '0');
-        const baseName = `Build_${year}-${month}-${day}_${hours}-${mins}`;
-
         setIsGenerating(true);
         const bgColor = template === 'temple' ? '#f8f5f2' : '#000000';
 
@@ -409,6 +428,8 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
     };
 
     const handleSaveToFile = () => {
+        const filename = generateDownloadFilename();
+
         const serializableCtx = ctx.serializeState();
         const refBuilds = localStorage.getItem(STORAGE_KEY) || '{}';
         const fullSaveData = {
@@ -420,7 +441,7 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = `seinaru_build_export_${new Date().toISOString().slice(0,10)}.json`;
+        link.download = `${filename}.json`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
