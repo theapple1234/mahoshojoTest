@@ -97,7 +97,7 @@ export const HousingDetailCard: React.FC<{ home: any, theme: any }> = ({ home, t
     return (
         <div className={`p-3 rounded-lg border flex flex-col gap-2 ${theme.cardBg} ${theme.cardBorder}`}>
             <div className="flex items-center gap-3 border-b border-white/10 pb-2">
-                <div className={`w-12 h-12 rounded overflow-hidden`}>
+                <div className={`w-12 h-12 rounded overflow-hidden flex-shrink-0`}>
                      <div 
                         className={`w-full h-full bg-center bg-cover bg-no-repeat ${theme.imgFilter}`}
                         style={{ backgroundImage: `url(${home.imageSrc})` }}
@@ -106,7 +106,7 @@ export const HousingDetailCard: React.FC<{ home: any, theme: any }> = ({ home, t
                     />
                 </div>
                 <div>
-                    <p className={`text-xs font-bold ${theme.textMain} truncate`}>{home.title}</p>
+                    <p className={`text-sm font-bold ${theme.textMain} mb-1 uppercase tracking-wide`}>{home.title}</p>
                     <p className={`text-[10px] ${theme.textDim} uppercase tracking-wider`}>{home.dominion} • {home.type}</p>
                     {home.stats && <p className={`text-[10px] ${theme.textAccent} font-mono mt-0.5`}>{home.stats}</p>}
                     {home.mythicalPet && <p className={`text-[10px] text-pink-400 font-mono mt-0.5`}>Pet: {home.mythicalPet}</p>}
