@@ -34,10 +34,10 @@ export const TerminalLayout: React.FC<{ sections: any[] }> = ({ sections }) => {
                         <p className="text-[9px] opacity-60 truncate">ID: {item.id}</p>
                         {item.count && <p className="text-[9px] text-green-400 mt-0.5">QTY: {item.count}</p>}
                         {item.assignedName && (
-                            <p className="text-[9px] text-green-200 mt-0.5 border-t border-green-900/50 pt-0.5 truncate">[{item.assignedName}]</p>
+                            <p className="text-[9px] text-green-200 mt-0.5 border-t border-green-900/50 pt-0.5 truncate leading-loose">[{item.assignedName}]</p>
                         )}
                         {item.uniformName && (
-                            <p className="text-[9px] text-green-200 mt-0.5 border-t border-green-900/50 pt-0.5 truncate">COSTUME: {item.uniformName}</p>
+                            <p className="text-[9px] text-green-200 mt-0.5 border-t border-green-900/50 pt-0.5 truncate leading-loose">COSTUME: {item.uniformName}</p>
                         )}
                     </div>
                 </div>

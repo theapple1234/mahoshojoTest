@@ -38,12 +38,12 @@ export const ArcaneLayout: React.FC<{ sections: any[] }> = ({ sections }) => {
                         {item.cost && <p className="text-[9px] text-cyan-500/60 font-mono mt-auto leading-normal">{item.cost}</p>}
                         {item.assignedName && (
                             <div className="mt-1 pt-1 border-t border-white/5">
-                                <p className="text-[9px] text-cyan-300 font-bold truncate leading-relaxed">[{item.assignedName}]</p>
+                                <p className="text-[9px] text-cyan-300 font-bold truncate leading-loose">[{item.assignedName}]</p>
                             </div>
                         )}
                         {item.uniformName && (
                             <div className="mt-1 pt-1 border-t border-white/5">
-                                <p className="text-[9px] text-pink-300 font-bold truncate leading-relaxed">Costume: {item.uniformName}</p>
+                                <p className="text-[9px] text-pink-300 font-bold truncate leading-loose">Costume: {item.uniformName}</p>
                             </div>
                         )}
                     </div>

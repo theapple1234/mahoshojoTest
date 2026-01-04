@@ -184,13 +184,13 @@ export const VortexLayout: React.FC<{ sections: any[], ctx: ICharacterContext, n
                                                     <span className="absolute -bottom-1 -right-1 z-50 bg-purple-600 text-white text-[12px] font-bold px-2 py-0.5 rounded-full border-2 border-black shadow-md">x{item.count}</span>
                                                 )}
                                             </div>
-                                            <div className="mt-3 bg-black/90 px-2 py-1 rounded border border-purple-900/50 text-[10px] text-purple-200 text-center w-40 whitespace-normal leading-tight group-hover:text-white transition-colors shadow-lg z-20 min-h-[2.5em] flex flex-col items-center justify-center">
+                                            <div className="mt-3 bg-black/90 px-2 py-1 rounded border border-purple-900/50 text-[10px] text-purple-200 text-center w-40 whitespace-normal leading-loose group-hover:text-white transition-colors shadow-lg z-20 min-h-[2.5em] flex flex-col items-center justify-center">
                                                 <span>{item.title}</span>
                                                 {item.isBoosted && (
-                                                    <span className="text-[9px] text-amber-400 font-bold block mt-0.5 w-full whitespace-normal">BOOSTED</span>
+                                                    <span className="text-[9px] text-amber-400 font-bold block mt-0.5 w-full whitespace-normal leading-loose">BOOSTED</span>
                                                 )}
-                                                {item.assignedName && <span className="text-[9px] text-cyan-300 font-bold block mt-0.5 w-full whitespace-normal">[{item.assignedName}]</span>}
-                                                {item.uniformName && <span className="text-[9px] text-pink-300 font-bold block mt-0.5 w-full whitespace-normal">Costume: {item.uniformName}</span>}
+                                                {item.assignedName && <span className="text-[9px] text-cyan-300 font-bold block mt-0.5 w-full whitespace-normal leading-loose">[{item.assignedName}]</span>}
+                                                {item.uniformName && <span className="text-[9px] text-pink-300 font-bold block mt-0.5 w-full whitespace-normal leading-loose">Costume: {item.uniformName}</span>}
                                             </div>
                                         </div>
                                     );

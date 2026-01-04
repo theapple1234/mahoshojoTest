@@ -32,7 +32,7 @@ export const TempleLayout: React.FC<{ sections: any[] }> = ({ sections }) => {
                 ></div>
                 {item.assignedName && (
                     <div className="absolute bottom-0 left-0 right-0 bg-white/90 p-1 text-center border-t border-amber-100">
-                        <p className="text-[10px] text-amber-800 font-bold truncate">{item.assignedName}</p>
+                        <p className="text-[10px] text-amber-800 font-bold truncate leading-loose">{item.assignedName}</p>
                     </div>
                 )}
             </div>
@@ -40,7 +40,7 @@ export const TempleLayout: React.FC<{ sections: any[] }> = ({ sections }) => {
                 <h4 className="font-cinzel font-bold text-xs text-black">{item.title}</h4>
                 {item.cost && <p className="text-[9px] text-amber-700/70 font-serif italic mt-1 border-t border-amber-50 pt-1">{item.cost}</p>}
                 {item.count && <span className="block text-[10px] text-amber-600 font-bold mt-1">Quantity: {item.count}</span>}
-                {item.uniformName && <span className="block text-[9px] text-amber-900/80 font-bold mt-1">Costume: {item.uniformName}</span>}
+                {item.uniformName && <span className="block text-[9px] text-amber-900/80 font-bold mt-1 leading-loose">Costume: {item.uniformName}</span>}
             </div>
         </div>
     );
