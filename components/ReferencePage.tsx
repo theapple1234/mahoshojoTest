@@ -1,11 +1,15 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useCharacterContext } from '../context/CharacterContext';
 import { CompanionSection } from './reference/CompanionSection';
 import { WeaponSection } from './reference/WeaponSection';
 import { BeastSection } from './reference/BeastSection';
 import { VehicleSection } from './reference/VehicleSection';
 import { ReferenceBuildSummary } from './reference/ReferenceBuildSummary';
+import { 
+    CUSTOM_CLASSMATE_CHOICES_DATA, 
+    CUSTOM_COLLEAGUE_CHOICES_DATA 
+} from '../constants';
 import type { 
     CompanionSelections, 
     WeaponSelections, 
@@ -45,6 +49,9 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
     // Metadata State
     const [allBuilds, setAllBuilds] = useState<AllBuilds>({ companions: {}, weapons: {}, beasts: {}, vehicles: {} });
     const [currentName, setCurrentName] = useState('');
+    // Tracks the name of the file originally loaded. Null if "fresh" or reset.
+    const [originalLoadedName, setOriginalLoadedName] = useState<string | null>(null);
+
     const [pointsSpent, setPointsSpent] = useState(0);
     const [discount, setDiscount] = useState(0);
     const [template, setTemplate] = useState<'default' | 'temple' | 'vortex' | 'terminal'>('default');
@@ -80,28 +87,63 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
         ctx.refreshBuildCosts();
     };
 
-    const handleSave = () => {
-        if (!currentName.trim()) {
-            alert("Please enter a name for this build.");
-            return;
-        }
-        
-        let dataToSave: any;
-        if (activeTab === 'companions') dataToSave = { ...companionSelections, perks: Array.from(companionSelections.perks.entries()), traits: Array.from(companionSelections.traits), specialWeaponMap: Array.from(companionSelections.specialWeaponMap || []), signaturePowerMap: Array.from(companionSelections.signaturePowerMap || []), darkMagicianMap: Array.from(companionSelections.darkMagicianMap || []), powerLevelMap: Array.from(companionSelections.powerLevelMap || []) };
-        else if (activeTab === 'weapons') dataToSave = { ...weaponSelections, perks: Array.from(weaponSelections.perks.entries()), traits: Array.from(weaponSelections.traits), attunedSpellMap: Array.from(weaponSelections.attunedSpellMap || []) };
-        else if (activeTab === 'beasts') dataToSave = { ...beastSelections, perks: Array.from(beastSelections.perks.entries()), traits: Array.from(beastSelections.traits), magicalBeastMap: Array.from(beastSelections.magicalBeastMap || []) };
-        else if (activeTab === 'vehicles') dataToSave = { ...vehicleSelections, perks: Array.from(vehicleSelections.perks.entries()), traits: Array.from(vehicleSelections.traits) };
+    const getPayload = () => {
+        if (activeTab === 'companions') return { ...companionSelections, perks: Array.from(companionSelections.perks.entries()), traits: Array.from(companionSelections.traits), specialWeaponMap: Array.from(companionSelections.specialWeaponMap || []), signaturePowerMap: Array.from(companionSelections.signaturePowerMap || []), darkMagicianMap: Array.from(companionSelections.darkMagicianMap || []), powerLevelMap: Array.from(companionSelections.powerLevelMap || []) };
+        else if (activeTab === 'weapons') return { ...weaponSelections, perks: Array.from(weaponSelections.perks.entries()), traits: Array.from(weaponSelections.traits), attunedSpellMap: Array.from(weaponSelections.attunedSpellMap || []) };
+        else if (activeTab === 'beasts') return { ...beastSelections, perks: Array.from(beastSelections.perks.entries()), traits: Array.from(beastSelections.traits), magicalBeastMap: Array.from(beastSelections.magicalBeastMap || []) };
+        else return { ...vehicleSelections, perks: Array.from(vehicleSelections.perks.entries()), traits: Array.from(vehicleSelections.traits) };
+    }
 
+    const saveToName = (name: string, originalName?: string) => {
+        const dataToSave = getPayload();
         const buildData: SavedBuildData = {
             version: 1,
             data: dataToSave
         };
-
         const newBuilds = { ...allBuilds };
-        newBuilds[activeTab][currentName] = buildData;
         
+        // If renaming, delete the old entry
+        if (originalName && originalName !== name) {
+            delete newBuilds[activeTab][originalName];
+        }
+        
+        newBuilds[activeTab][name] = buildData;
         saveBuildsToStorage(newBuilds);
-        alert(`Saved ${activeTab.slice(0, -1)} "${currentName}"!`);
+        
+        alert(`Saved ${activeTab.slice(0, -1)} "${name}"!`);
+        setCurrentName(name);
+        setOriginalLoadedName(name); // Update loaded state to the new name
+    };
+
+    const handleChangeThisFile = () => {
+        if (!currentName.trim()) return;
+        if (!originalLoadedName) return;
+
+        // Validation happens in render via disabled state, but double check
+        if (currentName !== originalLoadedName) {
+            if (allBuilds[activeTab][currentName]) {
+                if (!confirm(`Build "${currentName}" already exists. Overwrite?`)) return;
+            }
+        }
+        saveToName(currentName, originalLoadedName);
+    };
+
+    const handleSaveAsNew = () => {
+        const newName = prompt("Enter a name for the new build:", currentName || "New Build");
+        if (!newName || !newName.trim()) return;
+        if (allBuilds[activeTab][newName] && !confirm(`Build "${newName}" already exists. Overwrite?`)) return;
+        saveToName(newName); // No original name passed implies new entry
+    };
+
+    const handleInitialSave = () => {
+        if (!currentName.trim()) {
+            alert("Please enter a name.");
+            return;
+        }
+        if (allBuilds[activeTab][currentName]) {
+            if (!confirm(`Build "${currentName}" already exists. Overwrite?`)) return;
+        }
+        saveToName(currentName);
     };
 
     const loadDataIntoView = (type: BuildType, data: any) => {
@@ -144,6 +186,7 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
         
         const data = build.data;
         setCurrentName(name);
+        setOriginalLoadedName(name); // Mark as loaded
         loadDataIntoView(activeTab, data);
     };
 
@@ -152,18 +195,27 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
         const newBuilds = { ...allBuilds };
         delete newBuilds[activeTab][name];
         saveBuildsToStorage(newBuilds);
-        if (currentName === name) {
+        
+        // If deleted currently loaded file, reset
+        if (originalLoadedName === name) {
             handleReset();
         }
     };
 
     const handleReset = () => {
         setCurrentName('');
+        setOriginalLoadedName(null); // Clear loaded state
         if (activeTab === 'companions') setCompanionSelections(INITIAL_COMPANION);
         else if (activeTab === 'weapons') setWeaponSelections(INITIAL_WEAPON);
         else if (activeTab === 'beasts') setBeastSelections(INITIAL_BEAST);
         else if (activeTab === 'vehicles') setVehicleSelections(INITIAL_VEHICLE);
     };
+
+    // When changing tabs, reset state
+    const handleTabChange = (type: BuildType) => {
+        setActiveTab(type);
+        handleReset();
+    }
 
     const handleBpSpentChange = (amount: number) => {
          if (activeTab === 'companions') setCompanionSelections(prev => ({...prev, bpSpent: amount}));
@@ -172,17 +224,20 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
          else if (activeTab === 'vehicles') setVehicleSelections(prev => ({...prev, bpSpent: amount}));
     };
 
+    // ... Export / Import Logic (unchanged mostly, but ensure originalLoadedName is handled if needed on import) ...
+    // Note: On import, we currently set currentName and load data, but do we treat it as an existing file? 
+    // If it overwrote something, yes. If not, it depends.
+    // In existing code, handleImport sets currentName and calls loadDataIntoView. 
+    // To be safe, let's treat imported data as "Loaded" if it matches an entry in allBuilds.
+    // Updated handleFileChange Logic below.
+
     const handleExport = () => {
         if (!currentName) {
             alert("Please save or name the build before exporting.");
             return;
         }
         
-        let payload: any;
-        if (activeTab === 'companions') payload = { ...companionSelections, perks: Array.from(companionSelections.perks.entries()), traits: Array.from(companionSelections.traits), specialWeaponMap: Array.from(companionSelections.specialWeaponMap || []), signaturePowerMap: Array.from(companionSelections.signaturePowerMap || []), darkMagicianMap: Array.from(companionSelections.darkMagicianMap || []), powerLevelMap: Array.from(companionSelections.powerLevelMap || []) };
-        else if (activeTab === 'weapons') payload = { ...weaponSelections, perks: Array.from(weaponSelections.perks.entries()), traits: Array.from(weaponSelections.traits), attunedSpellMap: Array.from(weaponSelections.attunedSpellMap || []) };
-        else if (activeTab === 'beasts') payload = { ...beastSelections, perks: Array.from(beastSelections.perks.entries()), traits: Array.from(beastSelections.traits), magicalBeastMap: Array.from(beastSelections.magicalBeastMap || []) };
-        else if (activeTab === 'vehicles') payload = { ...vehicleSelections, perks: Array.from(vehicleSelections.perks.entries()), traits: Array.from(vehicleSelections.traits) };
+        let payload = getPayload();
 
         // Dependency gathering
         const buildsToExport: { type: BuildType, name: string, data: SavedBuildData }[] = [];
@@ -214,7 +269,7 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
         }
 
         const exportData = {
-            seinaruMeta: "multi-export", // Updated to multi-export
+            seinaruMeta: "multi-export", 
             mainBuild: { type: activeTab, name: currentName },
             builds: buildsToExport
         };
@@ -247,7 +302,6 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
 
                 const json = JSON.parse(jsonStr);
                 
-                // Handle new multi-export format
                 if (json.seinaruMeta === "multi-export" && json.builds && Array.isArray(json.builds)) {
                     const newAllBuilds = { ...allBuilds };
                     let importCount = 0;
@@ -261,7 +315,6 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
                     
                     saveBuildsToStorage(newAllBuilds);
                     
-                    // If a main build is specified, load it into view
                     if (json.mainBuild && json.mainBuild.type && json.mainBuild.name) {
                         const targetName = json.mainBuild.name;
                         const targetType = json.mainBuild.type as BuildType;
@@ -270,6 +323,7 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
                         if (mainData) {
                             setActiveTab(targetType);
                             setCurrentName(targetName);
+                            setOriginalLoadedName(targetName); // Treat as loaded
                             loadDataIntoView(targetType, mainData);
                             alert(`Imported ${importCount} builds. Loaded "${targetName}".`);
                         } else {
@@ -308,6 +362,7 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
                     alert(`Imported "${name}" into ${type}!`);
                     setActiveTab(type);
                     setCurrentName(name);
+                    setOriginalLoadedName(name); // Treat as loaded
                     loadDataIntoView(type, payload.data);
                     return;
                 }
@@ -365,6 +420,209 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
 
     const netPoints = pointsSpent - discount;
 
+    // Checks if the build with 'targetName' is currently used anywhere in the app
+    const getBuildUsages = (targetName: string): string[] => {
+        if (!targetName) return [];
+        const usages: string[] = [];
+        
+        if (activeTab === 'companions') {
+            ctx.blessedCompanions.forEach((assignedName, memberId) => { if (assignedName === targetName) usages.push(`Blessed Family Member (${memberId})`); });
+            ctx.customClassmates.forEach(c => { if (c.companionName === targetName) usages.push(`Custom Classmate`); });
+            ctx.humanMarionetteCompanionNames.forEach((name, idx) => { if (name === targetName) usages.push(`Puppet #${idx+1}`); });
+            if (ctx.roboticistCompanionName === targetName) usages.push(`Roboticist II`);
+            if (ctx.undeadThrallCompanionName === targetName) usages.push(`Undead Thrall`);
+            ctx.verseAttendantCompanionNames.forEach((name, idx) => { if (name === targetName) usages.push(`Verse Attendant #${idx+1}`); });
+            ctx.customSpells.forEach((spell, idx) => { if (spell.mialgrathApplied && spell.assignedEntityType === 'companion' && spell.assignedEntityName === targetName) usages.push(`Milgrath Spell #${idx+1}`); });
+            if (ctx.joysOfParentingCompanionName === targetName) usages.push(`Child (Joys of Parenting)`);
+            ctx.customColleagues.forEach(c => { if (c.companionName === targetName) usages.push(`Custom Colleague`); });
+            if (ctx.mentee?.type === 'custom' && ctx.mentee.name === targetName) usages.push(`Mentee`);
+        }
+        
+        if (activeTab === 'beasts') {
+            if (ctx.mythicalPetBeastName === targetName) usages.push(`Mythical Pet`);
+            if (ctx.inhumanAppearanceBeastName === targetName) usages.push(`Inhuman Appearance`);
+            if (ctx.mageFamiliarBeastName === targetName) usages.push(`Familiar`);
+            ctx.beastmasterBeastNames.forEach((name, idx) => { if (name === targetName) usages.push(`Beastmaster Familiar #${idx+1}`); });
+            if (ctx.shedHumanityBeastName === targetName) usages.push(`Shed Humanity Form`);
+            if (ctx.malrayootsMageFormName === targetName) usages.push(`Malrayoots (Mage)`);
+            if (ctx.malrayootsUniversalFormName === targetName) usages.push(`Malrayoots (Universal)`);
+            if (ctx.roboticistIBeastName === targetName) usages.push(`Roboticist I Automaton`);
+            if (ctx.undeadBeastName === targetName) usages.push(`Undead Beast`);
+            ctx.livingInhabitants.forEach((inhabitant, idx) => { if (inhabitant.beastName === targetName) usages.push(`Living Inhabitant #${idx+1}`); });
+            if (ctx.overlordBeastName === targetName) usages.push(`Overlord Form`);
+            if (ctx.naniteFormBeastName === targetName) usages.push(`Nanite Form`);
+            if (ctx.onisBlessingGuardianName === targetName) usages.push(`Oni Guardian`);
+            ctx.customSpells.forEach((spell, idx) => { if (spell.mialgrathApplied && spell.assignedEntityType === 'beast' && spell.assignedEntityName === targetName) usages.push(`Milgrath Spell #${idx+1}`); });
+             // Check saved references
+            Object.entries(allBuilds.companions).forEach(([compName, comp]) => {
+                const cData = comp.data;
+                if (cData.inhumanFormBeastName === targetName) usages.push(`Inhuman Form for ${compName}`);
+            });
+             ctx.vacationHomes.forEach((home, idx) => { if (home.mythicalPetName === targetName) usages.push(`Vacation Home #${idx+1} Pet`); });
+        }
+
+        if (activeTab === 'weapons') {
+            const engravingUsers = [
+                { id: 'Good Tidings', name: ctx.goodTidingsWeaponName },
+                { id: 'Compelling Will', name: ctx.compellingWillWeaponName },
+                { id: 'Worldly Wisdom', name: ctx.worldlyWisdomWeaponName },
+                { id: 'Bitter Dissatisfaction', name: ctx.bitterDissatisfactionWeaponName },
+                { id: 'Lost Hope', name: ctx.lostHopeWeaponName },
+                { id: 'Fallen Peace', name: ctx.fallenPeaceWeaponName },
+                { id: 'Gracious Defeat', name: ctx.graciousDefeatWeaponName },
+                { id: 'Closed Circuits', name: ctx.closedCircuitsWeaponName },
+                { id: 'Righteous Creation', name: ctx.righteousCreationWeaponName },
+             ];
+             engravingUsers.forEach(u => { if (u.name === targetName) usages.push(`${u.id} Engraving`); });
+             if (ctx.thermalWeaponryWeaponName === targetName) usages.push(`Thermal Weaponry`);
+             if (ctx.weaponsmithWeaponName === targetName) usages.push(`Masterpiece Weapon`);
+             if (ctx.heavilyArmedWeaponName === targetName) usages.push(`Nanite Weapon`);
+             ctx.customSpells.forEach((spell, idx) => { if (spell.mialgrathApplied && spell.assignedEntityType === 'weapon' && spell.assignedEntityName === targetName) usages.push(`Milgrath Spell #${idx+1}`); });
+             Object.entries(allBuilds.companions).forEach(([compName, comp]) => {
+                const cData = comp.data;
+                if (cData.specialWeaponName === targetName) usages.push(`Special Weapon for ${compName}`);
+            });
+        }
+
+        if (activeTab === 'vehicles') {
+             if (ctx.assignedVehicleName === targetName) usages.push(`Signature Vehicle`);
+             if (ctx.masterMechanicVehicleName === targetName) usages.push(`Master Mechanic Vehicle`);
+             ctx.customSpells.forEach((spell, idx) => { if (spell.mialgrathApplied && spell.assignedEntityType === 'vehicle' && spell.assignedEntityName === targetName) usages.push(`Milgrath Spell #${idx+1}`); });
+        }
+
+        return usages;
+    };
+
+    // Validates current selections against constraints of a specific name usage
+    const getValidationErrors = (targetName: string): string[] => {
+        if (!targetName) return [];
+        const errors: string[] = [];
+        const points = netPoints;
+
+        // ... [Identical Logic to Previous, just removed outer wrapper logic] ...
+        // Re-pasting the logic for completeness and correctness in context of the new structure
+        
+        // --- COMPANIONS ---
+        if (activeTab === 'companions') {
+            const data = companionSelections;
+            ctx.blessedCompanions.forEach((assignedName, memberId) => { if (assignedName === targetName) { if (data.category !== 'mage') errors.push(`Blessed Family Member (${memberId}): Must be 'Mage'.`); if (points > 35) errors.push(`Blessed Family Member (${memberId}): Cost (${points}) > 35.`); } });
+            ctx.customClassmates.forEach(c => { if (c.companionName === targetName) { const limit = c.optionId === 'custom_classmate_25' ? 25 : c.optionId === 'custom_classmate_35' ? 35 : 50; if (points > limit) errors.push(`Custom Classmate: Cost (${points}) > ${limit}.`); } });
+            ctx.humanMarionetteCompanionNames.forEach((name, idx) => { if (name === targetName) { if (data.category !== 'puppet') errors.push(`Puppet #${idx+1}: Must be 'Puppet'.`); const limit = Math.floor((100 + (ctx.isSoulAlchemyBoosted ? 20 : 0)) / (ctx.humanMarionetteCount || 1)); if (points > limit) errors.push(`Puppet #${idx+1}: Cost (${points}) > ${limit}.`); } });
+            if (ctx.roboticistCompanionName === targetName) { if (!data.category?.includes('automaton')) errors.push(`Roboticist II: Must be 'Automaton'.`); if (points > 50) errors.push(`Roboticist II: Cost (${points}) > 50.`); }
+            if (ctx.undeadThrallCompanionName === targetName) { if (!data.category?.includes('undead')) errors.push(`Undead Thrall: Must be 'Undead'.`); const limit = ctx.blackMagicBoostSigil ? 60 : 50; if (points > limit) errors.push(`Undead Thrall: Cost (${points}) > ${limit}.`); }
+            ctx.verseAttendantCompanionNames.forEach((name, idx) => { if (name === targetName) { if (data.category !== 'mage') errors.push(`Verse Attendant #${idx+1}: Must be 'Mage'.`); const limit = 50 + (ctx.isFeaturesBoosted ? 50 : 0); if (points > limit) errors.push(`Verse Attendant #${idx+1}: Cost (${points}) > ${limit}.`); } });
+            ctx.customSpells.forEach((spell, idx) => { if (spell.mialgrathApplied && spell.assignedEntityType === 'companion' && spell.assignedEntityName === targetName) { if (points > 100) errors.push(`Milgrath Spell #${idx+1}: Cost (${points}) > 100.`); } });
+            if (ctx.joysOfParentingCompanionName === targetName) { if (data.category !== 'mage') errors.push(`Child: Must be 'Mage'.`); if (points > 50) errors.push(`Child: Cost (${points}) > 50.`); }
+            ctx.customColleagues.forEach(c => { if (c.companionName === targetName) { const limit = c.optionId === 'custom_colleague_25' ? 25 : c.optionId === 'custom_colleague_35' ? 35 : 50; if (points > limit) errors.push(`Custom Colleague: Cost (${points}) > ${limit}.`); } });
+            if (ctx.mentee?.type === 'custom' && ctx.mentee.name === targetName) { if (points > ctx.mentee.originalCost) errors.push(`Mentee: Cost (${points}) > ${ctx.mentee.originalCost}.`); }
+        }
+        
+        // --- BEASTS ---
+        if (activeTab === 'beasts') {
+            const data = beastSelections;
+            if (ctx.mythicalPetBeastName === targetName && points > 30) errors.push(`Mythical Pet: Cost (${points}) > 30.`);
+            if (ctx.inhumanAppearanceBeastName === targetName) { if (points > 40) errors.push(`Inhuman Appearance: Cost (${points}) > 40.`); if (data.perks.has('chatterbox_beast')) errors.push(`Inhuman Appearance: No Chatterbox.`); if (data.perks.has('magical_beast')) errors.push(`Inhuman Appearance: No Magical Beast.`); }
+            if (ctx.mageFamiliarBeastName === targetName) { let limit = 30; if (ctx.selectedSoulAlchemy.has('mages_familiar_ii')) limit = 60; if (ctx.selectedSoulAlchemy.has('mages_familiar_iii')) limit = 90; if (ctx.isSoulAlchemyBoosted) limit += 10; if (points > limit) errors.push(`Familiar: Cost (${points}) > ${limit}.`); }
+            ctx.beastmasterBeastNames.forEach((name, idx) => { if (name === targetName) { const limit = ctx.totalBeastPoints / (ctx.beastmasterCount || 1); if (points > limit) errors.push(`Familiar #${idx+1}: Cost (${points}) > ${Math.floor(limit)}.`); } });
+            if (ctx.shedHumanityBeastName === targetName) { let limit = 50; if (ctx.selectedTransformation.has('shed_humanity_ii')) limit = 80; if (ctx.isTransformationBoosted) limit += 10; if (points > limit) errors.push(`Shed Humanity: Cost (${points}) > ${limit}.`); if (data.perks.has('chatterbox_beast')) errors.push(`Shed Humanity: No Chatterbox.`); if (data.perks.has('magical_beast')) errors.push(`Shed Humanity: No Magical Beast.`); }
+            if (ctx.malrayootsMageFormName === targetName && points > 70) errors.push(`Malrayoots (Mage): Cost (${points}) > 70.`);
+            if (ctx.malrayootsUniversalFormName === targetName && points > 40) errors.push(`Malrayoots (Universal): Cost (${points}) > 40.`);
+            if (ctx.roboticistIBeastName === targetName) { if (points > 40) errors.push(`Automaton: Cost (${points}) > 40.`); if (!data.perks.has('automaton_perk')) errors.push(`Automaton: Must have Automaton perk.`); if (data.perks.has('chatterbox_beast')) errors.push(`Automaton: No Chatterbox.`); if (data.perks.has('magical_beast')) errors.push(`Automaton: No Magical Beast.`); }
+            if (ctx.undeadBeastName === targetName) { const limit = ctx.isNecromancyBoosted ? 70 : 60; if (points > limit) errors.push(`Undead Beast: Cost (${points}) > ${limit}.`); if (!data.perks.has('undead_perk')) errors.push(`Undead Beast: Must have Undead perk.`); if (data.perks.has('chatterbox_beast')) errors.push(`Undead Beast: No Chatterbox.`); if (data.perks.has('magical_beast')) errors.push(`Undead Beast: No Magical Beast.`); }
+            ctx.livingInhabitants.forEach((inhabitant, idx) => { if (inhabitant.beastName === targetName) { const limit = inhabitant.type === 'populated' ? (40 + (ctx.isFeaturesBoosted ? 10 : 0)) : (70 + (ctx.isFeaturesBoosted ? 10 : 0)); if (points > limit) errors.push(`Inhabitant #${idx+1}: Cost (${points}) > ${limit}.`); } });
+            if (ctx.overlordBeastName === targetName) { if (data.perks.has('chatterbox_beast')) errors.push(`Overlord: No Chatterbox.`); if (data.perks.has('magical_beast')) errors.push(`Overlord: No Magical Beast.`); }
+            if (ctx.naniteFormBeastName === targetName) { const limit = ctx.isNaniteControlBoosted ? 50 : 40; if (points > limit) errors.push(`Nanite Form: Cost (${points}) > ${limit}.`); if (!data.category.includes('humanoid')) errors.push(`Nanite Form: Must be Humanoid.`); if (data.perks.has('chatterbox_beast')) errors.push(`Nanite Form: No Chatterbox.`); if (data.perks.has('magical_beast')) errors.push(`Nanite Form: No Magical Beast.`); }
+            if (ctx.onisBlessingGuardianName === targetName && points > 100) errors.push(`Oni Guardian: Cost (${points}) > 100.`);
+            ctx.customSpells.forEach((spell, idx) => { if (spell.mialgrathApplied && spell.assignedEntityType === 'beast' && spell.assignedEntityName === targetName) { if (points > 100) errors.push(`Milgrath Spell #${idx+1}: Cost (${points}) > 100.`); } });
+            Object.entries(allBuilds.companions).forEach(([compName, comp]) => { const cData = comp.data; if (cData.inhumanFormBeastName === targetName) { if (points > 40) errors.push(`Inhuman Form (${compName}): Cost > 40.`); if (data.perks.has('chatterbox_beast')) errors.push(`Inhuman Form (${compName}): No Chatterbox.`); if (data.perks.has('magical_beast')) errors.push(`Inhuman Form (${compName}): No Magical Beast.`); } });
+            ctx.vacationHomes.forEach((home, idx) => { if (home.mythicalPetName === targetName && points > 30) errors.push(`Vacation Home #${idx+1} Pet: Cost > 30.`); });
+        }
+
+        // --- WEAPONS ---
+        if (activeTab === 'weapons') {
+             const engravingUsers = [
+                { id: 'Good Tidings', name: ctx.goodTidingsWeaponName },
+                { id: 'Compelling Will', name: ctx.compellingWillWeaponName },
+                { id: 'Worldly Wisdom', name: ctx.worldlyWisdomWeaponName },
+                { id: 'Bitter Dissatisfaction', name: ctx.bitterDissatisfactionWeaponName },
+                { id: 'Lost Hope', name: ctx.lostHopeWeaponName },
+                { id: 'Fallen Peace', name: ctx.fallenPeaceWeaponName },
+                { id: 'Gracious Defeat', name: ctx.graciousDefeatWeaponName },
+                { id: 'Closed Circuits', name: ctx.closedCircuitsWeaponName },
+                { id: 'Righteous Creation', name: ctx.righteousCreationWeaponName },
+             ];
+             engravingUsers.forEach(u => { if (u.name === targetName) { if (points > 20) errors.push(`${u.id} Weapon: Cost (${points}) > 20.`); } });
+             if (ctx.thermalWeaponryWeaponName === targetName) { const limit = ctx.isMetathermicsBoosted ? 35 : 30; if (points > limit) errors.push(`Thermal Weaponry: Cost (${points}) > ${limit}.`); if (!weaponSelections.category.includes('bladed_melee') && !weaponSelections.category.includes('blunt_melee')) errors.push(`Thermal Weaponry: Must be Melee.`); if (!weaponSelections.perks.has('thermal_supercharge')) errors.push(`Thermal Weaponry: Must have Thermal Supercharge.`); }
+             if (ctx.weaponsmithWeaponName === targetName && points > 40) errors.push(`Masterpiece Weapon: Cost (${points}) > 40.`);
+             if (ctx.heavilyArmedWeaponName === targetName) { const limit = ctx.isNaniteControlBoosted ? 40 : 30; if (points > limit) errors.push(`Nanite Weapon: Cost (${points}) > ${limit}.`); if (!weaponSelections.perks.has('physically_attached')) errors.push(`Nanite Weapon: Must have Physically Attached.`); }
+             ctx.customSpells.forEach((spell, idx) => { if (spell.mialgrathApplied && spell.assignedEntityType === 'weapon' && spell.assignedEntityName === targetName) { if (points > 100) errors.push(`Milgrath Spell #${idx+1}: Cost (${points}) > 100.`); } });
+             Object.entries(allBuilds.companions).forEach(([compName, comp]) => { const cData = comp.data; if (cData.specialWeaponName === targetName) { if (points > 20) errors.push(`Special Weapon (${compName}): Cost > 20.`); } });
+        }
+
+        // --- VEHICLES ---
+        if (activeTab === 'vehicles') {
+             if (ctx.assignedVehicleName === targetName && points > 30) errors.push(`Signature Vehicle: Cost (${points}) > 30.`);
+             if (ctx.masterMechanicVehicleName === targetName) { const limit = ctx.selectedMagitechPowers.has('master_mechanic_ii') ? 100 : 50; if (points > limit) errors.push(`Master Mechanic Vehicle: Cost (${points}) > ${limit}.`); }
+             ctx.customSpells.forEach((spell, idx) => { if (spell.mialgrathApplied && spell.assignedEntityType === 'vehicle' && spell.assignedEntityName === targetName) { if (points > 100) errors.push(`Milgrath Spell #${idx+1}: Cost (${points}) > 100.`); } });
+        }
+
+        return errors;
+    };
+
+    // Calculate validation errors for the UI state
+    // We check errors depending on what we are doing:
+    // 1. If Rename (Edit mode + name changed): Cannot rename if original is used.
+    // 2. If Overwrite (Edit mode + same name): Check constraint violation for that name.
+    // 3. If Save (New mode + existing name): Check constraint violation for that name.
+    const validationErrors = useMemo(() => {
+        const errors: string[] = [];
+        
+        // 1. Rename Protection (If editing and name changed)
+        if (originalLoadedName && currentName !== originalLoadedName) {
+            const originalUsages = getBuildUsages(originalLoadedName);
+            if (originalUsages.length > 0) {
+                errors.push(`Cannot rename "${originalLoadedName}" because it is currently assigned to:`);
+                originalUsages.forEach(u => errors.push(`- ${u}`));
+                return errors; // Block rename entirely if used
+            }
+        }
+
+        // 2. Overwrite / Update Constraints (Target Name)
+        // If we are saving (new or overwrite), check if the resulting build violates where the target name is used.
+        const targetUsages = getBuildUsages(currentName);
+        if (targetUsages.length > 0) {
+            const violations = getValidationErrors(currentName);
+            if (violations.length > 0) {
+                errors.push(`Overwrite of "${currentName}" violates assignments:`);
+                violations.forEach(v => errors.push(v));
+            }
+        }
+        
+        return errors;
+    }, [currentName, originalLoadedName, activeTab, companionSelections, weaponSelections, beastSelections, vehicleSelections, pointsSpent, ctx, allBuilds]);
+
+    const isEditMode = !!originalLoadedName;
+    const isRename = isEditMode && currentName !== originalLoadedName;
+
+    // ... rest of component ...
+    
+    // ... (helper functions like loadDataIntoView, handleLoad, etc.)
+
+    const containerBgClass = template === 'temple' ? 'bg-[#f8f5f2]' : (template === 'default' ? 'bg-[#0a0f1e]' : 'bg-black');
+    
+    // Theme colors for Appendix Header
+    const appendixHeaderClass = 
+        template === 'terminal' ? 'text-green-500 border-green-500/50' :
+        template === 'temple' ? 'text-amber-800 border-amber-800/30' :
+        template === 'vortex' ? 'text-purple-400 border-purple-500/50' : 
+        'text-cyan-200 border-cyan-500/50';
+
+    const appendixDividerClass =
+        template === 'terminal' ? 'border-green-900/50' :
+        template === 'temple' ? 'border-amber-900/20' :
+        template === 'vortex' ? 'border-purple-900/50' :
+        'border-cyan-900/30';
+
     return (
         <div className={`fixed inset-0 bg-[#0a101f] z-[100] overflow-y-auto overflow-x-hidden transition-opacity duration-300 ${isTransparent ? 'opacity-15 pointer-events-none' : 'opacity-100'}`}>
              {/* Header */}
@@ -375,10 +633,7 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
                         {BUILD_TYPES.map(type => (
                             <button
                                 key={type}
-                                onClick={() => {
-                                    setActiveTab(type);
-                                    setCurrentName('');
-                                }}
+                                onClick={() => handleTabChange(type)}
                                 className={`px-4 py-2 text-sm font-bold uppercase rounded transition-all ${activeTab === type ? 'bg-cyan-900/50 text-cyan-200 shadow-sm' : 'text-gray-500 hover:text-gray-300'}`}
                             >
                                 {type}
@@ -392,7 +647,7 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
                             Total Points
                         </p>
                         <p className="text-2xl font-bold font-mono text-green-400">
-                            {netPoints}
+                            {pointsSpent}
                         </p>
                         {discount > 0 && <p className="text-[10px] text-green-500">(Discounted Points: {discount})</p>}
                     </div>
@@ -428,7 +683,7 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
                     <div className="space-y-2">
                         {Object.keys(allBuilds[activeTab]).map(buildName => (
                             <div key={buildName} className="flex justify-between items-center group p-2 rounded hover:bg-white/5 cursor-pointer" onClick={() => handleLoad(buildName)}>
-                                <span className={`text-sm ${currentName === buildName ? 'text-cyan-300 font-bold' : 'text-gray-300'} break-all pr-2`}>{buildName}</span>
+                                <span className={`text-sm ${originalLoadedName === buildName ? 'text-cyan-300 font-bold' : 'text-gray-300'} break-all pr-2`}>{buildName}</span>
                                 <button 
                                     onClick={(e) => { e.stopPropagation(); handleDelete(buildName); }}
                                     className="text-gray-600 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity px-2 flex-shrink-0"
@@ -454,9 +709,57 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
                             placeholder="Build Name..." 
                             className="bg-gray-900 border border-gray-700 text-white px-3 py-2 rounded focus:outline-none focus:border-cyan-500 flex-grow"
                         />
-                        <button onClick={handleSave} className="px-4 py-2 bg-green-900/40 text-green-300 border border-green-700 rounded hover:bg-green-800/50 transition-colors">Save</button>
+                        
+                        {/* New Save Buttons Logic */}
+                        {isEditMode ? (
+                            <>
+                                <div className="relative group">
+                                    <button 
+                                        onClick={handleChangeThisFile} 
+                                        disabled={validationErrors.length > 0} 
+                                        className={`px-4 py-2 border rounded transition-colors ${
+                                            validationErrors.length > 0 
+                                                ? 'bg-red-900/20 border-red-700 text-red-500 cursor-not-allowed opacity-50' 
+                                                : 'bg-green-900/40 text-green-300 border-green-700 hover:bg-green-800/50'
+                                        }`}
+                                    >
+                                        Change This File
+                                    </button>
+                                    {validationErrors.length > 0 && (
+                                        <div className="absolute bottom-full right-0 mb-2 w-72 p-3 bg-red-900/90 text-white text-xs rounded shadow-lg z-50 border border-red-500 animate-fade-in-up-toast">
+                                            <p className="font-bold border-b border-white/20 pb-1 mb-1">Action Blocked:</p>
+                                            <ul className="list-disc pl-4 space-y-0.5">
+                                                {validationErrors.map((e, i) => <li key={i}>{e}</li>)}
+                                            </ul>
+                                        </div>
+                                    )}
+                                </div>
+                                <button onClick={handleSaveAsNew} className="px-4 py-2 bg-blue-900/30 text-blue-200 border border-blue-700/50 rounded hover:bg-blue-800/40 transition-colors">Save as New</button>
+                            </>
+                        ) : (
+                             <div className="relative group">
+                                <button 
+                                    onClick={handleInitialSave} 
+                                    disabled={validationErrors.length > 0} 
+                                    className={`px-4 py-2 bg-green-900/40 text-green-300 border border-green-700 rounded hover:bg-green-800/50 transition-colors ${validationErrors.length > 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                >
+                                    Save
+                                </button>
+                                {validationErrors.length > 0 && (
+                                    <div className="absolute bottom-full right-0 mb-2 w-72 p-3 bg-red-900/90 text-white text-xs rounded shadow-lg z-50 border border-red-500 animate-fade-in-up-toast">
+                                        <p className="font-bold border-b border-white/20 pb-1 mb-1">Cannot overwrite:</p>
+                                        <ul className="list-disc pl-4 space-y-0.5">
+                                            {validationErrors.map((e, i) => <li key={i}>{e}</li>)}
+                                        </ul>
+                                    </div>
+                                )}
+                             </div>
+                        )}
+
+                        <div className="h-6 w-px bg-gray-700 mx-2"></div>
+
                         <button onClick={handleReset} className="px-4 py-2 bg-gray-800 text-gray-300 border border-gray-600 rounded hover:bg-gray-700 transition-colors">Reset</button>
-                        <button onClick={handleExport} className="px-4 py-2 bg-blue-900/40 text-blue-300 border border-blue-700 rounded hover:bg-blue-800/50 transition-colors">Export</button>
+                        <button onClick={handleExport} className="px-4 py-2 bg-indigo-900/40 text-indigo-300 border border-indigo-700 rounded hover:bg-indigo-800/50 transition-colors">Export</button>
                         <button onClick={scrollToPreview} className="px-4 py-2 bg-purple-900/40 text-purple-300 border border-purple-700 rounded hover:bg-purple-800/50 transition-colors">Download IMG</button>
                     
                         {isSunForgerActive && (

@@ -184,7 +184,7 @@ export const VortexLayout: React.FC<{ sections: any[], ctx: ICharacterContext, n
                                                     <span className="absolute -bottom-1 -right-1 z-50 bg-purple-600 text-white text-[12px] font-bold px-2 py-0.5 rounded-full border-2 border-black shadow-md">x{item.count}</span>
                                                 )}
                                             </div>
-                                            <div className="mt-3 bg-black/90 px-2 py-1 rounded border border-purple-900/50 text-[10px] text-purple-200 text-center w-40 whitespace-normal leading-loose group-hover:text-white transition-colors shadow-lg z-20 min-h-[2.5em] flex flex-col items-center justify-center">
+                                            <div className="mt-3 text-[10px] text-purple-200 text-center w-40 whitespace-normal leading-loose group-hover:text-white transition-colors z-20 min-h-[2.5em] flex flex-col items-center justify-center drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
                                                 <span>{item.title}</span>
                                                 {item.isBoosted && (
                                                     <span className="text-[9px] text-amber-400 font-bold block mt-0.5 w-full whitespace-normal leading-loose">BOOSTED</span>
@@ -226,8 +226,8 @@ export const VortexLayout: React.FC<{ sections: any[], ctx: ICharacterContext, n
                                                 {member.note && <p className="text-[10px] text-gray-400 truncate leading-loose">"{member.note}"</p>}
                                                 <div className="flex flex-wrap gap-1 mt-1">
                                                     {member.traits.map((t: any) => (
-                                                        <span key={t.id} className="text-[8px] px-1.5 py-0.5 rounded bg-purple-900/40 border border-purple-500/30 text-purple-300">
-                                                            {t.title}
+                                                        <span key={t.id} className="text-[8px] text-purple-300 mr-2 drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]">
+                                                            • {t.title}
                                                             {t.assignedName && <span className="ml-1 font-bold text-cyan-300">[{t.assignedName}]</span>}
                                                         </span>
                                                     ))}
@@ -261,8 +261,8 @@ export const VortexLayout: React.FC<{ sections: any[], ctx: ICharacterContext, n
                                                     {home.upgrades.length > 0 && (
                                                         <div className="flex flex-wrap gap-1 mt-1.5">
                                                             {home.upgrades.map((u: any, idx: number) => (
-                                                                <span key={idx} className="text-[8px] px-1.5 py-0.5 rounded bg-blue-900/20 border border-blue-500/20 text-blue-200 leading-[2.5]">
-                                                                    {u.title}
+                                                                <span key={idx} className="text-[8px] text-blue-200 leading-[2.5] mr-2 drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]">
+                                                                    • {u.title}
                                                                     {u.assignedName && <span className="ml-1 text-cyan-300">[{u.assignedName}]</span>}
                                                                 </span>
                                                             ))}
@@ -294,7 +294,7 @@ export const VortexLayout: React.FC<{ sections: any[], ctx: ICharacterContext, n
                                 <p className="text-gray-400 text-sm whitespace-pre-wrap">{spell.description}</p>
                                 {spell.mialgrathApplied && (
                                     <div className="mt-2 text-xs text-cyan-400 border-t border-purple-500/20 pt-2">
-                                        <span className="font-bold uppercase tracking-wider">Milgrath Override:</span> <span className="relative -top-[5px]">{spell.mialgrathDescription}</span>
+                                        <span className="font-bold uppercase tracking-wider">Milgrath Override:</span> <span className="milgrath-override-content">{spell.mialgrathDescription}</span>
                                     </div>
                                 )}
                             </div>

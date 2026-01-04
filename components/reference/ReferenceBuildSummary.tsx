@@ -396,7 +396,7 @@ export const ReferenceBuildSummary: React.FC<ReferenceBuildSummaryProps> = ({
             cardBorder: "border-green-500/30",
             statBox: "bg-black border-green-500",
             divider: "border-green-500/50",
-            imgFilter: "grayscale contrast-125",
+            imgFilter: "",
             isTerminal: true
         }
     };

@@ -11,7 +11,7 @@ export const usePageOneState = () => {
     const [familyMemberNotes, setFamilyMemberNotes] = useState<Map<string, string>>(new Map());
     const [familyMemberImages, setFamilyMemberImages] = useState<Map<string, string>>(new Map());
     
-    const [selectedHouseId, setSelectedHouseId] = useState<string | null>('apartment');
+    const [selectedHouseId, setSelectedHouseId] = useState<string | null>(null);
     const [selectedUpgrades, setSelectedUpgrades] = useState<Set<string>>(new Set());
     
     // House specifics
@@ -215,7 +215,7 @@ export const usePageOneState = () => {
         setSelectedFamilyMemberId(data.selectedFamilyMemberId || null);
         setFamilyMemberNotes(new Map(Array.isArray(data.familyMemberNotes) ? data.familyMemberNotes : []));
         setFamilyMemberImages(new Map(Array.isArray(data.familyMemberImages) ? data.familyMemberImages : []));
-        setSelectedHouseId(data.selectedHouseId || 'apartment');
+        setSelectedHouseId(data.selectedHouseId || null);
         setSelectedUpgrades(new Set(Array.isArray(data.selectedUpgrades) ? data.selectedUpgrades : []));
         setSelectedTrueSelfTraits(new Set(Array.isArray(data.selectedTrueSelfTraits) ? data.selectedTrueSelfTraits : []));
         setSelectedAlterEgoTraits(new Set(Array.isArray(data.selectedAlterEgoTraits) ? data.selectedAlterEgoTraits : []));

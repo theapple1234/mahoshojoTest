@@ -9,7 +9,7 @@ export const TerminalLayout: React.FC<{ sections: any[] }> = ({ sections }) => {
         textMain: "text-green-500",
         textDim: "text-green-700",
         textAccent: "text-green-400",
-        imgFilter: "grayscale contrast-125",
+        imgFilter: "",
         isTerminal: true,
         isLight: false,
         fontHead: "font-galmuri",
@@ -21,7 +21,7 @@ export const TerminalLayout: React.FC<{ sections: any[] }> = ({ sections }) => {
             {items.map((item: any, idx: number) => (
                 <div key={`${item.id}-${idx}`} className={`border ${item.isLostPower ? 'border-green-400 bg-green-900/30' : 'border-green-500/30 bg-green-900/10'} p-2 flex items-start gap-3 hover:bg-green-900/20 transition-colors`}>
                     <div 
-                        className="w-12 h-12 flex-shrink-0 border border-green-500/20 grayscale contrast-125 bg-black"
+                        className={`w-12 h-12 flex-shrink-0 border border-green-500/20 bg-black ${theme.imgFilter}`}
                         style={{
                             backgroundImage: `url(${item.imageSrc})`,
                             backgroundSize: 'cover',

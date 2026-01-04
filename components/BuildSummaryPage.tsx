@@ -248,15 +248,13 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
                                 }
                             }
                         });
-
-                        // For terminal template: Force inline filter styles for grayscale images
-                        if (template === 'terminal') {
-                            const grayscaleElements = clonedElement.querySelectorAll('.grayscale');
-                            grayscaleElements.forEach((el: any) => {
-                                el.style.filter = "grayscale(100%) contrast(1.25)";
-                                el.style.webkitFilter = "grayscale(100%) contrast(1.25)";
-                            });
-                        }
+                        
+                        // Apply Milgrath visual shift ONLY during capture
+                        const milgrathElements = clonedElement.querySelectorAll('.milgrath-override-content');
+                        milgrathElements.forEach((el: any) => {
+                            el.style.position = 'relative';
+                            el.style.top = '-5px'; 
+                        });
                     }
                     
                     // Force background color on body to prevent transparency artifacts
@@ -309,15 +307,6 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
                                      if (clonedNode) {
                                         clonedNode.style.height = 'auto';
                                         clonedNode.style.overflow = 'visible';
-
-                                        // For terminal template: Force inline filter styles for grayscale images inside reference cards
-                                        if (template === 'terminal') {
-                                            const grayscaleElements = clonedNode.querySelectorAll('.grayscale');
-                                            grayscaleElements.forEach((el: any) => {
-                                                el.style.filter = "grayscale(100%) contrast(1.25)";
-                                                el.style.webkitFilter = "grayscale(100%) contrast(1.25)";
-                                            });
-                                        }
                                      }
 
                                      // Inject style to raise text by 7.5px
