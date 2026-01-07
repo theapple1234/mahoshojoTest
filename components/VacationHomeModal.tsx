@@ -62,9 +62,35 @@ export const VacationHomeModal: React.FC<VacationHomeModalProps> = ({ onClose })
 
     const formatCost = (costStr: string) => {
         if (language === 'ko') {
-            return costStr.replace('행운 점수 ', '').replace('축복 점수 ', '');
+             // Mythical Pet Special Format
+             if (costStr.includes('-5 FP') && costStr.includes('-5 BP')) {
+                 return (
+                     <div className="flex flex-col items-center leading-tight">
+                         <span>행운 점수 -5</span>
+                         <span>축복 점수 -5</span>
+                     </div>
+                 );
+             }
+             // VR Chamber Special Format
+             if (costStr.includes('-5 FP') && costStr.includes('-2 BP') && costStr.includes('or')) {
+                 return (
+                     <div className="flex flex-col items-center leading-tight">
+                         <span>행운 점수 -5</span>
+                         <span className="text-[9px] text-gray-400 my-0.5">또는</span>
+                         <span>축복 점수 -2</span>
+                     </div>
+                 );
+             }
+
+             let clean = costStr.replace(/Costs\s*|Grants\s*/gi, '');
+             if (clean.toLowerCase() === 'free') return '무료';
+             
+             clean = clean.replace(/([+-]?\d+)\s*FP/gi, '행운 점수 $1');
+             clean = clean.replace(/([+-]?\d+)\s*BP/gi, '축복 점수 $1');
+             clean = clean.replace(/\s+and\s+/gi, ', ');
+             return clean;
         }
-        return costStr.replace('Costs ', '').replace('Grants ', '');
+        return costStr.replace(/Costs\s*|Grants\s*/gi, '');
     };
 
     return (
@@ -98,7 +124,7 @@ export const VacationHomeModal: React.FC<VacationHomeModalProps> = ({ onClose })
                                                 {language === 'ko' ? `휴가지 #${index + 1}` : `Vacation Home #${index + 1}`}
                                             </h3>
                                             <span className="text-xs text-green-400 font-mono">
-                                                {language === 'ko' ? "(기본 -3 FP)" : "(-3 FP Base)"}
+                                                {language === 'ko' ? "(기본 행운 점수 -3)" : "(-3 FP Base)"}
                                             </span>
                                         </div>
                                         <input 
@@ -164,7 +190,7 @@ export const VacationHomeModal: React.FC<VacationHomeModalProps> = ({ onClose })
                                     {home.houseId === 'mansion' && (
                                         <div className="mt-3 bg-black/30 p-2 rounded border border-gray-800 flex justify-center">
                                              <div className="text-center">
-                                                <label className="text-xs text-gray-300 font-semibold">{language === 'ko' ? "추가 공간" : "Additional Space"} <span className="text-green-400 font-bold">{language === 'ko' ? "(28평당 -1 FP)" : "(-1 FP per 1,000)"}</span></label>
+                                                <label className="text-xs text-gray-300 font-semibold">{language === 'ko' ? "추가 공간" : "Additional Space"} <span className="text-green-400 font-bold">{language === 'ko' ? "(28평당 행운 점수 -1)" : "(-1 FP per 1,000)"}</span></label>
                                                 <div className="flex items-center justify-center gap-2 mt-1">
                                                     <button onClick={() => updateVacationHome(home.id, { mansionExtraSqFt: Math.max(0, home.mansionExtraSqFt - 1) })} disabled={home.mansionExtraSqFt === 0} className="px-2 py-1 bg-gray-800 rounded border border-gray-700 hover:bg-gray-700">-</button>
                                                     <span className="font-semibold text-white w-24 text-center text-sm">{home.mansionExtraSqFt * (language === 'ko' ? 28 : 1000)} {language === 'ko' ? "평" : "sq ft"}</span>
@@ -216,13 +242,13 @@ export const VacationHomeModal: React.FC<VacationHomeModalProps> = ({ onClose })
                                                                 onClick={() => updateVacationHome(home.id, { vrChamberCostType: 'fp' })}
                                                                 className={`flex-1 py-0.5 text-[10px] rounded border transition-colors ${home.vrChamberCostType !== 'bp' ? 'bg-green-800/50 border-green-500 text-white' : 'bg-gray-800/50 border-gray-700 text-gray-400 hover:border-green-500/50'}`}
                                                             >
-                                                                {language === 'ko' ? "-5 FP" : "-5 FP"}
+                                                                {language === 'ko' ? "행운 -5" : "-5 FP"}
                                                             </button>
                                                             <button
                                                                 onClick={() => updateVacationHome(home.id, { vrChamberCostType: 'bp' })}
                                                                 className={`flex-1 py-0.5 text-[10px] rounded border transition-colors ${home.vrChamberCostType === 'bp' ? 'bg-purple-800/50 border-purple-500 text-white' : 'bg-gray-800/50 border-gray-700 text-gray-400 hover:border-purple-500/50'}`}
                                                             >
-                                                                {language === 'ko' ? "-2 BP" : "-2 BP"}
+                                                                {language === 'ko' ? "축복 -2" : "-2 BP"}
                                                             </button>
                                                         </div>
                                                     )}
@@ -247,7 +273,7 @@ export const VacationHomeModal: React.FC<VacationHomeModalProps> = ({ onClose })
                                     {home.upgradeIds.has('private_island') && (
                                          <div className="mt-3 bg-black/30 p-2 rounded border border-gray-800 flex justify-center">
                                              <div className="text-center">
-                                                <label className="text-xs text-gray-300 font-semibold">{language === 'ko' ? "추가 면적" : "Additional Space"} <span className="text-green-400 font-bold">{language === 'ko' ? "(개당 -1 FP)" : "(-1 FP each)"}</span></label>
+                                                <label className="text-xs text-gray-300 font-semibold">{language === 'ko' ? "추가 면적" : "Additional Space"} <span className="text-green-400 font-bold">{language === 'ko' ? "(개당 행운 점수 -1)" : "(-1 FP each)"}</span></label>
                                                 <div className="flex items-center justify-center gap-2 mt-1">
                                                     <button onClick={() => updateVacationHome(home.id, { islandExtraMiles: Math.max(0, home.islandExtraMiles - 1) })} disabled={home.islandExtraMiles === 0} className="px-2 py-1 bg-gray-800 rounded border border-gray-700 hover:bg-gray-700">-</button>
                                                     <span className="font-semibold text-white w-24 text-center text-sm">{home.islandExtraMiles} {language === 'ko' ? "개" : "sq miles"}</span>
@@ -266,7 +292,7 @@ export const VacationHomeModal: React.FC<VacationHomeModalProps> = ({ onClose })
                             onClick={addVacationHome}
                             className="w-full py-3 border-2 border-dashed border-gray-600 rounded-lg text-gray-400 hover:border-cyan-500 hover:text-cyan-300 transition-colors font-cinzel tracking-wider"
                         >
-                            {language === 'ko' ? "+ 휴가지 추가 구매 (-3 FP)" : "+ Purchase Another Home (-3 FP)"}
+                            {language === 'ko' ? "+ 휴가지 추가 구매 (행운 점수 -3)" : "+ Purchase Another Home (-3 FP)"}
                         </button>
                     )}
                 </main>
@@ -290,7 +316,7 @@ export const VacationHomeModal: React.FC<VacationHomeModalProps> = ({ onClose })
                     setActivePetHomeId(null);
                 }}
                 pointLimit={30}
-                title={language === 'ko' ? "신비한 애완동물 할당 (30 BP)" : "Assign Mythical Pet (30 BP)"}
+                title={language === 'ko' ? "신비한 애완동물 할당 (30 축복 점수)" : "Assign Mythical Pet (30 BP)"}
                 colorTheme="cyan"
             />
         )}

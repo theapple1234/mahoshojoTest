@@ -102,6 +102,16 @@ const getPowerIdFromAlias = (text: string): string | null => {
     if (normalized.includes('summon creature') || normalized === '마수 소환') return 'summon_creature';
     if (normalized === 'c r a z y') return 'summon_weather';
     
+    // New Aliases from User Feedback (Added here for consistency with Page 2 updates)
+    if (normalized === '우주의 균열') return 'tears_in_space';
+    if (normalized === '인공 환경') return 'artificial_environment';
+    if (normalized === '언데드 마수') return 'undead_beast';
+    if (normalized === '망자의 손아귀') return 'grasping_dead';
+    if (normalized === '초인의 두뇌') return 'superpowered_mind';
+    if (normalized === '회생의 화살') return 'rejuvenating_bolt';
+    if (normalized === '최고의 보안') return 'max_security';
+    if (normalized === '혼령 조종') return 'spirit_medium';
+
     return null;
 };
 

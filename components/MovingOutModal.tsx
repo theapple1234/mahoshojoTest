@@ -80,9 +80,35 @@ export const MovingOutModal: React.FC<MovingOutModalProps> = ({ onClose }) => {
 
     const formatCost = (costStr: string) => {
         if (language === 'ko') {
-            return costStr.replace('행운 점수 ', '').replace('축복 점수 ', '');
+             // Mythical Pet Special Format
+             if (costStr.includes('-5 FP') && costStr.includes('-5 BP')) {
+                 return (
+                     <div className="flex flex-col items-center leading-tight">
+                         <span>행운 점수 -5</span>
+                         <span>축복 점수 -5</span>
+                     </div>
+                 );
+             }
+             // VR Chamber Special Format
+             if (costStr.includes('-5 FP') && costStr.includes('-2 BP') && costStr.includes('or')) {
+                 return (
+                     <div className="flex flex-col items-center leading-tight">
+                         <span>행운 점수 -5</span>
+                         <span className="text-[9px] text-gray-400 my-0.5">또는</span>
+                         <span>축복 점수 -2</span>
+                     </div>
+                 );
+             }
+
+             let clean = costStr.replace(/Costs\s*|Grants\s*/gi, '');
+             if (clean.toLowerCase() === 'free') return '무료';
+             
+             clean = clean.replace(/([+-]?\d+)\s*FP/gi, '행운 점수 $1');
+             clean = clean.replace(/([+-]?\d+)\s*BP/gi, '축복 점수 $1');
+             clean = clean.replace(/\s+and\s+/gi, ', ');
+             return clean;
         }
-        return costStr.replace('Costs ', '').replace('Grants ', '');
+        return costStr.replace(/Costs\s*|Grants\s*/gi, '');
     };
 
     return (
@@ -106,7 +132,7 @@ export const MovingOutModal: React.FC<MovingOutModalProps> = ({ onClose }) => {
                                     <h3 className="font-cinzel text-xl text-green-300">
                                         {language === 'ko' ? `집 #${index + 1}` : `Home #${index + 1}`}
                                         {isFirst && <span className="ml-2 text-xs bg-green-900/50 text-green-200 px-2 py-0.5 rounded border border-green-700">{language === 'ko' ? "기본 무료" : "FREE BASE"}</span>}
-                                        {!isFirst && !home.isInherited && <span className="ml-2 text-xs text-green-400 font-bold font-mono">{language === 'ko' ? "(기본 -3 FP)" : "(-3 FP Base)"}</span>}
+                                        {!isFirst && !home.isInherited && <span className="ml-2 text-xs text-green-400 font-bold font-mono">{language === 'ko' ? "(기본 행운 점수 -3)" : "(-3 FP Base)"}</span>}
                                     </h3>
                                     {(!isFirst) && (
                                         <button 
@@ -150,8 +176,6 @@ export const MovingOutModal: React.FC<MovingOutModalProps> = ({ onClose }) => {
                                         >
                                             <option value="" disabled>{language === 'ko' ? "집 선택..." : "Select a home..."}</option>
                                             {vacationHomes.map((vh, i) => {
-                                                // For display here, we rely on English/Default data for structure, but ideally should use active data.
-                                                // Using active data directly:
                                                 const houseTitle = activeHouses.find(h => h.id === vh.houseId)?.title || (language === 'ko' ? '알 수 없는 집' : 'Unknown House');
                                                 const domTitle = activeDominions.find(d => d.id === vh.dominionId)?.title || (language === 'ko' ? '알 수 없는 지역' : 'Unknown Dominion');
                                                 const homeName = vh.name ? `"${vh.name}"` : (language === 'ko' ? `휴가지 #${i+1}` : `Vacation Home #${i+1}`);
@@ -258,13 +282,13 @@ export const MovingOutModal: React.FC<MovingOutModalProps> = ({ onClose }) => {
                                                                         onClick={() => updateMovingOutHome(home.id, { vrChamberCostType: 'fp' })}
                                                                         className={`flex-1 py-0.5 text-[10px] rounded border transition-colors ${home.vrChamberCostType !== 'bp' ? 'bg-green-800/50 border-green-500 text-white' : 'bg-gray-800/50 border-gray-700 text-gray-400 hover:border-green-500/50'}`}
                                                                     >
-                                                                        {language === 'ko' ? "-3 FP" : "-3 FP"}
+                                                                        {language === 'ko' ? "행운 -5" : "-5 FP"}
                                                                     </button>
                                                                     <button
                                                                         onClick={() => updateMovingOutHome(home.id, { vrChamberCostType: 'bp' })}
                                                                         className={`flex-1 py-0.5 text-[10px] rounded border transition-colors ${home.vrChamberCostType === 'bp' ? 'bg-purple-800/50 border-purple-500 text-white' : 'bg-gray-800/50 border-gray-700 text-gray-400 hover:border-purple-500/50'}`}
                                                                     >
-                                                                        {language === 'ko' ? "-2 BP" : "-2 BP"}
+                                                                        {language === 'ko' ? "축복 -2" : "-2 BP"}
                                                                     </button>
                                                                 </div>
                                                             )}
@@ -283,7 +307,7 @@ export const MovingOutModal: React.FC<MovingOutModalProps> = ({ onClose }) => {
                         onClick={addMovingOutHome}
                         className="w-full py-3 border-2 border-dashed border-gray-600 rounded-lg text-gray-400 hover:border-green-500 hover:text-green-300 transition-colors font-cinzel tracking-wider"
                     >
-                        {language === 'ko' ? "+ 집 추가 (-3 FP)" : "+ Add Another Home (-3 FP)"}
+                        {language === 'ko' ? "+ 집 추가 (행운 점수 -3)" : "+ Add Another Home (-3 FP)"}
                     </button>
                 </main>
                 <footer className="p-4 border-t border-green-900/50 bg-black/20 flex justify-end">

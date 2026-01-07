@@ -136,35 +136,8 @@ export const PageTwo: React.FC = () => {
     const formatText = (text: string) => {
         const node = renderFormattedText(text);
         if (typeof node === 'string') {
-            const parts = node.split(/(-?\d+\s*FP)|(Companion Points)|(동료 점수)/g);
-            return parts.map((part, i) => {
-                if (!part) return null;
-                if (part.match(/-?\d+\s*FP/)) {
-                    return <span key={i} className="text-green-400 font-bold">{part}</span>;
-                }
-                if (part === 'Companion Points' || part === '동료 점수') {
-                    return <span key={i} className="text-white font-bold">{part}</span>;
-                }
-                return part;
-            });
-        }
-        if (Array.isArray(node)) {
-            return node.map((child, idx) => {
-                if (typeof child === 'string') {
-                    const parts = child.split(/(-?\d+\s*FP)|(Companion Points)|(동료 점수)/g);
-                    return <span key={idx}>{parts.map((part, i) => {
-                        if (!part) return null;
-                        if (part.match(/-?\d+\s*FP/)) {
-                            return <span key={i} className="text-green-400 font-bold">{part}</span>;
-                        }
-                        if (part === 'Companion Points' || part === '동료 점수') {
-                            return <span key={i} className="text-white font-bold">{part}</span>;
-                        }
-                        return part;
-                    })}</span>;
-                }
-                return child;
-            });
+            const parts = node.split(/(\{bp\}.*?\{\/bp\}|\{w\}.*?\{\/w\}|\{i\}.*?\{\/i\}|\{c\}.*?\{\/c\})/g); // Using simple fallback or just direct render
+            return renderFormattedText(text);
         }
         return node;
     };
@@ -357,7 +330,17 @@ export const PageTwo: React.FC = () => {
                         {language === 'ko' ? "마법학교의 교장 선생님은 어떤 분일까요? 멀티플레이어라면 유능함으로 고정됩니다." : "What kind of person is your school's headmaster / headmistress? In Multiplayer, this is locked to Competent."}
                     </p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
-                        {activeHeadmasters.map(item => <ChoiceCard key={item.id} item={item} isSelected={selectedHeadmasterId === item.id} onSelect={handleHeadmasterSelect} disabled={isMultiplayer && item.id !== 'competent'} selectionColor="brown" />)}
+                        {activeHeadmasters.map(item => (
+                            <ChoiceCard 
+                                key={item.id} 
+                                item={item} 
+                                isSelected={selectedHeadmasterId === item.id} 
+                                onSelect={handleHeadmasterSelect} 
+                                disabled={isMultiplayer && item.id !== 'competent'} 
+                                selectionColor="brown" 
+                                imageAspectRatio="aspect-square"
+                            />
+                        ))}
                     </div>
                 </div>
 

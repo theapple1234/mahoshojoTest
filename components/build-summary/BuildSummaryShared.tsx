@@ -10,22 +10,32 @@ export const formatCostDisplay = (cost: string | undefined, language: 'en' | 'ko
     let text = cost;
 
     // Handle "Varies" or "Costs Varies" cases
-    if (text.toLowerCase().includes('varies')) {
+    if (text.toLowerCase().includes('varies') || text.includes('소모값 변동')) {
         return '비용 변동';
     }
     
-    // Replace "Costs" or "Grants" followed by number and unit
-    text = text.replace(/(?:Costs|Grants)\s*([+-]?\d+)\s*(FP|BP)/gi, (match, num, unit) => {
-        return `${unit === 'FP' ? '행운 점수' : '축복 점수'} ${num}`;
-    });
+    // Replace "Costs" or "Grants"
+    // Also handle English "FP" / "BP" in strings if present
+    text = text.replace(/Costs\s*/i, '').replace(/Grants\s*/i, '');
     
-    // Replace remaining number and unit (e.g. in "Costs -5 FP and -5 BP", the "-5 BP" part)
-    text = text.replace(/([+-]?\d+)\s*(FP|BP)/gi, (match, num, unit) => {
-         return `${unit === 'FP' ? '행운 점수' : '축복 점수'} ${num}`;
-    });
+    if (text.toLowerCase() === 'free') return '무료';
     
-    // Replace separators
+    // Convert units
+    text = text.replace(/FP/g, '행운 점수');
+    text = text.replace(/BP/g, '축복 점수');
+    
+    // Convert logic operators
     text = text.replace(/\s+and\s+/gi, ', ');
+    text = text.replace(/\s+or\s+/gi, ' 또는 ');
+    
+    // Try to format nicely if it matches standard pattern "Number Unit" => "Unit Number"
+    // Though usually sticking to source "Number Unit" is fine if unit is localized.
+    // e.g. "-5 행운 점수" is understandable.
+    
+    // If text was "Costs -5 FP", it is now "-5 행운 점수".
+    // We can swap it to "행운 점수 -5" for better Korean readability if it matches pattern
+    text = text.replace(/([+-]?\d+)\s*행운 점수/g, '행운 점수 $1');
+    text = text.replace(/([+-]?\d+)\s*축복 점수/g, '축복 점수 $1');
     
     return text;
 };

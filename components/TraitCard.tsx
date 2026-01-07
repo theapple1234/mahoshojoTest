@@ -153,14 +153,12 @@ export const ChoiceCard = React.memo<ChoiceCardProps>(({
         : "bg-black/40 border-white/10 hover:border-white/30 hover:bg-black/60 hover:-translate-y-1 hover:shadow-xl backdrop-blur-md cursor-pointer";
 
   // Family Member Ring Colors (if assigned)
-  const ringStyle: React.CSSProperties = {};
-  if (assignedColors.length > 0) {
-      ringStyle.boxShadow = assignedColors
+  // FIX: initializing ringStyle with values directly to avoid property access errors on CSSProperties type
+  const ringStyle: React.CSSProperties = assignedColors.length > 0 ? {
+      boxShadow: assignedColors
           .map((color, i) => `0 0 0 ${2 + i * 2}px ${color}, 0 0 10px ${2 + i * 2}px ${color}80`) // Glowy rings
-          .join(',');
-      // If family assigned, override border
-      // containerClass += " !border-transparent"; 
-  }
+          .join(',')
+  } : {};
 
   // Rounding
   const roundingMap = { none: 'rounded-none', sm: 'rounded-sm', md: 'rounded-md', lg: 'rounded-lg', xl: 'rounded-xl' };

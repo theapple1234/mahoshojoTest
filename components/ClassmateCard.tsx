@@ -117,9 +117,19 @@ const getPowerIdFromAlias = (text: string): string | null => {
     if (normalized.includes('speed run')) return 'speed_plus';
     if (normalized.includes('i am not a weapon')) return 'masquerade';
     if (normalized.includes('hokuto senjukai ken') || normalized === '북두천수괴권') return 'hokuto_senjukai_ken';
-    if (normalized.includes('psychic force ii') || normalized === '염동력 ii') return 'psychic_force_ii';
+    if (normalized.includes('psychic_force_ii') || normalized === '염동력 ii') return 'psychic_force_ii';
     if (normalized.includes('summon creature') || normalized === '마수 소환') return 'summon_creature';
     if (normalized === 'c r a z y') return 'summon_weather';
+
+    // New Aliases from User Feedback
+    if (normalized === '우주의 균열') return 'tears_in_space';
+    if (normalized === '인공 환경') return 'artificial_environment';
+    if (normalized === '언데드 마수') return 'undead_beast';
+    if (normalized === '망자의 손아귀') return 'grasping_dead';
+    if (normalized === '초인의 두뇌') return 'superpowered_mind';
+    if (normalized === '회생의 화살') return 'rejuvenating_bolt';
+    if (normalized === '최고의 보안') return 'max_security';
+    if (normalized === '혼령 조종') return 'spirit_medium';
 
     return null;
 };
@@ -309,10 +319,10 @@ export const ClassmateCard: React.FC<ClassmateCardProps> = ({ classmate, isSelec
 
   const renderDescription = () => {
     if (id === 'licenda') {
-        const parts = description.split('\n\n');
+        const paragraphs = description.split('\n\n');
         return (
             <>
-                {parts.map((part, index) => {
+                {paragraphs.map((part, index) => {
                     // English Logic
                     if (part.includes("Some rumor that the spirit")) {
                         const splitText = "Some rumor that the spirit is her own ";
@@ -328,29 +338,28 @@ export const ClassmateCard: React.FC<ClassmateCardProps> = ({ classmate, isSelec
                         );
                     }
 
-                    // Korean Logic
-                    if (part.includes("어떤 소문에 따르면 그 영혼은")) {
-                        const sisterText = "여동생";
-                        const fadeText = "이름조차 기억나지 않네요."; // part of the last sentence
+                    // Korean Logic - Fixed to properly display the middle text and apply gradient only to the last sentence
+                    if (part.includes("소문에 따르면 그 유령이 라이센다의 누이")) {
+                        const sisterWord = "누이";
+                        const fadeText = "그 누이의 이름은 아예 기억도 안 나네요.";
                         
-                        // Structure: [Text before] + [sisterText] + [Text middle] + [fadeText]
-                        const splitAtSister = part.split(sisterText);
-                        if (splitAtSister.length > 1) {
-                            const beforeSister = splitAtSister[0];
-                            const afterSisterFull = splitAtSister[1];
-                            
-                            const splitAtFade = afterSisterFull.split(fadeText);
-                            const middleText = splitAtFade[0];
-                            
-                            return (
-                                <p key={index} className="mb-4 last:mb-0">
-                                    {renderFormattedText(beforeSister)}
-                                    <span className="text-white/30 font-bold">{sisterText}</span>
-                                    {renderFormattedText(middleText)}
-                                    <span className="bg-gradient-to-r from-gray-400 to-transparent text-transparent bg-clip-text font-bold decoration-clone">{fadeText}</span>
-                                </p>
-                            );
-                        }
+                        // 1. Split the paragraph into the part before the fade-out sentence and the fade-out sentence itself
+                        const splitAtFade = part.split(fadeText);
+                        const mainTextContent = splitAtFade[0]; // All text before the final sentence
+                        
+                        // 2. Further split the main text to highlight the FIRST instance of "누이" (which is "라이센다의 누이")
+                        const targetPhrase = "라이센다의 " + sisterWord;
+                        const [beforeSister, afterSister] = mainTextContent.split(targetPhrase);
+                        
+                        return (
+                            <p key={index} className="mb-4 last:mb-0">
+                                {renderFormattedText(beforeSister)}
+                                {renderFormattedText("라이센다의 ")}
+                                <span className="text-white/30 font-bold">{sisterWord}</span>
+                                {renderFormattedText(afterSister)}
+                                <span className="bg-gradient-to-r from-gray-400 to-transparent text-transparent bg-clip-text font-bold decoration-clone">{fadeText}</span>
+                            </p>
+                        );
                     }
 
                     return <p key={index} className="mb-4 last:mb-0">{renderFormattedText(part)}</p>;
