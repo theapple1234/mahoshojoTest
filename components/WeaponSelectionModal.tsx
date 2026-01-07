@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { WEAPON_PERKS, COMPANION_PERSONALITY_TRAITS } from '../constants';
 import type { AllBuilds, WeaponSelections } from '../types';
+import { useCharacterContext } from '../context/CharacterContext';
 
 const STORAGE_KEY = 'seinaru_magecraft_builds';
 
@@ -53,12 +54,15 @@ export const WeaponSelectionModal: React.FC<WeaponSelectionModalProps> = ({
     onClose,
     onSelect,
     pointLimit = 20,
-    title = 'Assign Weapon',
+    title,
     categoryFilter,
     requiredPerkId,
     colorTheme = 'purple'
 }) => {
+    const { language } = useCharacterContext();
     const [weaponBuilds, setWeaponBuilds] = useState<Record<string, { points: number }>>({});
+
+    const displayTitle = title || (language === 'ko' ? "무기 할당하기" : "Assign Weapon");
 
     useEffect(() => {
         const savedBuildsJSON = localStorage.getItem(STORAGE_KEY);
@@ -110,14 +114,21 @@ export const WeaponSelectionModal: React.FC<WeaponSelectionModalProps> = ({
     }, [onClose]);
 
     const noBuildsMessage = () => {
-        let message = "No compatible weapon builds found. Go to the Reference Page to create one.";
+        let message = language === 'ko' 
+            ? "호환되는 무기 빌드가 없습니다. 참고 페이지에서 만들어 보세요."
+            : "No compatible weapon builds found. Go to the Reference Page to create one.";
+            
         if (categoryFilter) {
             const categories = Array.isArray(categoryFilter) ? categoryFilter.join(', ') : categoryFilter;
-            message += ` Make sure it has one of the following categories: ${categories.toUpperCase()}.`;
+            message += language === 'ko'
+                ? ` 다음 카테고리 중 하나가 포함되어야 합니다: ${categories.toUpperCase()}.`
+                : ` Make sure it has one of the following categories: ${categories.toUpperCase()}.`;
         }
         if (requiredPerkId) {
             const perk = WEAPON_PERKS.find(p => p.id === requiredPerkId);
-            message += ` Make sure it has the '${perk ? perk.title : requiredPerkId}' perk.`;
+            message += language === 'ko'
+                ? ` '${perk ? perk.title : requiredPerkId}' 특성이 있어야 합니다.`
+                : ` Make sure it has the '${perk ? perk.title : requiredPerkId}' perk.`;
         }
         return message;
     };
@@ -146,6 +157,19 @@ export const WeaponSelectionModal: React.FC<WeaponSelectionModalProps> = ({
     };
 
     const currentTheme = themeClasses[colorTheme] || themeClasses.purple;
+    const requiredPerkTitle = WEAPON_PERKS.find(p => p.id === requiredPerkId)?.title ?? requiredPerkId;
+    
+    const infoText = language === 'ko' 
+        ? `${pointLimit} 무기 점수 이하인 무기 빌드를 선택하세요.`
+        : `Select a weapon build that costs ${pointLimit} Weapon Points or less.`;
+    
+    const catFilterText = categoryFilter 
+        ? (language === 'ko' ? ` 카테고리 필수: ${Array.isArray(categoryFilter) ? categoryFilter.join(', ').toUpperCase() : categoryFilter.toUpperCase()}.` : ` Must have category: ${Array.isArray(categoryFilter) ? categoryFilter.join(' or ').toUpperCase() : categoryFilter.toUpperCase()}.`)
+        : '';
+        
+    const perkFilterText = requiredPerkId
+        ? (language === 'ko' ? ` 특성 필수: ${requiredPerkTitle}.` : ` Must have perk: ${requiredPerkTitle}.`)
+        : '';
 
     return (
         <div
@@ -161,7 +185,7 @@ export const WeaponSelectionModal: React.FC<WeaponSelectionModalProps> = ({
             >
                 <header className={`flex items-center justify-between p-4 border-b ${currentTheme.headerBorder}`}>
                     <h2 id="weapon-modal-title" className={`font-cinzel text-2xl ${currentTheme.titleText}`}>
-                        {title}
+                        {displayTitle}
                     </h2>
                     <button
                         onClick={onClose}
@@ -173,9 +197,9 @@ export const WeaponSelectionModal: React.FC<WeaponSelectionModalProps> = ({
                 </header>
                 <main className="p-6 overflow-y-auto">
                     <p className={`text-center text-sm ${currentTheme.infoText} mb-4 italic`}>
-                        Select a weapon build that costs {pointLimit} Weapon Points or less.
-                        {categoryFilter && ` Must have category: ${Array.isArray(categoryFilter) ? categoryFilter.join(' or ').toUpperCase() : categoryFilter.toUpperCase()}.`}
-                        {requiredPerkId && ` Must have perk: ${WEAPON_PERKS.find(p => p.id === requiredPerkId)?.title ?? requiredPerkId}.`}
+                        {infoText}
+                        {catFilterText}
+                        {perkFilterText}
                     </p>
                     <div className="space-y-3">
                         {Object.keys(weaponBuilds).length > 0 ? (
@@ -184,6 +208,7 @@ export const WeaponSelectionModal: React.FC<WeaponSelectionModalProps> = ({
                                 const isSelected = name === currentWeaponName;
                                 const isDisabled = points > pointLimit;
                                 const costColor = isDisabled ? 'text-red-500' : 'text-green-400';
+                                const pointsUnit = language === 'ko' ? 'WP' : 'WP';
                                 
                                 return (
                                     <div
@@ -203,11 +228,13 @@ export const WeaponSelectionModal: React.FC<WeaponSelectionModalProps> = ({
                                         <div>
                                             <h3 className="font-semibold text-white">{name}</h3>
                                             <p className="text-xs text-gray-400">
-                                                {isDisabled ? `Cost exceeds ${pointLimit} points` : 'Click to assign this weapon'}
+                                                {isDisabled 
+                                                    ? (language === 'ko' ? `비용이 ${pointLimit}점을 초과합니다` : `Cost exceeds ${pointLimit} points`) 
+                                                    : (language === 'ko' ? '클릭하여 할당' : 'Click to assign this weapon')}
                                             </p>
                                         </div>
                                         <span className={`font-bold text-lg ${costColor}`}>
-                                            {points} WP
+                                            {points} {pointsUnit}
                                         </span>
                                     </div>
                                 );
@@ -224,7 +251,7 @@ export const WeaponSelectionModal: React.FC<WeaponSelectionModalProps> = ({
                         onClick={() => onSelect(null)}
                         className="px-4 py-2 text-sm font-cinzel bg-gray-800/50 border border-gray-700 rounded-md hover:bg-gray-700 transition-colors"
                     >
-                        Clear Assignment
+                        {language === 'ko' ? "할당 해제" : "Clear Assignment"}
                     </button>
                 </footer>
             </div>

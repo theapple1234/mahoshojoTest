@@ -1,7 +1,14 @@
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useCharacterContext } from '../../context/CharacterContext';
-import { BITTER_DISSATISFACTION_DATA, BITTER_DISSATISFACTION_SIGIL_TREE_DATA, BREWING_DATA, SOUL_ALCHEMY_DATA, TRANSFORMATION_DATA, BLESSING_ENGRAVINGS } from '../../constants';
+import { 
+    BITTER_DISSATISFACTION_DATA, BITTER_DISSATISFACTION_DATA_KO,
+    BITTER_DISSATISFACTION_SIGIL_TREE_DATA, BITTER_DISSATISFACTION_SIGIL_TREE_DATA_KO,
+    BREWING_DATA, BREWING_DATA_KO,
+    SOUL_ALCHEMY_DATA, SOUL_ALCHEMY_DATA_KO,
+    TRANSFORMATION_DATA, TRANSFORMATION_DATA_KO,
+    BLESSING_ENGRAVINGS, BLESSING_ENGRAVINGS_KO
+} from '../../constants';
 import type { BitterDissatisfactionPower, BitterDissatisfactionSigil, ChoiceItem, MagicGrade } from '../../types';
 import { BlessingIntro, SectionHeader, SectionSubHeader, WeaponIcon, CompanionIcon, BookIcon, BoostedEffectBox, renderFormattedText } from '../ui';
 import { CompellingWillSigilCard, SigilColor } from '../CompellingWillSigilCard';
@@ -89,6 +96,10 @@ const PowerCard: React.FC<{
             <img src={power.imageSrc} alt={power.title} className="w-full aspect-[3/2] rounded-md mb-4 object-cover" />
             <h4 className="font-cinzel font-bold tracking-wider text-xl" style={{ textShadow, color: titleColor }}>{power.title}</h4>
             {power.cost && <p className="text-xs text-yellow-300/70 italic mt-1">{power.cost}</p>}
+            
+            {/* Separator Line */}
+            {power.description && <div className="w-16 h-px bg-white/10 mx-auto my-2"></div>}
+            
             <p className={`${descriptionClass} text-gray-400 font-medium leading-relaxed flex-grow text-left whitespace-pre-wrap`} style={{ textShadow }}>{renderFormattedText(power.description)}</p>
             {hasChildren && (
                  <div className="mt-4 pt-4 border-t border-gray-700/50 w-full">
@@ -142,8 +153,16 @@ export const BitterDissatisfactionSection: React.FC = () => {
         malrayootsUniversalFormName, handleMalrayootsUniversalFormAssign,
         
         kpPaidNodes, toggleKpNode,
-        fontSize
+        fontSize,
+        language
     } = useCharacterContext();
+
+    const activeData = language === 'ko' ? BITTER_DISSATISFACTION_DATA_KO : BITTER_DISSATISFACTION_DATA;
+    const activeTree = language === 'ko' ? BITTER_DISSATISFACTION_SIGIL_TREE_DATA_KO : BITTER_DISSATISFACTION_SIGIL_TREE_DATA;
+    const activeBrewing = language === 'ko' ? BREWING_DATA_KO : BREWING_DATA;
+    const activeSoulAlchemy = language === 'ko' ? SOUL_ALCHEMY_DATA_KO : SOUL_ALCHEMY_DATA;
+    const activeTransformation = language === 'ko' ? TRANSFORMATION_DATA_KO : TRANSFORMATION_DATA;
+    const activeEngravings = language === 'ko' ? BLESSING_ENGRAVINGS_KO : BLESSING_ENGRAVINGS;
 
     const finalEngraving = bitterDissatisfactionEngraving ?? selectedBlessingEngraving;
     const isSkinEngraved = finalEngraving === 'skin';
@@ -180,7 +199,7 @@ export const BitterDissatisfactionSection: React.FC = () => {
         return false;
     };
 
-    const getBitterDissatisfactionSigil = (id: string) => BITTER_DISSATISFACTION_SIGIL_TREE_DATA.find(s => s.id === id)!;
+    const getBitterDissatisfactionSigil = (id: string) => activeTree.find(s => s.id === id)!;
     
     const getSigilDisplayInfo = (sigil: BitterDissatisfactionSigil): { color: SigilColor, benefits: React.ReactNode } => {
         const sigilType = getSigilTypeFromImage(sigil.imageSrc);
@@ -198,11 +217,10 @@ export const BitterDissatisfactionSection: React.FC = () => {
         // Recalculate base limits locally to determine visuals
         let baseBrewing = 0, baseSoul = 0, baseTrans = 0;
         ctx.selectedBitterDissatisfactionSigils.forEach(id => {
-            const s = BITTER_DISSATISFACTION_SIGIL_TREE_DATA.find(node => node.id === id);
+            const s = activeTree.find(node => node.id === id);
             if (s && s.id !== 'fireborn') {
                 baseBrewing += s.benefits.brewing ?? 0;
                 baseSoul += s.benefits.soulAlchemy ?? 0;
-                // FIX: Corrected variable name from baseTransformation to baseTrans
                 baseTrans += s.benefits.transformation ?? 0;
             }
         });
@@ -230,9 +248,9 @@ export const BitterDissatisfactionSection: React.FC = () => {
 
         const benefits = (
             <>
-                {sigil.benefits.brewing ? <p className={getStyle('brewing', "text-green-300")}>+ {sigil.benefits.brewing} Brewing</p> : null}
-                {sigil.benefits.soulAlchemy ? <p className={getStyle('soulAlchemy', "text-red-300")}>+ {sigil.benefits.soulAlchemy} Soul Alchemy</p> : null}
-                {sigil.benefits.transformation ? <p className={getStyle('transformation', "text-blue-300")}>+ {sigil.benefits.transformation} Transformation</p> : null}
+                {sigil.benefits.brewing ? <p className={getStyle('brewing', "text-green-300")}>+ {sigil.benefits.brewing} {language === 'ko' ? "양조" : "Brewing"}</p> : null}
+                {sigil.benefits.soulAlchemy ? <p className={getStyle('soulAlchemy', "text-red-300")}>+ {sigil.benefits.soulAlchemy} {language === 'ko' ? "영혼 연금술" : "Soul Alchemy"}</p> : null}
+                {sigil.benefits.transformation ? <p className={getStyle('transformation', "text-blue-300")}>+ {sigil.benefits.transformation} {language === 'ko' ? "변신술" : "Transformation"}</p> : null}
             </>
         );
         return { color, benefits };
@@ -316,27 +334,49 @@ export const BitterDissatisfactionSection: React.FC = () => {
         );
     };
 
-    const boostDescriptions: { [key: string]: string } = {
-        vitae_potions: "Twice as cheap and effective.",
-        colorless_odorless: "Twice as cheap and effective.",
-        magecraft_boosters: "Twice as cheap and effective.",
-        mass_production: "Twice as cheap and effective.",
-        water_of_life: "Twice as cheap and effective.",
-        bolstering_tonics: "Twice as cheap and effective.",
-        love_potion: "Twice as cheap and effective.",
+    const boostDescriptions: { [key: string]: string } = language === 'ko' ? {
+        vitae_potions: "비용이 절반이 되거나 효과가 두 배가 됩니다.",
+        colorless_odorless: "비용이 절반이 되거나 효과가 두 배가 됩니다.",
+        magecraft_boosters: "비용이 절반이 되거나 효과가 두 배가 됩니다.",
+        mass_production: "비용이 절반이 되거나 효과가 두 배가 됩니다.",
+        water_of_life: "비용이 절반이 되거나 효과가 두 배가 됩니다.",
+        bolstering_tonics: "비용이 절반이 되거나 효과가 두 배가 됩니다.",
+        love_potion: "비용이 절반이 되거나 효과가 두 배가 됩니다.",
+        mages_familiar_i: "동물 점수 10점이 추가로 주어집니다.",
+        mages_familiar_ii: "동물 점수 10점이 추가로 주어집니다.",
+        mages_familiar_iii: "동물 점수 10점이 추가로 주어집니다.",
+        human_marionettes: "동료 점수 20점이 추가로 주어집니다.",
+        self_duplication: "분신 15체를 만들 수 있습니다. 무리하면 20체까지도 가능합니다.",
+        personification: "변화한 물건들이 인간에 가까운 형상을 취할 수 있습니다. 다만 크기가 커지지는 않습니다.",
+        material_transmutation: "변화 속도가 네 배 빨라집니다.",
+        internal_manipulation: "당신의 뼈와 장기를 두 배 강하게 할 수 있습니다.",
+        shed_humanity_i: "동물 점수 10점이 추가로 주어집니다.",
+        shed_humanity_ii: "동물 점수 10점이 추가로 주어집니다.",
+        phase_shift: "화염과 냉기에 대한 취약점이 사라집니다.",
+        rubber_physiology: "늘어나는 길이가 100배로 증가합니다. 원한다면 엄청난 탄성을 부여할 수도 있습니다.",
+        supersize_me: "지속 시간이 두 배 증가합니다.",
+        malrayoots: "동물 점수 10점이 추가로 주어집니다."
+    } : {
+        vitae_potions: "Twice as cheap or twice as effective.",
+        colorless_odorless: "Twice as cheap or twice as effective.",
+        magecraft_boosters: "Twice as cheap or twice as effective.",
+        mass_production: "Twice as cheap or twice as effective.",
+        water_of_life: "Twice as cheap or twice as effective.",
+        bolstering_tonics: "Twice as cheap or twice as effective.",
+        love_potion: "Twice as cheap or twice as effective.",
         mages_familiar_i: "+10 Beast Points.",
         mages_familiar_ii: "+10 Beast Points.",
         mages_familiar_iii: "+10 Beast Points.",
-        human_marionettes: "+20 Companion Points total (split).",
-        self_duplication: "Up to 15 bodies.",
-        personification: "Become more humanlike.",
-        material_transmutation: "Quadrupled rate.",
-        internal_manipulation: "Double durability.",
+        human_marionettes: "+20 Companion Points.",
+        self_duplication: "Can create up to fifteen bodies, or twenty at the price of exhaustion.",
+        personification: "Changed items can change shape to become more humanlike, albeit without gaining size.",
+        material_transmutation: "Quadrupled rate of change.",
+        internal_manipulation: "Internals can have their individual durabilities doubled.",
         shed_humanity_i: "+10 Beast Points.",
         shed_humanity_ii: "+10 Beast Points.",
-        phase_shift: "Removed vulnerability.",
-        rubber_physiology: "Can stretch 100x length.",
-        supersize_me: "Giant for twice the time.",
+        phase_shift: "Removed vulnerability to EITHER ice or fire.",
+        rubber_physiology: "100x times default length, powerful elastic effect when desired.",
+        supersize_me: "Can be giant for twice the time.",
         malrayoots: "+10 Beast Points."
     };
 
@@ -346,6 +386,11 @@ export const BitterDissatisfactionSection: React.FC = () => {
 
     const isMagicianSelected = selectedTrueSelfTraits.has('magician');
     const additionalCost = Math.floor(bitterDissatisfactionSigilTreeCost * 0.25);
+    
+    // Bitter Dissatisfaction has no Lekolu sigils, so additionalFpCost is always 0.
+    const costText = language === 'ko'
+        ? `(축복 점수 -${additionalCost})`
+        : `(-${additionalCost} BP)`;
 
     const humanMarionettePointsPer = marionetteTotalPoints / (humanMarionetteCount || 1);
 
@@ -355,13 +400,13 @@ export const BitterDissatisfactionSection: React.FC = () => {
 
     return (
         <section>
-            <BlessingIntro {...BITTER_DISSATISFACTION_DATA} />
+            <BlessingIntro {...activeData} />
             <div className="mt-8 mb-16 max-w-3xl mx-auto">
                 <h4 className="font-cinzel text-xl text-center tracking-widest my-6 text-purple-300 uppercase">
-                    Engrave this Blessing
+                    {language === 'ko' ? "축복 각인" : "Engrave this Blessing"}
                 </h4>
                 <div className="grid grid-cols-3 gap-4">
-                    {BLESSING_ENGRAVINGS.map(engraving => {
+                    {activeEngravings.map(engraving => {
                         const isSelected = finalEngraving === engraving.id;
                         const isOverridden = bitterDissatisfactionEngraving !== null;
                         const isWeapon = engraving.id === 'weapon';
@@ -406,8 +451,8 @@ export const BitterDissatisfactionSection: React.FC = () => {
                             }`}
                         >
                             {isBitterDissatisfactionMagicianApplied
-                                ? `The 'Magician' trait is applied. Click to remove. (+${additionalCost} BP)`
-                                : `Click to apply the 'Magician' trait from your True Self. This allows you to use the Blessing without transforming for an additional ${additionalCost} BP.`}
+                                ? (language === 'ko' ? `'마법사' 특성이 적용되었습니다. ${costText}` : `The Magician trait is applied. ${costText}`)
+                                : (language === 'ko' ? `'마법사' 특성을 적용할 수 있습니다. 변신 없이 축복을 사용할 수 있게 됩니다. ${costText}` : `Click to enable the Magician trait from your True Self, allowing you to use the Blessing without transforming. ${costText}`)}
                         </button>
                     </div>
                 )}
@@ -425,7 +470,7 @@ export const BitterDissatisfactionSection: React.FC = () => {
             )}
 
             <div className="my-16 bg-black/20 p-8 rounded-lg border border-gray-800 overflow-x-auto">
-                <SectionHeader>SIGIL TREE</SectionHeader>
+                <SectionHeader>{language === 'ko' ? "표식 트리" : "SIGIL TREE"}</SectionHeader>
                 <div className="flex items-center min-w-max pb-8 px-4 justify-center">
                     
                     {/* Column 1: Root */}
@@ -536,19 +581,23 @@ export const BitterDissatisfactionSection: React.FC = () => {
 
             {/* Brewing */}
             <div className="mt-16">
-                <SectionHeader>Brewing</SectionHeader>
+                <SectionHeader>{language === 'ko' ? "양조" : "Brewing"}</SectionHeader>
                 <div className={`my-4 max-w-sm mx-auto p-4 border rounded-lg transition-all bg-black/20 ${ ctx.isBrewingBoosted ? 'border-amber-400 ring-2 ring-amber-400/50 cursor-pointer hover:border-amber-300' : isBrewingBoostDisabled ? 'border-gray-700 opacity-50 cursor-not-allowed' : 'border-gray-700 hover:border-amber-400/50 cursor-pointer'}`} onClick={!isBrewingBoostDisabled ? () => ctx.handleBitterDissatisfactionBoostToggle('brewing') : undefined}>
                     <div className="flex items-center justify-center gap-4">
                         <img src="/images/zTm8fcLb-kaarn.png" alt="Kaarn Sigil" className="w-16 h-16"/>
                         <div className="text-left">
                             <h4 className="font-cinzel text-lg font-bold text-amber-300 tracking-widest">{ctx.isBrewingBoosted ? 'BOOSTED' : 'BOOST'}</h4>
-                            {!ctx.isBrewingBoosted && <p className="text-xs text-gray-400 mt-1">Activating this will consume one Kaarn sigil.</p>}
+                            {!ctx.isBrewingBoosted && <p className="text-xs text-gray-400 mt-1">
+                                {language === 'ko' ? "활성화 시 카른 표식 1개 소모" : "Activating this will consume one Kaarn sigil."}
+                            </p>}
                         </div>
                     </div>
                 </div>
-                <SectionSubHeader>Picks Available: {ctx.availableBrewingPicks - ctx.selectedBrewing.size} / {ctx.availableBrewingPicks}</SectionSubHeader>
+                <SectionSubHeader>
+                    {language === 'ko' ? `선택 가능: ${ctx.availableBrewingPicks - ctx.selectedBrewing.size} / ${ctx.availableBrewingPicks}` : `Picks Available: ${ctx.availableBrewingPicks - ctx.selectedBrewing.size} / ${ctx.availableBrewingPicks}`}
+                </SectionSubHeader>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" style={staticScaleStyle}>
-                    {BREWING_DATA.map(power => {
+                    {activeBrewing.map(power => {
                         const boostedText = ctx.isBrewingBoosted && boostDescriptions[power.id];
                         const isColorlessOdorless = power.id === 'colorless_odorless';
                         const isSelected = ctx.selectedBrewing.has(power.id);
@@ -573,21 +622,25 @@ export const BitterDissatisfactionSection: React.FC = () => {
 
             {/* Soul Alchemy */}
             <div className="mt-16">
-                <SectionHeader>Soul Alchemy</SectionHeader>
+                <SectionHeader>{language === 'ko' ? "영혼 연금술" : "Soul Alchemy"}</SectionHeader>
                 <div className={`my-4 max-w-sm mx-auto p-4 border rounded-lg transition-all bg-black/20 ${ ctx.isSoulAlchemyBoosted ? 'border-amber-400 ring-2 ring-amber-400/50 cursor-pointer hover:border-amber-300' : isSoulAlchemyBoostDisabled ? 'border-gray-700 opacity-50 cursor-not-allowed' : 'border-gray-700 hover:border-amber-400/50 cursor-pointer'}`} onClick={!isSoulAlchemyBoostDisabled ? () => ctx.handleBitterDissatisfactionBoostToggle('soulAlchemy') : undefined}>
                     <div className="flex items-center justify-center gap-4">
                         <img src="/images/zTm8fcLb-kaarn.png" alt="Kaarn Sigil" className="w-16 h-16"/>
                         <div className="text-left">
                             <h4 className="font-cinzel text-lg font-bold text-amber-300 tracking-widest">{ctx.isSoulAlchemyBoosted ? 'BOOSTED' : 'BOOST'}</h4>
-                            {!ctx.isSoulAlchemyBoosted && <p className="text-xs text-gray-400 mt-1">Activating this will consume one Kaarn sigil.</p>}
+                            {!ctx.isSoulAlchemyBoosted && <p className="text-xs text-gray-400 mt-1">
+                                {language === 'ko' ? "활성화 시 카른 표식 1개 소모" : "Activating this will consume one Kaarn sigil."}
+                            </p>}
                         </div>
                     </div>
                 </div>
-                <SectionSubHeader>Picks Available: {ctx.availableSoulAlchemyPicks - ctx.selectedSoulAlchemy.size} / {ctx.availableSoulAlchemyPicks}</SectionSubHeader>
+                <SectionSubHeader>
+                    {language === 'ko' ? `선택 가능: ${ctx.availableSoulAlchemyPicks - ctx.selectedSoulAlchemy.size} / ${ctx.availableSoulAlchemyPicks}` : `Picks Available: ${ctx.availableSoulAlchemyPicks - ctx.selectedSoulAlchemy.size} / ${ctx.availableSoulAlchemyPicks}`}
+                </SectionSubHeader>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" style={staticScaleStyle}>
                     {(() => {
-                        const humanMarionettes = SOUL_ALCHEMY_DATA.find(p => p.id === 'human_marionettes');
-                        const otherPowers = SOUL_ALCHEMY_DATA.filter(p => p.id !== 'human_marionettes');
+                        const humanMarionettes = activeSoulAlchemy.find(p => p.id === 'human_marionettes');
+                        const otherPowers = activeSoulAlchemy.filter(p => p.id !== 'human_marionettes');
                         const firstHalf = otherPowers.slice(0, 3);
                         const secondHalf = otherPowers.slice(3);
 
@@ -744,19 +797,23 @@ export const BitterDissatisfactionSection: React.FC = () => {
 
             {/* Transformation */}
             <div className="mt-16">
-                <SectionHeader>Transformation</SectionHeader>
+                <SectionHeader>{language === 'ko' ? "변신술" : "Transformation"}</SectionHeader>
                 <div className={`my-4 max-w-sm mx-auto p-4 border rounded-lg transition-all bg-black/20 ${ ctx.isTransformationBoosted ? 'border-amber-400 ring-2 ring-amber-400/50 cursor-pointer hover:border-amber-300' : isTransformationBoostDisabled ? 'border-gray-700 opacity-50 cursor-not-allowed' : 'border-gray-700 hover:border-amber-400/50 cursor-pointer'}`} onClick={!isTransformationBoostDisabled ? () => ctx.handleBitterDissatisfactionBoostToggle('transformation') : undefined}>
                     <div className="flex items-center justify-center gap-4">
                         <img src="/images/zTm8fcLb-kaarn.png" alt="Kaarn Sigil" className="w-16 h-16"/>
                         <div className="text-left">
                             <h4 className="font-cinzel text-lg font-bold text-amber-300 tracking-widest">{ctx.isTransformationBoosted ? 'BOOSTED' : 'BOOST'}</h4>
-                            {!ctx.isTransformationBoosted && <p className="text-xs text-gray-400 mt-1">Activating this will consume one Kaarn sigil.</p>}
+                            {!ctx.isTransformationBoosted && <p className="text-xs text-gray-400 mt-1">
+                                {language === 'ko' ? "활성화 시 카른 표식 1개 소모" : "Activating this will consume one Kaarn sigil."}
+                            </p>}
                         </div>
                     </div>
                 </div>
-                <SectionSubHeader>Picks Available: {ctx.availableTransformationPicks - ctx.selectedTransformation.size} / {ctx.availableTransformationPicks}</SectionSubHeader>
+                <SectionSubHeader>
+                    {language === 'ko' ? `선택 가능: ${ctx.availableTransformationPicks - ctx.selectedTransformation.size} / ${ctx.availableTransformationPicks}` : `Picks Available: ${ctx.availableTransformationPicks - ctx.selectedTransformation.size} / ${ctx.availableTransformationPicks}`}
+                </SectionSubHeader>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" style={staticScaleStyle}>
-                    {TRANSFORMATION_DATA.map(power => {
+                    {activeTransformation.map(power => {
                         const boostedText = ctx.isTransformationBoosted && boostDescriptions[power.id];
                         const isSelected = ctx.selectedTransformation.has(power.id);
                         
@@ -800,7 +857,7 @@ export const BitterDissatisfactionSection: React.FC = () => {
                                                 : 'bg-gray-900/40 border-gray-600 text-gray-400 hover:border-purple-500/50 hover:text-purple-300'
                                             }`}
                                         >
-                                            <span className="font-bold uppercase tracking-wider mb-0.5">Mage Only</span>
+                                            <span className="font-bold uppercase tracking-wider mb-0.5">{language === 'ko' ? "마법소녀 전용" : "Mage Only"}</span>
                                             <span className="truncate w-full text-center font-mono opacity-90">
                                                 {malrayootsMageFormName || '70 BP'}
                                             </span>
@@ -813,7 +870,7 @@ export const BitterDissatisfactionSection: React.FC = () => {
                                                 : 'bg-gray-900/40 border-gray-600 text-gray-400 hover:border-purple-500/50 hover:text-purple-300'
                                             }`}
                                         >
-                                            <span className="font-bold uppercase tracking-wider mb-0.5">Universal</span>
+                                            <span className="font-bold uppercase tracking-wider mb-0.5">{language === 'ko' ? "일반용" : "Universal"}</span>
                                             <span className="truncate w-full text-center font-mono opacity-90">
                                                 {malrayootsUniversalFormName || '40 BP'}
                                             </span>
@@ -836,7 +893,7 @@ export const BitterDissatisfactionSection: React.FC = () => {
                     }}
                     currentBeastName={mageFamiliarBeastName}
                     pointLimit={totalBeastPoints}
-                    title={`Assign Familiar (${totalBeastPoints} BP)`}
+                    title={language === 'ko' ? `패밀리어 할당 (${totalBeastPoints} BP)` : `Assign Familiar (${totalBeastPoints} BP)`}
                 />
             )}
             
@@ -849,7 +906,7 @@ export const BitterDissatisfactionSection: React.FC = () => {
                     }}
                     currentBeastName={beastmasterBeastNames[beastmasterModalState.index] || null}
                     pointLimit={beastmasterCount ? Math.floor(totalBeastPoints / beastmasterCount) : totalBeastPoints}
-                    title={`Assign Familiar #${beastmasterModalState.index + 1}`}
+                    title={language === 'ko' ? `패밀리어 #${beastmasterModalState.index + 1} 할당` : `Assign Familiar #${beastmasterModalState.index + 1}`}
                 />
             )}
 
@@ -862,7 +919,7 @@ export const BitterDissatisfactionSection: React.FC = () => {
                     }}
                     currentCompanionName={humanMarionetteCompanionNames[humanMarionetteModalState.index] || null}
                     pointLimit={Math.floor(humanMarionettePointsPer)}
-                    title={`Assign Puppet #${humanMarionetteModalState.index + 1}`}
+                    title={language === 'ko' ? `퍼펫 #${humanMarionetteModalState.index + 1} 할당` : `Assign Puppet #${humanMarionetteModalState.index + 1}`}
                     categoryFilter="puppet"
                 />
             )}
@@ -876,7 +933,7 @@ export const BitterDissatisfactionSection: React.FC = () => {
                     }}
                     currentCompanionName={personificationBuildName}
                     pointLimit={50} // Rough estimate, mainly personality traits
-                    title="Assign Personification Personality"
+                    title={language === 'ko' ? "개성화 성격 할당" : "Assign Personification Personality"}
                     validator={(data) => {
                         // Only allow personality traits
                         const hasCategory = !!data.category;
@@ -895,7 +952,7 @@ export const BitterDissatisfactionSection: React.FC = () => {
                     }}
                     currentBeastName={shedHumanityBeastName}
                     pointLimit={shedHumanityPoints}
-                    title="Assign Shed Humanity Form"
+                    title={language === 'ko' ? "괴수화 형태 할당" : "Assign Shed Humanity Form"}
                     excludedPerkIds={['chatterbox_beast', 'magical_beast']}
                 />
             )}
@@ -909,7 +966,7 @@ export const BitterDissatisfactionSection: React.FC = () => {
                     }}
                     currentBeastName={malrayootsMageFormName}
                     pointLimit={70}
-                    title="Assign Malrayoots Mage-Only Form"
+                    title={language === 'ko' ? "말레이우트 마법소녀 전용 형태 할당" : "Assign Malrayoots Mage-Only Form"}
                 />
             )}
 
@@ -922,7 +979,7 @@ export const BitterDissatisfactionSection: React.FC = () => {
                     }}
                     currentBeastName={malrayootsUniversalFormName}
                     pointLimit={40}
-                    title="Assign Malrayoots Universal Form"
+                    title={language === 'ko' ? "말레이우트 일반용 형태 할당" : "Assign Malrayoots Universal Form"}
                 />
             )}
 

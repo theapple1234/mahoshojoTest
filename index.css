@@ -12,15 +12,26 @@ body {
 .font-gowun {
   font-family: 'Gowun Batang', serif;
 }
-@font-face {
-    font-family: 'SchoolSafetyKidariBalloon';
-    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2511-1@1.0/HakgyoansimKidaripungseonL.woff2') format('woff2');
-    font-weight: normal;
-    font-display: swap;
+
+/* Override .font-cinzel when the document language is 'ko' -> Pretendard Thin (100) */
+html[lang="ko"] .font-cinzel {
+    font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif !important;
+    font-weight: 100 !important;
+    letter-spacing: 0.05em !important;
 }
-.font-kidari {
-    font-family: 'SchoolSafetyKidariBalloon', sans-serif;
+
+/* Override .font-mono when the document language is 'ko' -> Pretendard Bold (700) */
+html[lang="ko"] .font-mono {
+    font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.02em !important;
 }
+
+/* Increase base font size by 10% for Korean to improve legibility of Pretendard */
+html[lang="ko"] {
+    font-size: 110%;
+}
+
 @font-face {
     font-family: 'Galmuri11Bold';
     src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2506-1@1.0/Galmuri11-Bold.woff2') format('woff2');
@@ -55,30 +66,89 @@ img {
 
 /* Magical Girl Animation Styles */
 
-/* Logo fade out without flashing */
-.animate-logo-exit {
-    animation: simple-fade-out 1s ease-in-out forwards;
+/* Splash Screen Animations */
+
+.animate-entrance {
+    animation: fade-in-up 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    opacity: 0;
 }
 
-/* Controls slide down and fade */
-.animate-slide-down-exit {
-    animation: slide-down-fade 0.8s ease-in-out forwards;
+.delay-100 { animation-delay: 0.1s; }
+.delay-200 { animation-delay: 0.2s; }
+.delay-300 { animation-delay: 0.3s; }
+.delay-500 { animation-delay: 0.5s; }
+
+.animate-float-slow {
+    animation: float 6s ease-in-out infinite;
 }
 
-.animate #splash-subtext {
-    animation: text-fade 0.5s ease-in-out forwards;
+.animate-zoom-out-exit {
+    animation: zoom-out-fade 0.8s cubic-bezier(0.65, 0, 0.35, 1) forwards;
 }
 
-@keyframes simple-fade-out {
-    0% { transform: scale(1); opacity: 1; }
-    100% { transform: scale(0.95); opacity: 0; }
+@keyframes fade-in-up {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes slide-down-fade {
-    0% { transform: translateY(0); opacity: 1; }
-    100% { transform: translateY(50px); opacity: 0; }
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
 }
 
-@keyframes text-fade {
-    to { opacity: 0; }
+@keyframes zoom-out-fade {
+    0% { opacity: 1; transform: scale(1); filter: blur(0px); }
+    50% { opacity: 0; transform: scale(1.1); filter: blur(4px); }
+    100% { opacity: 0; transform: scale(1.2); filter: blur(10px); }
+}
+
+/* Star Background Animation */
+.stars-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.star {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+    opacity: 0;
+    animation: twinkle-float var(--duration) ease-in-out infinite;
+    animation-delay: var(--delay);
+}
+
+@keyframes twinkle-float {
+    0% { transform: translateY(0) scale(0.5); opacity: 0; }
+    50% { opacity: var(--opacity); }
+    100% { transform: translateY(-100px) scale(1); opacity: 0; }
+}
+
+.text-glow {
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3), 0 0 20px rgba(34, 211, 238, 0.2);
+}
+
+.animate-pulse-slow {
+    animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Global utility for transitions */
+.animate-fade-in-up-toast {
+    animation: fadeInUp 0.4s ease-out forwards;
+}
+
+.animate-fade-in-up-modal {
+    animation: fadeInUp 0.3s ease-out forwards;
+}
+.animate-fade-out-down-modal {
+    animation: fadeOutDown 0.3s ease-in forwards;
+}
+@keyframes fadeOutDown {
+    from { opacity: 1; transform: translateY(0); }
+    to { opacity: 0; transform: translateY(20px); }
 }

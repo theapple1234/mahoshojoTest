@@ -1,7 +1,33 @@
-
 import React from 'react';
 import * as Constants from '../../constants';
 import { renderFormattedText } from '../ui';
+
+export const formatCostDisplay = (cost: string | undefined, language: 'en' | 'ko') => {
+    if (!cost) return null;
+    if (language !== 'ko') return cost;
+    
+    let text = cost;
+
+    // Handle "Varies" or "Costs Varies" cases
+    if (text.toLowerCase().includes('varies')) {
+        return '비용 변동';
+    }
+    
+    // Replace "Costs" or "Grants" followed by number and unit
+    text = text.replace(/(?:Costs|Grants)\s*([+-]?\d+)\s*(FP|BP)/gi, (match, num, unit) => {
+        return `${unit === 'FP' ? '행운 점수' : '축복 점수'} ${num}`;
+    });
+    
+    // Replace remaining number and unit (e.g. in "Costs -5 FP and -5 BP", the "-5 BP" part)
+    text = text.replace(/([+-]?\d+)\s*(FP|BP)/gi, (match, num, unit) => {
+         return `${unit === 'FP' ? '행운 점수' : '축복 점수'} ${num}`;
+    });
+    
+    // Replace separators
+    text = text.replace(/\s+and\s+/gi, ', ');
+    
+    return text;
+};
 
 // Icons
 export const SaveDiskIcon = () => (
@@ -28,12 +54,17 @@ export const TemplateIcon = () => (
     </svg>
 );
 
-export const SummaryHeader: React.FC<{ theme: 'dark' | 'light' | 'cyber' }> = ({ theme }) => {
+export const SummaryHeader: React.FC<{ theme: 'dark' | 'light' | 'cyber', language?: 'en' | 'ko' }> = ({ theme, language = 'en' }) => {
+    const isKo = language === 'ko';
+    const titleDefault = isKo ? "성스러운 마법소녀 CYOA" : "SEINARU MAGECRAFT GIRLS";
+    const titleCyber = isKo ? "성스러운_마법소녀_CYOA" : "SEINARU_MAGECRAFT_GIRLS";
+    const titleLight = isKo ? "성스러운 마법소녀 CYOA" : "Seinaru Magecraft Girls";
+
     if (theme === 'cyber') {
          return (
             <div className="border-b border-green-500/50 pb-4 mb-8 flex justify-between items-end">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tighter text-green-500 font-galmuri leading-[2.5]">SEINARU_MAGECRAFT_GIRLS</h1>
+                    <h1 className={`${isKo ? 'text-4xl' : 'text-3xl'} font-bold tracking-tighter text-green-500 font-galmuri leading-[2.5]`}>{titleCyber}</h1>
                     <p className="text-[10px] text-green-700 font-galmuri mt-1 uppercase tracking-widest leading-[2.5]">Original by NXTUB | Interactive by SAVIAPPLE</p>
                 </div>
             </div>
@@ -42,7 +73,7 @@ export const SummaryHeader: React.FC<{ theme: 'dark' | 'light' | 'cyber' }> = ({
     if (theme === 'light') {
         return (
             <div className="flex flex-col items-center mb-10 border-b-2 border-amber-200 pb-6">
-                <h1 className="font-cinzel text-5xl font-bold text-slate-900 tracking-wider">Seinaru Magecraft Girls</h1>
+                <h1 className={`font-cinzel ${isKo ? 'text-6xl' : 'text-5xl'} font-bold text-slate-900 tracking-wider`}>{titleLight}</h1>
                 <p className="font-serif text-[10px] text-slate-500 uppercase tracking-[0.2em] mt-3">Original by NXTUB | Interactive by SAVIAPPLE</p>
             </div>
         );
@@ -50,7 +81,7 @@ export const SummaryHeader: React.FC<{ theme: 'dark' | 'light' | 'cyber' }> = ({
     // Dark/Default
     return (
         <div className="flex flex-col items-center mb-10 border-b border-cyan-900/30 pb-6">
-             <h1 className="font-cinzel text-4xl font-bold text-white tracking-[0.1em] text-shadow-glow">SEINARU MAGECRAFT GIRLS</h1>
+             <h1 className={`font-cinzel ${isKo ? 'text-5xl' : 'text-4xl'} font-bold text-white tracking-[0.1em] text-shadow-glow`}>{titleDefault}</h1>
              <p className="font-cinzel text-[10px] text-gray-500 mt-3 tracking-[0.3em] uppercase">Original by NXTUB | Interactive by SAVIAPPLE</p>
         </div>
     );
@@ -141,7 +172,7 @@ export const CustomSpellCard: React.FC<{ spell: any, index: number, theme: any }
     const leadingClass = 'leading-[2.5]';
 
     const borderColor = isMilgrath 
-        ? (isTerminal ? 'border-green-400' : isTemple ? 'border-amber-500' : 'border-cyan-400') 
+        ? (isTerminal ? 'border-green-400' : isTemple ? 'border-amber-50' : 'border-cyan-400') 
         : (isTerminal ? 'border-green-800' : isTemple ? 'border-gray-300' : 'border-gray-700');
         
     const titleColor = isMilgrath
@@ -175,7 +206,7 @@ export const CustomSpellCard: React.FC<{ spell: any, index: number, theme: any }
                 <div className={`w-8 h-8 flex items-center justify-center rounded-full border ${borderColor} ${isMilgrath ? 'bg-white/10' : 'bg-transparent'}`}>
                     <span className={`${theme.fontHead} font-bold text-lg ${titleColor}`}>{index + 1}</span>
                 </div>
-                <h4 className={`${theme.fontHead} font-bold text-sm tracking-wide ${titleColor}`}>
+                <h4 className={`${theme.fontHead} font-bold text-[21px] tracking-wide ${titleColor}`}>
                     CUSTOM SPELL
                 </h4>
             </div>

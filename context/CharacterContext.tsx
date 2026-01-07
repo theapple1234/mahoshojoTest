@@ -49,7 +49,15 @@ export const CharacterProvider: React.FC<{ children: ReactNode }> = ({ children 
     // Settings State
     const [isPhotosensitivityDisabled, setPhotosensitivityDisabled] = useState(false);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-    const [language, setLanguage] = useState<'en' | 'ko'>('en');
+    
+    // Initialize language based on browser preference
+    const [language, setLanguage] = useState<'en' | 'ko'>(() => {
+        if (typeof navigator !== 'undefined' && navigator.language) {
+            return navigator.language.startsWith('ko') ? 'ko' : 'en';
+        }
+        return 'en';
+    });
+
     const [fontSize, setFontSize] = useState<'regular' | 'large'>('regular');
     const [volume, setVolume] = useState(50);
     const [bgmVideoId, setBgmVideoId] = useState('GzIXfP0rkMk');
@@ -64,6 +72,11 @@ export const CharacterProvider: React.FC<{ children: ReactNode }> = ({ children 
         setDebugLog(prev => [`[${new Date().toLocaleTimeString()}] ${msg}`, ...prev]);
     }, []);
 
+    // Synchronize HTML lang attribute with selected language
+    useEffect(() => {
+        document.documentElement.lang = language;
+    }, [language]);
+
     // Monitor State Changes
     useEffect(() => {
         if (selectedDominionId) {
@@ -73,8 +86,6 @@ export const CharacterProvider: React.FC<{ children: ReactNode }> = ({ children 
 
     // Initialization Effect: Clear Reference Builds
     useEffect(() => {
-        // As per requirement, Reference Page builds (Companions, Weapons, etc.) should reset on app initialization/reload.
-        // They should only be populated when a user loads a save file.
         const STORAGE_KEY = 'seinaru_magecraft_builds';
         localStorage.removeItem(STORAGE_KEY);
         setBuildsRefreshTrigger(prev => prev + 1); // Ensure listeners update to empty state

@@ -2,24 +2,22 @@
 import React, { useState, useEffect } from 'react';
 import { BEAST_CATEGORIES, BEAST_SIZES, BEAST_PERKS, COMPANION_PERSONALITY_TRAITS } from '../constants';
 import type { AllBuilds, BeastSelections } from '../types';
+import { useCharacterContext } from '../context/CharacterContext';
 
 const STORAGE_KEY = 'seinaru_magecraft_builds';
 
 const calculateBeastPoints = (selections: BeastSelections): number => {
     let total = 0;
-    // FIX: Iterate over category array instead of assuming it's a single string
     selections.category.forEach(catId => {
         total += BEAST_CATEGORIES.find(c => c.id === catId)?.cost ?? 0;
     });
     if (selections.size) {
         total += BEAST_SIZES.find(s => s.id === selections.size)?.cost ?? 0;
     }
-    // FIX: Iterate over Map entries (count, perkId) instead of treating as a Set of IDs
     selections.perks.forEach((count, perkId) => {
         const perk = BEAST_PERKS.find(p => p.id === perkId);
         if (perk) {
             let cost = perk.cost ?? 0;
-            // Handle free perks based on other selections
             if (perk.id === 'unnerving_appearance' && selections.perks.has('undead_perk')) cost = 0;
             if (perk.id === 'steel_skin' && selections.perks.has('automaton_perk')) cost = 0;
             total += cost * count;
@@ -69,6 +67,7 @@ export const BeastSelectionModal: React.FC<BeastSelectionModalProps> = ({
     requiredPerkId,
     colorTheme = 'purple'
 }) => {
+    const { language } = useCharacterContext();
     const [beastBuilds, setBeastBuilds] = useState<Record<string, { points: number }>>({});
 
     useEffect(() => {
@@ -144,6 +143,20 @@ export const BeastSelectionModal: React.FC<BeastSelectionModalProps> = ({
     };
 
     const currentTheme = themeClasses[colorTheme] || themeClasses.purple;
+    
+    // Localization
+    const msgSelectAny = language === 'ko' ? "동물 빌드를 선택하세요." : "Select any beast build.";
+    const msgLimit = language === 'ko' ? `${pointLimit} 동물 점수 이하인 빌드를 선택하세요.` : `Select a beast build that costs ${pointLimit} Beast Points or less.`;
+    const msgCategory = categoryFilter 
+        ? (language === 'ko' ? ` 카테고리 필수: ${categoryFilter === 'humanoid' ? '인간형' : categoryFilter.toUpperCase()}.` : ` Must have category: ${categoryFilter.toUpperCase()}.`) 
+        : "";
+    
+    const requiredPerk = requiredPerkId ? BEAST_PERKS.find(p => p.id === requiredPerkId)?.title : "";
+    const msgPerk = requiredPerk ? (language === 'ko' ? ` 특성 필수: ${requiredPerk}.` : ` Must have perk: ${requiredPerk}.`) : "";
+    const msgExcluded = excludedPerkIds && excludedPerkIds.length > 0 ? (language === 'ko' ? " 제한된 특성(*)을 사용하지 않아야 합니다." : " Ensure it does not use restricted perks (*).") : "";
+    const msgNoBuilds = language === 'ko' ? "호환되는 동물 빌드가 없습니다. 참고 페이지에서 만들어 보세요." : "No compatible beast builds found. Go to the Reference Page to create one.";
+    const msgCostExceeds = language === 'ko' ? `비용이 ${pointLimit}점을 초과합니다` : `Cost exceeds ${pointLimit} points`;
+    const msgClickToAssign = language === 'ko' ? '클릭하여 할당' : 'Click to assign this beast';
 
     return (
         <div
@@ -171,12 +184,10 @@ export const BeastSelectionModal: React.FC<BeastSelectionModalProps> = ({
                 </header>
                 <main className="p-6 overflow-y-auto">
                     <p className={`text-center text-sm ${currentTheme.infoText} mb-4 italic`}>
-                        {pointLimit === Infinity
-                            ? "Select any beast build."
-                            : `Select a beast build that costs ${pointLimit} Beast Points or less.`}
-                        {categoryFilter && ` Must have category: ${categoryFilter.toUpperCase()}.`}
-                        {requiredPerkId && ` Must have perk: ${BEAST_PERKS.find(p => p.id === requiredPerkId)?.title}.`}
-                        {excludedPerkIds && excludedPerkIds.length > 0 && " Ensure it does not use restricted perks (*)."}
+                        {pointLimit === Infinity ? msgSelectAny : msgLimit}
+                        {msgCategory}
+                        {msgPerk}
+                        {msgExcluded}
                     </p>
                     <div className="space-y-3">
                         {Object.keys(beastBuilds).length > 0 ? (
@@ -204,7 +215,7 @@ export const BeastSelectionModal: React.FC<BeastSelectionModalProps> = ({
                                         <div>
                                             <h3 className="font-semibold text-white">{name}</h3>
                                             <p className="text-xs text-gray-400">
-                                                {isDisabled ? `Cost exceeds ${pointLimit} points` : 'Click to assign this beast'}
+                                                {isDisabled ? msgCostExceeds : msgClickToAssign}
                                             </p>
                                         </div>
                                         <span className={`font-bold text-lg ${costColor}`}>
@@ -215,10 +226,7 @@ export const BeastSelectionModal: React.FC<BeastSelectionModalProps> = ({
                             })
                         ) : (
                             <p className="text-center text-gray-500 italic py-8">
-                                No compatible beast builds found. Go to the Reference Page to create one.
-                                {categoryFilter && ` Make sure it has the '${categoryFilter.toUpperCase()}' category.`}
-                                {requiredPerkId && ` Make sure it has the '${BEAST_PERKS.find(p => p.id === requiredPerkId)?.title}' perk.`}
-                                {excludedPerkIds && excludedPerkIds.length > 0 && " Ensure it does not use restricted perks (*)."}
+                                {msgNoBuilds}
                             </p>
                         )}
                     </div>
@@ -228,7 +236,7 @@ export const BeastSelectionModal: React.FC<BeastSelectionModalProps> = ({
                         onClick={() => onSelect(null)}
                         className="px-4 py-2 text-sm font-cinzel bg-gray-800/50 border border-gray-700 rounded-md hover:bg-gray-700 transition-colors"
                     >
-                        Clear Assignment
+                        {language === 'ko' ? "할당 해제" : "Clear Assignment"}
                     </button>
                 </footer>
             </div>

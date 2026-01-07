@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { useCharacterContext } from '../context/CharacterContext';
-import { RETIREMENT_INTRO_DATA, RETIREMENT_CHOICES_DATA, CHILD_OF_GOD_DATA } from '../constants';
+import { RETIREMENT_INTRO_DATA, RETIREMENT_INTRO_DATA_KO, RETIREMENT_CHOICES_DATA, RETIREMENT_CHOICES_DATA_KO, CHILD_OF_GOD_DATA, CHILD_OF_GOD_DATA_KO } from '../constants';
 import type { ChoiceItem } from '../types';
 import { renderFormattedText } from './ui';
 
@@ -9,7 +9,8 @@ const RetirementCard: React.FC<{
     item: ChoiceItem;
     isSelected: boolean;
     onSelect: (id: string) => void;
-}> = ({ item, isSelected, onSelect }) => {
+    language: 'en' | 'ko';
+}> = ({ item, isSelected, onSelect, language }) => {
     return (
         <div 
             onClick={() => onSelect(item.id)}
@@ -50,7 +51,7 @@ const RetirementCard: React.FC<{
                 {isSelected && (
                     <div className="mt-6 text-center">
                         <span className="inline-block px-4 py-1 border border-cyan-500/50 rounded-full text-xs text-cyan-300 tracking-widest uppercase bg-cyan-950/30 shadow-[0_0_10px_rgba(34,211,238,0.2)]">
-                            Path Selected
+                            {language === 'ko' ? "선택됨" : "Path Selected"}
                         </span>
                     </div>
                 )}
@@ -63,7 +64,8 @@ const TheHiddenOption: React.FC<{
     item: ChoiceItem;
     isSelected: boolean;
     onSelect: (id: string) => void;
-}> = ({ item, isSelected, onSelect }) => {
+    language: 'en' | 'ko';
+}> = ({ item, isSelected, onSelect, language }) => {
     return (
         <div 
             onClick={() => onSelect(item.id)}
@@ -92,7 +94,7 @@ const TheHiddenOption: React.FC<{
                 <div className="relative z-20 flex flex-col justify-center p-8 md:w-3/5">
                     <div className="mb-2">
                         <span className={`text-[10px] uppercase tracking-[0.3em] font-bold ${isSelected ? 'text-red-500' : 'text-red-900 group-hover:text-red-700'}`}>
-                            /// WARNING: CRITICAL DECISION ///
+                            {language === 'ko' ? "저기, 이건 진짜 말도 안되는 일이라고요!" : "/// WARNING: CRITICAL DECISION ///"}
                         </span>
                     </div>
                     <h3 className={`
@@ -117,7 +119,10 @@ const TheHiddenOption: React.FC<{
                                 ? 'bg-red-600 text-white border-red-500 shadow-[0_0_20px_rgba(220,38,38,0.6)]' 
                                 : 'bg-transparent text-red-800 border-red-900 group-hover:text-red-400 group-hover:border-red-500'}
                         `}>
-                            {isSelected ? 'Destiny Sealed' : 'Save the Child'}
+                            {isSelected 
+                                ? (language === 'ko' ? '정말로요? 분명 후회할 거에요.' : '…Are you sure? You’ll regret this.') 
+                                : (language === 'ko' ? '아이를 구한다' : 'Save the Child')
+                            }
                         </button>
                     </div>
                 </div>
@@ -132,10 +137,15 @@ export const PageSix: React.FC = () => {
         handleRetirementChoiceSelect,
         selectedChildOfGodChoiceId,
         handleChildOfGodChoiceSelect,
-        isPhotosensitivityDisabled
+        isPhotosensitivityDisabled,
+        language
     } = useCharacterContext();
 
-    const childOfGodChoice = CHILD_OF_GOD_DATA[0];
+    const activeRetirementIntro = language === 'ko' ? RETIREMENT_INTRO_DATA_KO : RETIREMENT_INTRO_DATA;
+    const activeRetirementChoices = language === 'ko' ? RETIREMENT_CHOICES_DATA_KO : RETIREMENT_CHOICES_DATA;
+    const activeChildOfGodData = language === 'ko' ? CHILD_OF_GOD_DATA_KO : CHILD_OF_GOD_DATA;
+
+    const childOfGodChoice = activeChildOfGodData[0];
     const isChildFree = selectedChildOfGodChoiceId === childOfGodChoice.id;
 
     const handleSecretClick = () => {
@@ -172,11 +182,12 @@ export const PageSix: React.FC = () => {
             <section className="relative py-12 mb-20">
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-blue-900/10 blur-[100px] rounded-full pointer-events-none"></div>
                 <div className="relative max-w-4xl mx-auto bg-black/40 backdrop-blur-md border border-slate-700/50 p-10 rounded-2xl shadow-2xl">
+                    <h1 className="font-cinzel text-4xl text-center font-bold text-white mb-6 tracking-widest">{activeRetirementIntro.title}</h1>
                     <div className="flex justify-center mb-6">
                         <div className="h-px w-24 bg-gradient-to-r from-transparent via-cyan-500 to-transparent"></div>
                     </div>
                     <p className="text-gray-300 text-lg leading-relaxed whitespace-pre-wrap text-center font-light">
-                        {renderFormattedText(RETIREMENT_INTRO_DATA.description)}
+                        {renderFormattedText(activeRetirementIntro.description)}
                     </p>
                     <div className="flex justify-center mt-6">
                         <div className="h-px w-24 bg-gradient-to-r from-transparent via-cyan-500 to-transparent"></div>
@@ -188,17 +199,20 @@ export const PageSix: React.FC = () => {
             <section className="mb-32">
                 <div className="flex items-center justify-center gap-4 mb-12">
                     <div className="h-px w-12 bg-slate-700"></div>
-                    <h2 className="font-cinzel text-2xl text-slate-300 tracking-[0.2em]">CHOOSE YOUR PATH</h2>
+                    <h2 className="font-cinzel text-2xl text-slate-300 tracking-[0.2em]">
+                        {language === 'ko' ? "당신의 길을 선택하세요" : "CHOOSE YOUR PATH"}
+                    </h2>
                     <div className="h-px w-12 bg-slate-700"></div>
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8 max-w-[1600px] mx-auto px-4">
-                    {RETIREMENT_CHOICES_DATA.map(choice => (
+                    {activeRetirementChoices.map(choice => (
                         <div key={choice.id} className="h-full">
                             <RetirementCard
                                 item={choice}
                                 isSelected={selectedRetirementChoiceId === choice.id}
                                 onSelect={handleRetirementChoiceSelect}
+                                language={language}
                             />
                         </div>
                     ))}
@@ -213,6 +227,7 @@ export const PageSix: React.FC = () => {
                         item={childOfGodChoice}
                         isSelected={selectedChildOfGodChoiceId === childOfGodChoice.id}
                         onSelect={handleChildOfGodChoiceSelect}
+                        language={language}
                     />
                 </div>
             </section>

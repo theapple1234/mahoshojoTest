@@ -1,10 +1,119 @@
 
-import React from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 
 interface SectionHeaderProps {
   children: React.ReactNode;
   className?: string;
 }
+
+// --- Advanced Typewriter Component ---
+// Parses text with {bp}...{/bp} and {w}...{/w} tags and types it out preserving styles
+interface TextSegment {
+    text: string;
+    className?: string;
+}
+
+export const AdvancedTypewriter: React.FC<{ 
+    text: string; 
+    speed?: number; 
+    onComplete?: () => void; 
+    className?: string;
+}> = ({ text, speed = 45, onComplete, className }) => {
+    const [charIndex, setCharIndex] = useState(0);
+    const [isComplete, setIsComplete] = useState(false);
+
+    // 1. Parse the input string into segments (Plain vs Formatted)
+    const segments: TextSegment[] = useMemo(() => {
+        // Split by tags. 
+        const parts = text.split(/(\{bp\}.*?\{\/bp\}|\{w\}.*?\{\/w\}|\{i\}.*?\{\/i\}|\{c\}.*?\{\/c\})/g);
+        
+        return parts.map(part => {
+            if (part.startsWith('{bp}')) {
+                return { 
+                    text: part.replace(/\{bp\}|\{\/bp\}/g, ''), 
+                    className: "font-bold text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-300 to-purple-400 drop-shadow-[0_0_2px_rgba(192,38,211,0.5)]" 
+                };
+            }
+            if (part.startsWith('{w}')) {
+                return { 
+                    text: part.replace(/\{w\}|\{\/w\}/g, ''), 
+                    className: "font-bold text-white drop-shadow-sm" 
+                };
+            }
+            if (part.startsWith('{i}')) {
+                return { 
+                    text: part.replace(/\{i\}|\{\/i\}/g, ''), 
+                    className: "italic text-gray-300" 
+                };
+            }
+            if (part.startsWith('{c}')) {
+                return { 
+                    text: part.replace(/\{c\}|\{\/c\}/g, ''), 
+                    className: "text-[#C7DE95]" 
+                };
+            }
+            return { text: part, className: "" };
+        });
+    }, [text]);
+
+    // Calculate total displayable characters (excluding tags)
+    const totalLength = useMemo(() => segments.reduce((acc, seg) => acc + seg.text.length, 0), [segments]);
+
+    useEffect(() => {
+        // Reset if text changes
+        setCharIndex(0);
+        setIsComplete(false);
+    }, [text]);
+
+    useEffect(() => {
+        if (charIndex >= totalLength) {
+            if (!isComplete) {
+                setIsComplete(true);
+                if (onComplete) onComplete();
+            }
+            return;
+        }
+
+        const timer = setInterval(() => {
+            setCharIndex(prev => prev + 1);
+        }, speed);
+
+        return () => clearInterval(timer);
+    }, [charIndex, totalLength, speed, onComplete, isComplete]);
+
+    // 2. Render logic: Reconstruct content based on current charIndex
+    const renderContent = () => {
+        let charsRemaining = charIndex;
+        const output = [];
+
+        for (let i = 0; i < segments.length; i++) {
+            const segment = segments[i];
+            
+            if (charsRemaining <= 0) break; // No more chars to show
+
+            if (charsRemaining >= segment.text.length) {
+                // Show full segment
+                output.push(
+                    <span key={i} className={segment.className}>{segment.text}</span>
+                );
+                charsRemaining -= segment.text.length;
+            } else {
+                // Show partial segment
+                output.push(
+                    <span key={i} className={segment.className}>{segment.text.slice(0, charsRemaining)}</span>
+                );
+                charsRemaining = 0;
+            }
+        }
+        return output;
+    };
+
+    return (
+        <div className={`${className} whitespace-pre-wrap`}>
+            {renderContent()}
+        </div>
+    );
+};
 
 export const renderFormattedText = (text: string): React.ReactNode => {
     if (!text) return null;
@@ -48,8 +157,8 @@ export const renderFormattedText = (text: string): React.ReactNode => {
         if (part.startsWith('{t}')) return <span key={i} className="opacity-30">{renderFormattedText(getContent(part, '{t}', '{/t}'))}</span>;
         // {sb}태그: 하늘색 볼드 (KP - Old / Sky)
         if (part.startsWith('{sb}')) return <span key={i} className="text-sky-400 font-bold">{renderFormattedText(getContent(part, '{sb}', '{/sb}'))}</span>;
-        // {c}태그: 청록색 볼드 (Ruhai)
-        if (part.startsWith('{c}')) return <span key={i} className="text-cyan-400 font-bold">{renderFormattedText(getContent(part, '{c}', '{/c}'))}</span>;
+        // {c}태그: 연두색/라임색 (Quote emphasis) - Matched to Typewriter
+        if (part.startsWith('{c}')) return <span key={i} className="text-[#C7DE95]">{renderFormattedText(getContent(part, '{c}', '{/c}'))}</span>;
         // {b}태그: 파란색 볼드 (Milgrath)
         if (part.startsWith('{b}')) return <span key={i} className="text-blue-500 font-bold">{renderFormattedText(getContent(part, '{b}', '{/b}'))}</span>;
         // {kp}태그: 핑크색 볼드 (Kuri-Odan Points)
@@ -89,8 +198,10 @@ interface BlessingIntroProps {
 export const BlessingIntro: React.FC<BlessingIntroProps> = ({ title, imageSrc, description, reverse = false }) => {
   const renderDescription = () => {
     // Special handling for Fidelia to add gradient fade effect
-    if (title.includes("FIDELIA")) {
-        const target = "ncxvqmeuywitpdrrinbojkgt.";
+    if (title.includes("FIDELIA") || title.includes("피델리아")) {
+        const targetEn = "ncxvqmeuywitpdrrinbojkgt.";
+        const targetKo = "ㄹㅊㅋㅍㅌㅂ고뎌ㅛ지세으ㅜㅠㅐㅓㅏ햘ㄴㅁ";
+        const target = description.includes(targetEn) ? targetEn : targetKo;
         const splitIndex = description.lastIndexOf(target);
         
         if (splitIndex !== -1) {
@@ -110,7 +221,7 @@ export const BlessingIntro: React.FC<BlessingIntroProps> = ({ title, imageSrc, d
   };
 
   // Determine aspect ratio based on title content
-  const isBlessing = title.toUpperCase().startsWith("THE BLESSING OF");
+  const isBlessing = title.toUpperCase().startsWith("THE BLESSING OF") || title.includes("축복");
   const aspectRatioClass = isBlessing ? "aspect-[3/2]" : "aspect-square";
 
   return (

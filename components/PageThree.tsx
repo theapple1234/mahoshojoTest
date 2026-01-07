@@ -1,11 +1,17 @@
 
 import React from 'react';
 import { useCharacterContext } from '../context/CharacterContext';
-import { BLESSING_ENGRAVINGS, COMMON_SIGILS_DATA, SPECIAL_SIGILS_DATA } from '../constants';
+import { 
+    BLESSING_ENGRAVINGS, BLESSING_ENGRAVINGS_KO,
+    COMMON_SIGILS_DATA, COMMON_SIGILS_DATA_KO, 
+    SPECIAL_SIGILS_DATA, SPECIAL_SIGILS_DATA_KO,
+    PAGE_THREE_INTRO_DATA, PAGE_THREE_INTRO_DATA_KO,
+    PAGE_THREE_RULES_DATA, PAGE_THREE_RULES_DATA_KO
+} from '../constants';
 import { BlessingOptionCard } from './BlessingOptionCard';
 import { SigilCard } from './SigilCard';
 import { SpecialSigilCard } from './SpecialSigilCard';
-import { SectionHeader, SectionSubHeader } from './ui';
+import { SectionHeader, renderFormattedText } from './ui';
 import { SigilCounter } from './SigilCounter';
 import { GoodTidingsSection } from './blessings/GoodTidingsSection';
 import { CompellingWillSection } from './blessings/CompellingWillSection';
@@ -25,7 +31,8 @@ export const PageThree: React.FC = () => {
         acquiredLekoluJobs, handleLekoluJobAction,
         selectedSpecialSigilChoices, handleSpecialSigilChoice,
         availableSigilCounts,
-        fontSize
+        fontSize,
+        language
     } = useCharacterContext();
 
     const [fallingSigils, setFallingSigils] = React.useState<Array<{
@@ -51,6 +58,13 @@ export const PageThree: React.FC = () => {
         };
         setFallingSigils(prev => [...prev, newSigil]);
     };
+    
+    // Localization Selection
+    const activeEngravings = language === 'ko' ? BLESSING_ENGRAVINGS_KO : BLESSING_ENGRAVINGS;
+    const activeCommonSigils = language === 'ko' ? COMMON_SIGILS_DATA_KO : COMMON_SIGILS_DATA;
+    const activeSpecialSigils = language === 'ko' ? SPECIAL_SIGILS_DATA_KO : SPECIAL_SIGILS_DATA;
+    const activeIntroData = language === 'ko' ? PAGE_THREE_INTRO_DATA_KO : PAGE_THREE_INTRO_DATA;
+    const activeRulesData = language === 'ko' ? PAGE_THREE_RULES_DATA_KO : PAGE_THREE_RULES_DATA;
 
     return (
         <>
@@ -82,15 +96,15 @@ export const PageThree: React.FC = () => {
             />
 
             <section className="mb-24">
-                <SectionHeader>IT'S TIME TO DESIGN YOUR MAGIC!</SectionHeader>
+                <SectionHeader>{activeIntroData.title}</SectionHeader>
 
                 <div className="flex flex-col md:flex-row gap-8 max-w-7xl mx-auto items-center bg-black/20 p-8 rounded-lg border border-gray-800">
                     <div className="md:w-1/3">
                         <img src="/images/YBjFrHDz-main2.jpg" alt="Path of Magic" className="rounded-lg shadow-lg shadow-purple-500/20 w-full" />
                     </div>
                     <div className="md:w-2/3 text-gray-300 text-sm space-y-4">
-                        <p>Your time at the academy has taught you so much. Of course, it hasn't given you anything you didn't already possess; it merely showed you how to make full use of the potential that's been inside you all along. The deeper you delved into the inner workings of magecraft, the more your nights were beset by strange dreams of murky glimpses of a higher realm, reminding you of your smallness in a great and terrifying multiverse.</p>
-                        <p>Pay close attention here, for this is where it gets slightly complicated. Each <strong className="text-white">Stolen Blessing</strong> is a chunk of power ripped from the soul of the Child of God and bestowed upon Mages by the Mother of Azure, administered by her five well, four Daughters. She currently institutes the Sinusur Doctrine of Magecraft: the power of the Blessings may only be harnessed using various <strong className="text-white">Sigils</strong> as catalysts. Beneath each blessing, you may see sigils laid out something like this:</p>
+                        <p>{renderFormattedText(activeIntroData.p1)}</p>
+                        <p>{renderFormattedText(activeIntroData.p2)}</p>
                     </div>
                 </div>
                 
@@ -99,20 +113,19 @@ export const PageThree: React.FC = () => {
                 </div>
 
                 <div className="max-w-4xl mx-auto p-6 bg-black/20 border border-gray-800 rounded-lg">
-                    <p className="text-gray-300 text-center mb-4">Each sigil you purchase will entitle you to a great amount of that Blessing's power, in accordance with the following rules:</p>
+                    <p className="text-gray-300 text-center mb-4">{activeRulesData.intro}</p>
                     <ol className="list-decimal list-inside space-y-3 text-gray-400 text-sm">
-                        <li>Before buying a sigil, you must have purchased every sigil connected to it from its left. Think of it like a perk tree in an RPG. You start at the leftmost side, and make your way to the very right.</li>
-                        <li>Buying more sigils allows you to choose more of the Blessing's <strong className="text-white">Modifiers</strong>, listed in the menu beneath. For example, if you buy a sigil with the description <strong className="text-white">"+1 Minor Spell"</strong>, you may then take one more option from the category marked "Minor Spells".</li>
-                        <li>"Unlocking" a spell or boon is not the same as acquiring it. You still have to purchase it as described in rule #2.</li>
-                        <li>You can simply select the <strong className="text-white">BOOST</strong> button located below the benefits (boons). If selected, the specific BOOST effect will appear below each choice.</li>
+                        {activeRulesData.rules.map((rule, idx) => (
+                            <li key={idx}>{renderFormattedText(rule)}</li>
+                        ))}
                     </ol>
                 </div>
 
                 <section className="mt-24">
-                    <SectionHeader>For each Blessing, you can decide where its sigils shall be engraved</SectionHeader>
-                    <SectionHeader className="!text-sm !text-gray-400 !italic !my-8 !normal-case">You can set this individually for each Blessing, but for now, please pick a default location.</SectionHeader>
+                    <SectionHeader>{activeRulesData.engravingTitle}</SectionHeader>
+                    <SectionHeader className="!text-sm !text-gray-400 !italic !my-8 !normal-case">{activeRulesData.engravingSubtitle}</SectionHeader>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-                        {BLESSING_ENGRAVINGS.map(engraving => {
+                        {activeEngravings.map(engraving => {
                             const isSelected = selectedBlessingEngraving === engraving.id;
 
                             return (
@@ -131,9 +144,9 @@ export const PageThree: React.FC = () => {
             <hr className="border-gray-700 my-24" />
 
             <section id="sigil-purchase-section">
-                <SectionHeader>The Common Sigils</SectionHeader>
+                <SectionHeader>{language === 'ko' ? "기본 표식" : "The Common Sigils"}</SectionHeader>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
-                {COMMON_SIGILS_DATA.map(sigil => (
+                {activeCommonSigils.map(sigil => (
                     <SigilCard 
                         key={sigil.id} 
                         sigil={sigil} 
@@ -146,9 +159,9 @@ export const PageThree: React.FC = () => {
             </section>
 
             <section className="mt-24" id="special-sigil-section">
-                <SectionHeader>The Special Sigils</SectionHeader>
+                <SectionHeader>{language === 'ko' ? "희귀 표식" : "The Special Sigils"}</SectionHeader>
                 <div className="flex flex-col gap-12 max-w-7xl mx-auto">
-                {SPECIAL_SIGILS_DATA.map(sigil => (
+                {activeSpecialSigils.map(sigil => (
                     <SpecialSigilCard 
                         key={sigil.id} 
                         sigil={sigil} 
@@ -162,7 +175,7 @@ export const PageThree: React.FC = () => {
                 </div>
                 <div className="mt-12 text-center max-w-4xl mx-auto">
                     <p className="text-white text-xs md:text-sm font-medium italic opacity-80">
-                        Remember, though, that trials and favors cannot be repeated, although jobs can. Now that all that's explained, let us begin.
+                         {language === 'ko' ? "시련이나 요청은 반복할 수 없지만, 일은 반복할 수 있습니다. 이제 본격적으로 시작하죠." : "Remember, though, that trials and favors cannot be repeated, although jobs can. Now that all that's explained, let us begin."}
                     </p>
                 </div>
             </section>

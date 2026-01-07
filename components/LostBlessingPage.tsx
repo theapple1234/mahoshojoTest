@@ -1,7 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { useCharacterContext } from '../context/CharacterContext';
-import { LOST_POWERS_DATA } from '../constants';
+import { LOST_BLESSING_INTRO, LOST_BLESSING_INTRO_KO, LOST_POWERS_DATA, LOST_POWERS_DATA_KO } from '../constants';
+import { renderFormattedText } from './ui';
 
 interface LostPower {
     id: string;
@@ -12,9 +13,9 @@ interface LostPower {
 
 // Node IDs for the tree
 const TREE_NODES = [
-    { id: 'see_no_evil', title: 'SEE NO EVIL', cost: '1 Sinthru' },
-    { id: 'hear_no_evil', title: 'HEAR NO EVIL', cost: '1 Sinthru', prereq: 'see_no_evil' },
-    { id: 'speak_no_evil', title: 'SPEAK NO EVIL', cost: '1 Sinthru', prereq: 'hear_no_evil' },
+    { id: 'see_no_evil', title: 'SEE NO EVIL', titleKo: '악을 보지 말라', cost: '1 Sinthru' },
+    { id: 'hear_no_evil', title: 'HEAR NO EVIL', titleKo: '악을 듣지 말라', cost: '1 Sinthru', prereq: 'see_no_evil' },
+    { id: 'speak_no_evil', title: 'SPEAK NO EVIL', titleKo: '악을 말하지 말라', cost: '1 Sinthru', prereq: 'hear_no_evil' },
 ];
 
 interface LostBlessingPageProps {
@@ -31,7 +32,8 @@ export const LostBlessingPage: React.FC<LostBlessingPageProps> = ({ enableEntran
         availableSigilCounts, 
         selectedDominionId,
         blessingPoints,
-        fontSize
+        fontSize,
+        language
     } = useCharacterContext();
     
     // Force body background to black on mount, revert on unmount
@@ -52,6 +54,9 @@ export const LostBlessingPage: React.FC<LostBlessingPageProps> = ({ enableEntran
     const hasSinthrusContract = selectedStarCrossedLovePacts.has('sinthrus_contract');
     const sinthruBpCost = selectedDominionId === 'shinar' ? 8 : 10;
     const sinthruSigilCount = availableSigilCounts.sinthru;
+
+    const activeIntro = language === 'ko' ? LOST_BLESSING_INTRO_KO : LOST_BLESSING_INTRO;
+    const activePowers = language === 'ko' ? LOST_POWERS_DATA_KO : LOST_POWERS_DATA;
 
     const handleNodeClick = (id: string, canInteract: boolean) => {
         if (!canInteract) return;
@@ -124,9 +129,6 @@ export const LostBlessingPage: React.FC<LostBlessingPageProps> = ({ enableEntran
                                 src="/images/FLDtz723-main1.jpg" 
                                 alt="The Lost Daughter" 
                                 className="absolute inset-0 w-full h-full object-cover"
-                                onError={(e) => {
-                                    e.currentTarget.src = "/images/sv6z0RJZ-c13.jpg"; // Fallback to Illuse or similar dark aesthetic image
-                                }}
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
                         </div>
@@ -135,17 +137,15 @@ export const LostBlessingPage: React.FC<LostBlessingPageProps> = ({ enableEntran
                     {/* Intro Text */}
                     <div className="lg:w-2/3 flex flex-col">
                         <h1 className="font-cinzel text-4xl md:text-5xl text-purple-200 tracking-[0.1em] text-center lg:text-left mb-6 drop-shadow-[0_0_10px_rgba(168,85,247,0.5)]">
-                            THE LOST BLESSING
+                            {activeIntro.title}
                         </h1>
                         <div className="flex-grow bg-black/40 border border-purple-500/30 rounded-xl p-6 md:p-8 backdrop-blur-md shadow-lg">
-                            <p className="text-gray-300 leading-relaxed text-sm md:text-base mb-6 text-justify">
-                                You poor, silly thing. I'm sure your head's been pumped full o' the queen bitch's propaganda, saying we want to destroy the universe when all we want is to pull it, and that poor little girl, out from beneath <span className="italic">her</span> totalitarian rule. But anybody smart enough to find their way here is surely smart enough to see through all that bullshit, right? Either way, little bird, it doesn't matter. What I've got here is a little misfit island of premium spells - that's right, this is the lost blessing! The one that bitch stuffed full of spells she thought were too "powerful" for everybody before sealing it away...
+                            <p className="text-gray-300 leading-relaxed text-sm md:text-base mb-6 text-justify whitespace-pre-wrap">
+                                {renderFormattedText(activeIntro.description_p1)}
                             </p>
-                            <p className="text-gray-300 leading-relaxed text-sm md:text-base text-justify border-t border-purple-500/30 pt-4">
-                                First time here? Or perhaps a familiar face? It matters not. We aren't that stingy. Anyone with the resolve to save 'that child' has the right to claim these sigils. However, if you intend to settle for a peaceful world, or live your life flattering that 'queen's' reign... then say goodbye to these sigils forever!
-                                <br/><br/>
-                                None of these sigils can be earned through the <span className="font-bold text-purple-300">Sinthru's Contract</span> alone, but there is one bonus: as a reward for your effort and courage in making it all the way here, you're entitled to one pick for free.
-                            </p>
+                            <div className="text-gray-300 leading-relaxed text-sm md:text-base text-justify border-t border-purple-500/30 pt-4 whitespace-pre-wrap">
+                                {renderFormattedText(activeIntro.description_p2)}
+                            </div>
                         </div>
                     </div>
                 </section>
@@ -156,7 +156,9 @@ export const LostBlessingPage: React.FC<LostBlessingPageProps> = ({ enableEntran
                     <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-purple-500/50 to-transparent"></div>
                     
                     <div className="py-8 px-4">
-                        <h2 className="font-cinzel text-2xl text-purple-300/70 mb-8 tracking-widest text-left">SIGIL TREE</h2>
+                        <h2 className="font-cinzel text-2xl text-purple-300/70 mb-8 tracking-widest text-left">
+                            {language === 'ko' ? "표식 트리" : "SIGIL TREE"}
+                        </h2>
                         
                         <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-0 max-w-4xl mx-auto">
                             {TREE_NODES.map((node, index, arr) => {
@@ -171,6 +173,8 @@ export const LostBlessingPage: React.FC<LostBlessingPageProps> = ({ enableEntran
                                 // Interaction Logic: Can click if already selected (to remove) OR (prereq met AND affordable)
                                 const canInteract = isSelected || (isPrereqMet && isAffordable);
                                 const isDisabled = !canInteract;
+
+                                const displayTitle = language === 'ko' ? node.titleKo : node.title;
 
                                 return (
                                     <React.Fragment key={node.id}>
@@ -196,10 +200,14 @@ export const LostBlessingPage: React.FC<LostBlessingPageProps> = ({ enableEntran
                                             </div>
                                             {/* Increased margin-top for design adjustment */}
                                             <div className="text-center mt-10 z-10">
-                                                <h3 className={`font-cinzel text-sm tracking-wider font-bold ${isSelected ? 'text-purple-300' : 'text-gray-500'}`}>{node.title}</h3>
-                                                <p className="text-[10px] text-gray-400/80 italic mt-1">+1 Lost Power</p>
+                                                <h3 className={`font-cinzel text-sm tracking-wider font-bold ${isSelected ? 'text-purple-300' : 'text-gray-500'}`}>{displayTitle}</h3>
+                                                <p className="text-[10px] text-gray-400/80 italic mt-1">
+                                                    {language === 'ko' ? "잃어버린 힘 +1" : "+1 Lost Power"}
+                                                </p>
                                                 <p className={`text-[9px] font-sans mt-1 ${hasSinthrusContract ? 'text-purple-400' : 'text-pink-400'}`}>
-                                                    {hasSinthrusContract ? `Cost: ${sinthruBpCost} BP` : 'Cost: 1 Sinthru'}
+                                                    {hasSinthrusContract 
+                                                        ? (language === 'ko' ? `비용: 축복 점수 ${sinthruBpCost}` : `Cost: ${sinthruBpCost} BP`) 
+                                                        : (language === 'ko' ? '비용: 신스루 1개' : 'Cost: 1 Sinthru')}
                                                 </p>
                                             </div>
                                         </div>
@@ -217,15 +225,19 @@ export const LostBlessingPage: React.FC<LostBlessingPageProps> = ({ enableEntran
                 <section>
                     <div className="flex items-center justify-between mb-8 border-b border-purple-900/50 pb-2">
                         <div className="flex items-center gap-4">
-                            <h2 className="font-cinzel text-2xl text-purple-200 tracking-widest">LOST POWERS</h2>
+                            <h2 className="font-cinzel text-2xl text-purple-200 tracking-widest">
+                                {language === 'ko' ? "잃어버린 힘" : "LOST POWERS"}
+                            </h2>
                         </div>
                         <div className="text-right">
-                             <span className="text-xs text-purple-300 font-mono">Picks: {selectedLostPowers.size} / {maxSelectablePowers}</span>
+                             <span className="text-xs text-purple-300 font-mono">
+                                {language === 'ko' ? `선택됨: ${selectedLostPowers.size} / ${maxSelectablePowers}` : `Picks: ${selectedLostPowers.size} / ${maxSelectablePowers}`}
+                             </span>
                         </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        {LOST_POWERS_DATA.map((power) => {
+                        {activePowers.map((power) => {
                             const isSelected = selectedLostPowers.has(power.id);
                             const isLimitReached = selectedLostPowers.size >= maxSelectablePowers;
                             const isDisabled = !isSelected && isLimitReached;
@@ -254,7 +266,7 @@ export const LostBlessingPage: React.FC<LostBlessingPageProps> = ({ enableEntran
                                         />
                                         {isSelected && (
                                             <div className="absolute top-2 right-2 bg-purple-600 text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg z-20 font-mono tracking-wider">
-                                                SELECTED
+                                                {language === 'ko' ? "선택됨" : "SELECTED"}
                                             </div>
                                         )}
                                     </div>
@@ -266,7 +278,7 @@ export const LostBlessingPage: React.FC<LostBlessingPageProps> = ({ enableEntran
                                         </h3>
                                         <div className="w-12 h-px bg-purple-500/30 mx-auto mb-4"></div>
                                         <p className={`${fontSize === 'large' ? 'text-sm' : 'text-xs'} text-gray-400 leading-relaxed text-justify font-light`}>
-                                            {power.description}
+                                            {renderFormattedText(power.description)}
                                         </p>
                                     </div>
                                 </div>
@@ -281,7 +293,7 @@ export const LostBlessingPage: React.FC<LostBlessingPageProps> = ({ enableEntran
                         onClick={handleReturn}
                         className="px-8 py-3 border-2 border-purple-500/50 text-purple-300 bg-purple-950/30 hover:bg-purple-900/50 hover:text-white hover:border-purple-300 hover:shadow-[0_0_20px_rgba(168,85,247,0.5)] transition-all font-cinzel text-sm tracking-widest uppercase rounded shadow-[0_0_15px_rgba(168,85,247,0.2)]"
                     >
-                        Return to Page 6
+                        {language === 'ko' ? "6페이지로 돌아가기" : "Return to Page 6"}
                     </button>
                 </div>
             </div>

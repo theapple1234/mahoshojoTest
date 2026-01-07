@@ -1,7 +1,12 @@
 
 import React, { useState, useEffect } from 'react';
 import { useCharacterContext } from '../../context/CharacterContext';
-import { STAR_CROSSED_LOVE_DATA, STAR_CROSSED_LOVE_SIGIL_TREE_DATA, STAR_CROSSED_LOVE_PACTS_DATA, BLESSING_ENGRAVINGS } from '../../constants';
+import { 
+    STAR_CROSSED_LOVE_DATA, STAR_CROSSED_LOVE_DATA_KO, 
+    STAR_CROSSED_LOVE_SIGIL_TREE_DATA, STAR_CROSSED_LOVE_SIGIL_TREE_DATA_KO, 
+    STAR_CROSSED_LOVE_PACTS_DATA, STAR_CROSSED_LOVE_PACTS_DATA_KO, 
+    BLESSING_ENGRAVINGS 
+} from '../../constants';
 import type { StarCrossedLovePact, StarCrossedLoveSigil, ChoiceItem, MagicGrade } from '../../types';
 import { BlessingIntro, SectionHeader, SectionSubHeader, WeaponIcon, CompanionIcon, BoostedEffectBox, renderFormattedText } from '../ui';
 import { CompellingWillSigilCard, SigilColor } from '../CompellingWillSigilCard';
@@ -75,6 +80,10 @@ const PowerCard: React.FC<{
             <img src={power.imageSrc} alt={power.title} className="w-full aspect-[3/2] rounded-md mb-4 object-cover" />
             <h4 className="font-cinzel font-bold tracking-wider text-xl" style={{ textShadow, color: titleColor }}>{power.title}</h4>
             {power.cost && <p className="text-xs text-yellow-300/70 italic mt-1">{power.cost}</p>}
+            
+            {/* Separator Line */}
+            {power.description && <div className="w-16 h-px bg-white/10 mx-auto my-2"></div>}
+            
             <p className={`${descriptionClass} text-gray-400 font-medium leading-relaxed flex-grow text-left whitespace-pre-wrap`} style={{ textShadow }}>{renderFormattedText(power.description)}</p>
             {hasChildren && (
                  <div className="mt-4 pt-4 border-t border-gray-700/50 w-full">
@@ -89,7 +98,8 @@ const SinthruContractInterface: React.FC<{
     onGainSigil: () => void;
     onLoseSigil: () => void;
     currentCount: number;
-}> = ({ onGainSigil, onLoseSigil, currentCount }) => {
+    language: 'en' | 'ko';
+}> = ({ onGainSigil, onLoseSigil, currentCount, language }) => {
     const [isAnimating, setIsAnimating] = useState(false);
 
     const handleClick = (e: React.MouseEvent) => {
@@ -114,10 +124,10 @@ const SinthruContractInterface: React.FC<{
             
             <div className="relative z-10 flex flex-col items-center p-10 text-center">
                 <h3 className="font-cinzel text-3xl text-purple-200 tracking-[0.2em] mb-2 drop-shadow-[0_0_10px_rgba(168,85,247,0.8)]">
-                    THE COVEN'S SUPPLY
+                    {language === 'ko' ? "신스루 마녀단의 지원" : "THE COVEN'S SUPPLY"}
                 </h3>
                 <p className="text-purple-400/60 font-serif italic text-sm mb-10 tracking-wide">
-                    "Bound by blood and shadow, our resources are yours. Take what you need."
+                    {language === 'ko' ? "\"그럼, 세상을 등질 준비는 되셨나요?\"" : "\"Then… are you ready to turn your back on the world?\""}
                 </p>
 
                 <button 
@@ -129,7 +139,7 @@ const SinthruContractInterface: React.FC<{
                         hover:border-purple-400 hover:shadow-[0_0_50px_rgba(168,85,247,0.6)] hover:scale-105
                         active:scale-95 active:border-purple-300 cursor-pointer
                     `}
-                    title="Left Click: Take Sigil | Right Click: Return Sigil"
+                    title={language === 'ko' ? "좌클릭: 표식 가져오기 | 우클릭: 표식 반납" : "Left Click: Take Sigil | Right Click: Return Sigil"}
                 >
                     {/* Ripple Effect */}
                     <div className={`absolute inset-0 rounded-full border border-purple-500 opacity-0 transition-all duration-500 ${isAnimating ? 'animate-ping opacity-100' : ''}`}></div>
@@ -150,12 +160,12 @@ const SinthruContractInterface: React.FC<{
                 </button>
 
                 <div className="mt-8 flex flex-col items-center gap-2">
-                    <span className="text-[10px] text-purple-500 uppercase tracking-[0.3em] font-bold">Current Stock</span>
+                    <span className="text-[10px] text-purple-500 uppercase tracking-[0.3em] font-bold">{language === 'ko' ? "현재 재고" : "Current Stock"}</span>
                     <div className="flex items-center gap-3 px-6 py-2 bg-purple-950/30 rounded-lg border border-purple-500/20">
                         <span className="font-cinzel text-2xl text-purple-100">{currentCount}</span>
-                        <span className="text-xs text-purple-400 font-mono">SIGILS</span>
+                        <span className="text-xs text-purple-400 font-mono">{language === 'ko' ? "표식" : "SIGILS"}</span>
                     </div>
-                    <span className="text-[9px] text-purple-600/50 uppercase tracking-widest mt-2">L-Click: Take • R-Click: Return</span>
+                    <span className="text-[9px] text-purple-600/50 uppercase tracking-widest mt-2">{language === 'ko' ? "좌클릭: 획득 • 우클릭: 반납" : "L-Click: Take • R-Click: Return"}</span>
                 </div>
             </div>
         </div>
@@ -184,8 +194,13 @@ export const StarCrossedLoveSection: React.FC = () => {
         kpPaidNodes, toggleKpNode,
         handleCommonSigilAction,
         acquiredCommonSigils,
-        fontSize
+        fontSize,
+        language
     } = useCharacterContext();
+
+    const activeData = language === 'ko' ? STAR_CROSSED_LOVE_DATA_KO : STAR_CROSSED_LOVE_DATA;
+    const activeTree = language === 'ko' ? STAR_CROSSED_LOVE_SIGIL_TREE_DATA_KO : STAR_CROSSED_LOVE_SIGIL_TREE_DATA;
+    const activePacts = language === 'ko' ? STAR_CROSSED_LOVE_PACTS_DATA_KO : STAR_CROSSED_LOVE_PACTS_DATA;
 
     const isStarCrossedLoveSigilDisabled = (sigil: StarCrossedLoveSigil): boolean => {
         if (selectedStarCrossedLoveSigils.has(sigil.id)) return false; 
@@ -207,6 +222,8 @@ export const StarCrossedLoveSection: React.FC = () => {
         return false;
     };
 
+    const getStarCrossedLoveSigil = (id: string) => activeTree.find(s => s.id === id)!;
+
     const handleKpToggle = (sigil: StarCrossedLoveSigil) => {
         const type = getSigilTypeFromImage(sigil.imageSrc);
         if (type) {
@@ -227,7 +244,7 @@ export const StarCrossedLoveSection: React.FC = () => {
             benefitColor = 'text-red-300';
         }
 
-        const benefits = sigil.benefits.pacts ? <p className={benefitColor}>+ {sigil.benefits.pacts} Pact</p> : null;
+        const benefits = sigil.benefits.pacts ? <p className={benefitColor}>+ {sigil.benefits.pacts} {language === 'ko' ? "계약" : "Pact"}</p> : null;
         
         return (
             <CompellingWillSigilCard 
@@ -244,28 +261,50 @@ export const StarCrossedLoveSection: React.FC = () => {
         );
     };
 
-    // Style to counteract global zoom for specific sections
-    // Global Large is 120%. 1 / 1.2 = 0.83333
     const staticScaleStyle: React.CSSProperties = fontSize === 'large' ? { zoom: 0.83333 } : {};
 
     const formatImmunityLabel = (id: string) => {
+        if (language === 'ko') {
+            const koMap: Record<string, string> = {
+                telekinetics: '염력',
+                metathermics: '메타열역학',
+                eleanors_techniques: '엘레노어의 기술',
+                genevieves_techniques: '제네비브의 기술',
+                brewing: '양조',
+                soul_alchemy: '영혼 연금술',
+                transformation: '변신술',
+                channelling: '혼령술',
+                necromancy: '강령술',
+                black_magic: '흑마법',
+                telepathy: '텔레파시',
+                mental_manipulation: '정신 조작',
+                features: '특성',
+                influence: '영향',
+                technomancy: '기계마법',
+                nanite_control: '나나이트 조종',
+                magitech: '마법공학',
+                arcane_constructs: '비전 구조체',
+                metamagic: '메타마법'
+            };
+            return koMap[id] || id;
+        }
         return id.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
     };
 
     return (
         <section>
-            <BlessingIntro {...STAR_CROSSED_LOVE_DATA} />
+            <BlessingIntro {...activeData} />
             
             <div className="my-16 bg-black/20 p-8 rounded-lg border border-gray-800">
-                <SectionHeader>SIGIL TREE</SectionHeader>
+                <SectionHeader>{language === 'ko' ? "표식 트리" : "SIGIL TREE"}</SectionHeader>
                 <div className="flex flex-col md:flex-row items-center justify-center gap-12">
-                    {STAR_CROSSED_LOVE_SIGIL_TREE_DATA.map((sigil, index) => (
+                    {activeTree.map((sigil, index) => (
                         <div key={sigil.id} className="flex items-center">
                             {renderSigilNode(sigil)}
-                            {index < STAR_CROSSED_LOVE_SIGIL_TREE_DATA.length - 1 && (
+                            {index < activeTree.length - 1 && (
                                 <div className="hidden md:block w-16 h-px bg-gray-600 mx-4"></div>
                             )}
-                            {index < STAR_CROSSED_LOVE_SIGIL_TREE_DATA.length - 1 && (
+                            {index < activeTree.length - 1 && (
                                 <div className="md:hidden h-16 w-px bg-gray-600 my-4"></div>
                             )}
                         </div>
@@ -274,10 +313,12 @@ export const StarCrossedLoveSection: React.FC = () => {
             </div>
 
             <div className="mt-16 px-4 lg:px-8">
-                <SectionHeader>Pacts</SectionHeader>
-                <SectionSubHeader>Picks Available: {availablePactPicks - selectedStarCrossedLovePacts.size} / {availablePactPicks}</SectionSubHeader>
+                <SectionHeader>{language === 'ko' ? "계약" : "Pacts"}</SectionHeader>
+                <SectionSubHeader>
+                    {language === 'ko' ? `선택 가능: ${availablePactPicks - selectedStarCrossedLovePacts.size} / ${availablePactPicks}` : `Picks Available: ${availablePactPicks - selectedStarCrossedLovePacts.size} / ${availablePactPicks}`}
+                </SectionSubHeader>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" style={staticScaleStyle}>
-                    {STAR_CROSSED_LOVE_PACTS_DATA.map(pact => {
+                    {activePacts.map(pact => {
                         const isSelected = selectedStarCrossedLovePacts.has(pact.id);
                         const isOnisBlessing = pact.id === 'onis_blessing';
                         const isLostKronack = pact.id === 'lost_kronacks_deal';
@@ -296,7 +337,7 @@ export const StarCrossedLoveSection: React.FC = () => {
                             >
                                 {isOnisBlessing && isSelected && onisBlessingGuardianName && (
                                     <div className="text-center">
-                                        <p className="text-xs text-gray-400">Assigned Guardian:</p>
+                                        <p className="text-xs text-gray-400">{language === 'ko' ? "오니 수호자:" : "Assigned Guardian:"}</p>
                                         <p className="text-sm font-bold text-amber-300">{onisBlessingGuardianName}</p>
                                     </div>
                                 )}
@@ -311,9 +352,9 @@ export const StarCrossedLoveSection: React.FC = () => {
                                             }`}
                                         >
                                             {lostKronackImmunity ? (
-                                                `Immunity: ${formatImmunityLabel(lostKronackImmunity)}`
+                                                `${language === 'ko' ? "면역" : "Immunity"}: ${formatImmunityLabel(lostKronackImmunity)}`
                                             ) : (
-                                                'Select Immunity'
+                                                (language === 'ko' ? "면역 선택" : "Select Immunity")
                                             )}
                                         </button>
                                     </div>
@@ -327,21 +368,28 @@ export const StarCrossedLoveSection: React.FC = () => {
                                             if (trials >= 1) {
                                                 return (
                                                     <div>
-                                                        <p className="text-xs text-green-400 font-bold mb-2">Refund Active: -{xuthCost/2} BP</p>
+                                                        <p className="text-xs text-green-400 font-bold mb-2">
+                                                            {language === 'ko' ? `환급 활성화: -${xuthCost/2} BP` : `Refund Active: -${xuthCost/2} BP`}
+                                                        </p>
                                                         {trials >= 2 ? (
                                                              <button
                                                                 onClick={handleToggleJadeEmperorExtraXuth}
                                                                 className={`w-full px-2 py-1 text-[10px] uppercase font-bold border rounded transition-all ${jadeEmperorExtraXuthPurchased ? 'bg-red-900/60 text-red-200 border-red-500' : 'bg-gray-900/50 text-gray-400 border-gray-600 hover:border-red-500/50'}`}
                                                             >
-                                                                {jadeEmperorExtraXuthPurchased ? `Extra Trial Purchased` : `Buy Extra Xuth Trial (${xuthCost} BP)`}
+                                                                {jadeEmperorExtraXuthPurchased 
+                                                                    ? (language === 'ko' ? "시련 추가 구매됨" : "Extra Trial Purchased")
+                                                                    : (language === 'ko' ? `주스 표식 추가 구매 (${xuthCost} BP)` : `Buy Extra Xuth Sigil (${xuthCost} BP)`)
+                                                                }
                                                             </button>
                                                         ) : (
-                                                            <p className="text-[9px] text-gray-500 italic">Complete 2 trials to unlock extra purchase.</p>
+                                                            <p className="text-[9px] text-gray-500 italic">
+                                                                {language === 'ko' ? "시련 2개를 완료하여 추가 구매를 해금하세요." : "Complete 2 trials to unlock extra purchase."}
+                                                            </p>
                                                         )}
                                                     </div>
                                                 )
                                             }
-                                            return <p className="text-[10px] text-gray-500 italic">Complete a Xuth trial to activate refund.</p>;
+                                            return <p className="text-[10px] text-gray-500 italic">{language === 'ko' ? "주스 시련을 완료하여 환급을 활성화하세요." : "Complete a Xuth trial to activate refund."}</p>;
                                         })()}
                                     </div>
                                 )}
@@ -356,6 +404,7 @@ export const StarCrossedLoveSection: React.FC = () => {
                     onGainSigil={() => handleCommonSigilAction('sinthru', 'buy')}
                     onLoseSigil={() => handleCommonSigilAction('sinthru', 'sell')}
                     currentCount={acquiredCommonSigils.get('sinthru') || 0}
+                    language={language}
                 />
             )}
 
@@ -368,7 +417,7 @@ export const StarCrossedLoveSection: React.FC = () => {
                     }}
                     currentBeastName={onisBlessingGuardianName}
                     pointLimit={100}
-                    title="Assign Oni Guardian (100 BP)"
+                    title={language === 'ko' ? "오니 수호자 할당 (100 BP)" : "Assign Oni Guardian (100 BP)"}
                 />
             )}
 

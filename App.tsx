@@ -9,6 +9,7 @@ import { ScrollButtons } from './components/ScrollButtons';
 import { SecretTransition } from './components/SecretTransition';
 import { SigilCounter } from './components/SigilCounter';
 import { SettingsModal } from './components/SettingsModal';
+import { StarBackground } from './components/StarBackground';
 
 // Lazy load page components
 const PageOne = React.lazy(() => import('./components/PageOne').then(module => ({ default: module.PageOne })));
@@ -22,9 +23,9 @@ const BuildSummaryPage = React.lazy(() => import('./components/BuildSummaryPage'
 const LostBlessingPage = React.lazy(() => import('./components/LostBlessingPage').then(module => ({ default: module.LostBlessingPage })));
 
 const PAGE_TITLES = ['YOUR BIRTH', 'YOUR SCHOOLING', 'SIGILS & BLESSINGS', 'DESIGN YOUR MAGIC', 'YOUR CAREER', 'YOUR RETIREMENT'];
-const PAGE_BACKGROUNDS = ['bg-[#0a101f]', 'bg-[#2a201c]', 'bg-[#100c14]', 'bg-[#1a1412]', 'bg-[#09110e]', 'bg-[#0c0c0e]'];
+// Removed PAGE_BACKGROUNDS as we use a persistent background now, but kept logic for potential overlays
 const PAGE_HEADERS = [
-    "/images/0pnyNKFq-main1.jpg", 
+    null, // Page 1 header removed
     "/images/4nrwRMyD-main1.png", 
     "/images/JRGRMRFH-main1.png", 
     "/images/sJFF0vY2-page4main.jpg", 
@@ -56,6 +57,40 @@ const GlobalNotification: React.FC = () => {
     );
 };
 
+// Background Color Transition Component
+const BackgroundTransition: React.FC<{ currentPage: number }> = ({ currentPage }) => {
+    // Define the gradient overlay for each page
+    const getBackgroundClass = (page: number) => {
+        switch (page) {
+            case 1: return 'opacity-0'; // Default StarBackground (Dark Blue/Black)
+            case 2: return 'bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#3e2d20] via-[#2a1d15] to-[#120c0a] opacity-95'; // Brown/Wood (School)
+            case 3: return 'opacity-0'; // Match Page 1
+            case 4: return 'opacity-0'; // Match Page 1
+            case 5: return 'bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#052e16]/40 via-[#020617] to-black opacity-90'; // Green/Cyber
+            case 6: return 'opacity-0'; // Match Page 1
+            default: return 'opacity-0';
+        }
+    };
+
+    return (
+        <div 
+            className={`fixed inset-0 z-0 transition-all duration-[1500ms] ease-in-out pointer-events-none ${getBackgroundClass(currentPage)}`}
+        >
+             {/* Noise texture overlay for texture consistency */}
+             <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 mix-blend-overlay"></div>
+        </div>
+    );
+};
+
+const LoadingScreen: React.FC = () => (
+  <div className="flex flex-col items-center justify-center min-h-[60vh] w-full animate-fade-in">
+     <div className="relative w-12 h-12 mb-6">
+        <div className="absolute inset-0 border-2 border-transparent border-t-cyan-500 rounded-full animate-spin"></div>
+        <div className="absolute inset-0 border-2 border-transparent border-b-purple-500 rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
+     </div>
+  </div>
+);
+
 const AppContent: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   // State to control if the fade-in animation should show (only right after video)
@@ -82,7 +117,10 @@ const AppContent: React.FC = () => {
       selectedSpecialSigilChoices,
       handleSpecialSigilChoice,
       acquiredLekoluJobs,
-      handleLekoluJobAction
+      handleLekoluJobAction,
+      language,
+      isIntroDone,
+      isPageTwoIntroDone
   } = useCharacterContext();
 
   useEffect(() => {
@@ -146,13 +184,13 @@ const AppContent: React.FC = () => {
   };
 
   const PageNavigation = () => (
-    <div className="flex justify-between items-center mt-16 max-w-7xl mx-auto">
+    <div className={`flex justify-between items-center mt-16 max-w-7xl mx-auto transition-all duration-1000 ease-out delay-[1200ms] ${isIntroDone ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
       {currentPage > 1 && currentPage < 7 ? (
         <button 
           onClick={() => setCurrentPage(p => p - 1)}
-          className="px-6 py-2 font-cinzel text-lg bg-gray-800/50 border border-gray-700 rounded-md hover:bg-gray-700 transition-colors"
+          className="px-10 py-3 font-cinzel text-lg bg-gray-800/50 border border-gray-700 rounded-md hover:bg-gray-700 transition-colors min-w-[200px]"
         >
-          ← BACK TO {PAGE_TITLES[currentPage - 2]}
+          ← {language === 'ko' ? "이전 페이지" : "PREVIOUS PAGE"}
         </button>
       ) : <div />}
       
@@ -161,25 +199,25 @@ const AppContent: React.FC = () => {
       {currentPage < 6 ? (
         <button 
           onClick={() => setCurrentPage(p => p + 1)}
-          className="px-6 py-2 font-cinzel text-lg bg-gray-800/50 border border-gray-700 rounded-md hover:bg-gray-700 transition-colors"
+          className="px-10 py-3 font-cinzel text-lg bg-gray-800/50 border border-gray-700 rounded-md hover:bg-gray-700 transition-colors min-w-[200px]"
         >
-          GO TO {PAGE_TITLES[currentPage]} →
+          {language === 'ko' ? "다음 페이지" : "NEXT PAGE"} →
         </button>
       ) : currentPage === 6 ? (
         <button
           onClick={openBuildSummary}
-          className="group relative px-8 py-3 rounded-lg overflow-hidden border border-cyan-500/30 bg-black/60 shadow-[0_0_15px_rgba(6,182,212,0.2)] transition-all duration-300 hover:shadow-[0_0_30px_rgba(6,182,212,0.5)] hover:border-cyan-400"
+          className="group relative px-10 py-3 rounded-lg overflow-hidden border border-cyan-500/30 bg-black/60 shadow-[0_0_15px_rgba(6,182,212,0.2)] transition-all duration-300 hover:shadow-[0_0_30px_rgba(6,182,212,0.5)] hover:border-cyan-400 min-w-[250px]"
         >
             <div className="absolute inset-0 bg-gradient-to-r from-cyan-900/40 via-blue-900/40 to-cyan-900/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
             <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-cyan-400 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
             <div className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-cyan-400 to-transparent translate-x-[100%] group-hover:translate-x-[-100%] transition-transform duration-1000"></div>
             
-            <div className="relative flex items-center gap-3">
+            <div className="relative flex items-center justify-center gap-3">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-cyan-400 group-hover:text-white transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                 </svg>
                 <span className="font-cinzel text-xl font-bold text-cyan-100 tracking-widest group-hover:text-white transition-colors">
-                    DOWNLOAD BUILD
+                    {language === 'ko' ? "빌드 다운로드" : "DOWNLOAD BUILD"}
                 </span>
             </div>
         </button>
@@ -204,8 +242,8 @@ const AppContent: React.FC = () => {
   const ReferenceButton = () => (
       <button
         onClick={openReferencePage}
-        className={`${referenceButtonClass}`}
-        title="Open Reference Page"
+        className={`${referenceButtonClass} transition-all duration-1000 ease-out delay-[900ms] ${isIntroDone ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10 pointer-events-none'}`}
+        title={language === 'ko' ? "참고 페이지 열기" : "Open Reference Page"}
       >
           <div className={`${innerButtonClass} ${currentTheme}`}>
               {/* Background shine effect */}
@@ -218,8 +256,12 @@ const AppContent: React.FC = () => {
 
               {/* Text */}
               <div className="relative z-10 flex flex-col items-start">
-                  <span className="text-[10px] uppercase tracking-[0.2em] text-white/80 leading-none mb-1">The</span>
-                  <span className="leading-none font-bold text-white text-lg">Reference</span>
+                  <span className="text-[10px] uppercase tracking-[0.2em] text-white/80 leading-none mb-1">
+                    {language === 'ko' ? "Reference Page" : "The"}
+                  </span>
+                  <span className="leading-none font-bold text-white text-lg">
+                    {language === 'ko' ? "참고 페이지" : "Reference"}
+                  </span>
               </div>
           </div>
       </button>
@@ -261,30 +303,44 @@ const AppContent: React.FC = () => {
       );
   }
 
+  const currentHeaderImage = PAGE_HEADERS[currentPage - 1];
+
+  // Logic to determine if header should be shown based on page and intro state
+  const shouldShowHeader = () => {
+    if (currentPage === 1) return isIntroDone;
+    if (currentPage === 2) return isPageTwoIntroDone;
+    return true; // Show for other pages
+  };
+
   return (
     <>
+      <BackgroundTransition currentPage={currentPage} />
       <Suspense fallback={null}>
         {isReferencePageOpen && <ReferencePage onClose={closeReferencePage} />}
         {isBuildSummaryOpen && <BuildSummaryPage onClose={closeBuildSummary} />}
         <SettingsModal />
       </Suspense>
       <GlobalNotification />
-      <div className={`min-h-screen text-white font-sans transition-colors duration-500 ${PAGE_BACKGROUNDS[currentPage - 1]}`}>
-        <div className="container mx-auto px-4 py-8 relative pb-20">
-          <header className="mb-12">
-            <img src={PAGE_HEADERS[currentPage - 1]} alt={PAGE_TITLES[currentPage - 1]} className="mx-auto w-full max-w-4xl no-glow" />
-          </header>
+      <div className="min-h-screen text-white font-sans relative">
+        <div className="container mx-auto px-4 py-8 relative pb-20 z-10">
+          {/* Header Image: Only render if image exists for current page AND intro conditions are met */}
+          {currentHeaderImage && (
+            <header className={`transition-all duration-1000 ease-in-out ${shouldShowHeader() ? 'opacity-100 mb-12' : 'opacity-0 h-0 overflow-hidden mb-0'}`}>
+                <img src={currentHeaderImage} alt={PAGE_TITLES[currentPage - 1]} className="mx-auto w-full max-w-4xl no-glow" />
+            </header>
+          )}
 
-          <Suspense fallback={<div className="flex items-center justify-center h-64 font-cinzel text-xl text-gray-400 animate-pulse">Loading...</div>}>
+          <Suspense fallback={<LoadingScreen />}>
             {currentPage === 1 && <PageOne />}
             {currentPage === 2 && <PageTwo />}
             {currentPage === 3 && <PageThree />}
             {currentPage === 4 && <PageFour />}
             {currentPage === 5 && <PageFive />}
             {currentPage === 6 && <PageSix />}
+            
+            <PageNavigation />
           </Suspense>
           
-          <PageNavigation />
         </div>
         <StatsFooter />
       </div>
@@ -325,6 +381,7 @@ const MainApp: React.FC = () => {
 
   return (
     <>
+      <StarBackground />
       {!isAppStarted && <SplashScreen onStart={handleStartApp} isExiting={isExitingSplash} />}
       <BackgroundMusic />
       <div className={`transition-opacity duration-1000 ${isAppStarted ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>

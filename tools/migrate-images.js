@@ -1,6 +1,6 @@
 
 /**
- * Image Migration Script with Verification (ESM Version)
+ * Image & Video Migration Script with Verification (ESM Version)
  * 
  * Usage: node tools/migrate-images.js
  */
@@ -16,16 +16,13 @@ const __dirname = path.dirname(__filename);
 
 // Config
 const ROOT_DIR = path.resolve(__dirname, '..');
-const TARGET_PATHS = [
-    path.join(ROOT_DIR, 'constants'),
-    path.join(ROOT_DIR, 'components'),
-    path.join(ROOT_DIR, 'App.tsx')
-];
 const PUBLIC_IMG_DIR = path.join(ROOT_DIR, 'public', 'images');
 const URL_PREFIX = '/images';
 
 // Regex: Capture Hash and Filename from ImgBB URL
 const IMAGE_REGEX = /https:\/\/i\.ibb\.co\/([a-zA-Z0-9]+)\/([\w%\-]+)\.(jpg|png|jpeg|gif)/g;
+// Regex: Capture ID from Imgur MP4 URL
+const VIDEO_REGEX = /https:\/\/i\.imgur\.com\/([a-zA-Z0-9]+)\.mp4/g;
 
 // CLI Interface
 const rl = readline.createInterface({
@@ -42,7 +39,7 @@ if (!fs.existsSync(PUBLIC_IMG_DIR)) {
 
 // --- Helpers ---
 
-async function downloadImage(url, filename) {
+async function downloadFile(url, filename) {
     const filePath = path.join(PUBLIC_IMG_DIR, filename);
 
     if (fs.existsSync(filePath)) {
@@ -107,17 +104,29 @@ async function scanPhase() {
 
     for (const filePath of filesToScan) {
         const content = fs.readFileSync(filePath, 'utf8');
-        const matches = [...content.matchAll(IMAGE_REGEX)];
         
-        if (matches.length > 0) {
-            matches.forEach(m => {
+        // Scan for Images (ImgBB)
+        const imageMatches = [...content.matchAll(IMAGE_REGEX)];
+        if (imageMatches.length > 0) {
+            imageMatches.forEach(m => {
                 allMatches.push({
                     filePath,
                     fullUrl: m[0],
-                    hash: m[1],
-                    name: m[2],
-                    ext: m[3],
+                    type: 'image',
                     uniqueFilename: `${m[1]}-${m[2]}.${m[3]}`
+                });
+            });
+        }
+
+        // Scan for Videos (Imgur)
+        const videoMatches = [...content.matchAll(VIDEO_REGEX)];
+        if (videoMatches.length > 0) {
+            videoMatches.forEach(m => {
+                allMatches.push({
+                    filePath,
+                    fullUrl: m[0],
+                    type: 'video',
+                    uniqueFilename: `${m[1]}.mp4`
                 });
             });
         }
@@ -148,11 +157,10 @@ async function executionPhase(matches) {
 
         for (const item of items) {
             // 1. Download
-            const status = await downloadImage(item.fullUrl, item.uniqueFilename);
+            const status = await downloadFile(item.fullUrl, item.uniqueFilename);
             if (status === 'downloaded') downloadCount++;
             
             // 2. Replace in content string
-            // Note: Use split/join or replaceAll to ensure all instances of this specific URL are caught
             if (content.includes(item.fullUrl)) {
                 content = content.replace(item.fullUrl, `${URL_PREFIX}/${item.uniqueFilename}`);
                 fileChanged = true;
@@ -177,19 +185,14 @@ async function verificationPhase() {
     
     const matches = await scanPhase();
     
-    // Check 1: Are there any ibb.co links left in code?
+    // Check: Are there any remote links left in code?
     const remainingLinks = matches.length;
     
-    // Check 2: Do the files actually exist in /public/images?
-    // We scan specifically for things that *look* like they should have been converted
-    // but we can't easily reverse-engineer the regex if the link is already gone.
-    // So we just check if the detected 'matches' (which are ibb.co links) are 0.
-    
     console.log(`-------------------------------------------`);
-    console.log(`Remaining 'ibb.co' links in code: ${remainingLinks}`);
+    console.log(`Remaining remote links (ImgBB/Imgur) in code: ${remainingLinks}`);
     
     if (remainingLinks === 0) {
-        console.log(`✅ SUCCESS: No remote image links found in source code.`);
+        console.log(`✅ SUCCESS: No remote media links found in source code.`);
         return true;
     } else {
         console.log(`⚠️  WARNING: ${remainingLinks} links were NOT converted.`);
@@ -204,12 +207,12 @@ async function main() {
     while (loop) {
         // 1. Scan
         const matches = await scanPhase();
-        const totalImages = matches.length;
+        const totalItems = matches.length;
 
-        console.log(`\n📊 Total Targets Identified: ${totalImages}`);
+        console.log(`\n📊 Total Targets Identified: ${totalItems}`);
 
-        if (totalImages === 0) {
-            console.log("No images to migrate. Entering verification...");
+        if (totalItems === 0) {
+            console.log("No media to migrate. Entering verification...");
         } else {
             // 2. Execute
             await executionPhase(matches);

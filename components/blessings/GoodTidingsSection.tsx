@@ -1,7 +1,14 @@
 
 import React, { useState, useEffect } from 'react';
 import { useCharacterContext } from '../../context/CharacterContext';
-import { GOOD_TIDINGS_DATA, GOOD_TIDINGS_SIGIL_TREE_DATA, ESSENTIAL_BOONS_DATA, MINOR_BOONS_DATA, MAJOR_BOONS_DATA, BLESSING_ENGRAVINGS } from '../../constants';
+import { 
+    GOOD_TIDINGS_DATA, GOOD_TIDINGS_DATA_KO,
+    GOOD_TIDINGS_SIGIL_TREE_DATA, GOOD_TIDINGS_SIGIL_TREE_DATA_KO,
+    ESSENTIAL_BOONS_DATA, ESSENTIAL_BOONS_DATA_KO,
+    MINOR_BOONS_DATA, MINOR_BOONS_DATA_KO,
+    MAJOR_BOONS_DATA, MAJOR_BOONS_DATA_KO,
+    BLESSING_ENGRAVINGS 
+} from '../../constants';
 import type { GoodTidingsSigilTier, ChoiceItem, MagicGrade } from '../../types';
 import { BlessingIntro, SectionHeader, SectionSubHeader, WeaponIcon, BoostedEffectBox, renderFormattedText } from '../ui';
 import { WeaponSelectionModal } from '../WeaponSelectionModal';
@@ -115,7 +122,10 @@ const PowerCard: React.FC<{
             <img src={power.imageSrc} alt={power.title} className="w-full aspect-[3/2] rounded-md mb-4 object-cover" />
             <h4 className="font-cinzel font-bold tracking-wider text-xl" style={{ textShadow, color: titleColor }}>{power.title}</h4>
             {power.cost && <p className="text-xs text-yellow-300/70 italic mt-1">{power.cost}</p>}
+            
+            {/* Separator Line */}
             {power.description && <div className="w-16 h-px bg-white/10 mx-auto my-2"></div>}
+            
             <p className={`${descriptionClass} text-gray-400 font-medium leading-relaxed flex-grow text-left whitespace-pre-wrap`} style={{ textShadow }}>{renderFormattedText(power.description)}</p>
             {children && (
                  <div className="mt-4 pt-4 border-t border-gray-700/50 w-full">
@@ -146,11 +156,18 @@ export const GoodTidingsSection: React.FC = () => {
         goodTidingsSigilTreeCost,
         
         kpPaidNodes, toggleKpNode,
-        fontSize
+        fontSize,
+        language
     } = useCharacterContext();
 
     const [isWeaponModalOpen, setIsWeaponModalOpen] = useState(false);
     const isOnisBlessingActive = selectedStarCrossedLovePacts.has('onis_blessing');
+
+    const activeData = language === 'ko' ? GOOD_TIDINGS_DATA_KO : GOOD_TIDINGS_DATA;
+    const activeTree = language === 'ko' ? GOOD_TIDINGS_SIGIL_TREE_DATA_KO : GOOD_TIDINGS_SIGIL_TREE_DATA;
+    const activeEssential = language === 'ko' ? ESSENTIAL_BOONS_DATA_KO : ESSENTIAL_BOONS_DATA;
+    const activeMinor = language === 'ko' ? MINOR_BOONS_DATA_KO : MINOR_BOONS_DATA;
+    const activeMajor = language === 'ko' ? MAJOR_BOONS_DATA_KO : MAJOR_BOONS_DATA;
 
     const isEssentialBoonDisabled = (boon: ChoiceItem): boolean => {
         return !selectedGoodTidingsTier || (!selectedEssentialBoons.has(boon.id) && selectedEssentialBoons.size >= availableEssentialBoonPicks);
@@ -188,7 +205,11 @@ export const GoodTidingsSection: React.FC = () => {
         return false;
     };
     
-    const tierRequirements = {
+    const tierRequirements = language === 'ko' ? {
+        standard: "필요: 카른 1개",
+        journeyman: "필요: 퍼르스 1개",
+        master: "필요: 주스 1개",
+    } : {
         standard: "Requires: 1 KAARN",
         journeyman: "Requires: 1 PURTH",
         master: "Requires: 1 XUTH",
@@ -201,7 +222,16 @@ export const GoodTidingsSection: React.FC = () => {
         toggleKpNode(tierId, type);
     };
 
-    const purthBoostDescriptions: { [key: string]: string } = {
+    const purthBoostDescriptions: { [key: string]: string } = language === 'ko' ? {
+      quick_twitch: "완전히 즉각적인 반응 속도를 갖습니다.",
+      incredible_will: "일시적으로 모든 통각을 차단할 수 있습니다.",
+      sensory_master: "모든 감각의 범위와 민감도가 두 배가 됩니다.",
+      cowards_boon: "속도 증가량이 180%로 증가합니다..",
+      charisma_plus: "타인의 모습을 보고 약점이나 순진함을 파악할 수 있습니다.",
+      strength_plus: "일시적으로 힘을 2배 강화시킬 수 있습니다. 효과가 끝나면 탈진합니다.",
+      speed_plus: "최고 속도가 800km/h로 증가합니다.",
+      smarts_plus: "일시적으로 모든 정신적 간섭을 뿌리칠 수 있습니다. 효과가 끝나면 탈진합니다."
+    } : {
       quick_twitch: "Reaction time is now truly instant.",
       incredible_will: "Can temporarily shut off all pain receptors.",
       sensory_master: "Range and acuity of senses are doubled.",
@@ -212,7 +242,11 @@ export const GoodTidingsSection: React.FC = () => {
       smarts_plus: "Can become temporarily immune to all psychic influence, at the price of exhaustion."
     };
 
-    const xuthBoostDescriptions: { [key: string]: string } = {
+    const xuthBoostDescriptions: { [key: string]: string } = language === 'ko' ? {
+        hokuto_senjukai_ken: "주먹을 지르면 주먹 끝에서 파괴적인 폭발이 발생합니다.",
+        dont_blink: "이제 초신속으로 공격할 때 자신의 신체에 상해를 입지 않습니다. 다만 공격의 세기는 통상 공격과 다르지 않고, 신체에 엄청난 부담을 줍니다. 다른 물체와 맞닿지 않는 한 탈진하지 않고 계속해서 달릴 수 있습니다.",
+        superpowered_mind: "당신에게 필적하는 지능을 갖는 존재라 해도 당신의 정신에 간섭할 수 없습니다."
+    } : {
         hokuto_senjukai_ken: "Can punch hard enough to create devastating explosions at the end of your fists.",
         dont_blink: "Can attack while in super speed without self-harm, although these attacks won't do any more than regular damage and will be extremely exhausting. Can run without exhaustion as long as you aren't interacting with anything.",
         superpowered_mind: "Immune to psychic influence even by others with the same level of intellect."
@@ -226,6 +260,11 @@ export const GoodTidingsSection: React.FC = () => {
     const finalEngraving = goodTidingsEngraving ?? (selectedBlessingEngraving === 'weapon' ? null : selectedBlessingEngraving);
     const isSkinEngraved = finalEngraving === 'skin';
     const additionalCost = Math.floor(goodTidingsSigilTreeCost * 0.25);
+    
+    // Good Tidings has no Lekolu sigils, so additionalFpCost is 0.
+    const costText = language === 'ko'
+        ? `(축복 점수 -${additionalCost})`
+        : `(-${additionalCost} BP)`;
 
     useEffect(() => {
         if (!isSkinEngraved && isGoodTidingsMagicianApplied) {
@@ -237,11 +276,11 @@ export const GoodTidingsSection: React.FC = () => {
 
     return (
         <section>
-            <BlessingIntro {...GOOD_TIDINGS_DATA} />
+            <BlessingIntro {...activeData} />
 
             <div className="mt-8 mb-16 max-w-3xl mx-auto">
                 <h4 className="font-cinzel text-xl text-center tracking-widest my-6 text-purple-300 uppercase">
-                    Engrave this Blessing
+                    {language === 'ko' ? "축복 각인" : "Engrave this Blessing"}
                 </h4>
                 <div className="grid grid-cols-3 gap-4">
                     {BLESSING_ENGRAVINGS.map(engraving => {
@@ -263,11 +302,15 @@ export const GoodTidingsSection: React.FC = () => {
                                                 : 'border-gray-700 bg-black/30 hover:border-purple-400/50'}
                                     `}
                                 >
-                                    <span className="font-cinzel tracking-wider uppercase">{engraving.title}</span>
+                                    <span className="font-cinzel tracking-wider uppercase">
+                                        {language === 'ko' && engraving.id === 'skin' ? "피부" : 
+                                         language === 'ko' && engraving.id === 'clothes' ? "의복" : 
+                                         language === 'ko' && engraving.id === 'weapon' ? "무기" : engraving.title}
+                                    </span>
                                     {isWeapon && isSelected && goodTidingsWeaponName && (
                                         <p className="text-xs text-purple-300 mt-2 truncate">({goodTidingsWeaponName})</p>
                                     )}
-                                    {isRestricted && <span className="text-[10px] text-red-500 mt-1 uppercase font-bold tracking-tighter">Restricted</span>}
+                                    {isRestricted && <span className="text-[10px] text-red-500 mt-1 uppercase font-bold tracking-tighter">{language === 'ko' ? "제한됨" : "Restricted"}</span>}
                                 </button>
                                 {isWeapon && isSelected && (
                                     <button
@@ -293,9 +336,9 @@ export const GoodTidingsSection: React.FC = () => {
                                     : 'bg-gray-800/50 border-gray-700 text-gray-300 hover:border-purple-500/70'
                             }`}
                         >
-                            {isGoodTidingsMagicianApplied
-                                ? `The 'Magician' trait is applied. Click to remove. (+${additionalCost} BP)`
-                                : `Click to apply the 'Magician' trait from your True Self. This allows you to use the Blessing without transforming for an additional ${additionalCost} BP.`}
+                             {isGoodTidingsMagicianApplied
+                                ? (language === 'ko' ? `'마법사' 특성이 적용되었습니다. ${costText}` : `The Magician trait is applied. ${costText}`)
+                                : (language === 'ko' ? `'마법사' 특성을 적용할 수 있습니다. 변신 없이 축복을 사용할 수 있게 됩니다. ${costText}` : `Click to enable the Magician trait from your True Self, allowing you to use the Blessing without transforming. ${costText}`)}
                         </button>
                     </div>
                 )}
@@ -313,9 +356,9 @@ export const GoodTidingsSection: React.FC = () => {
             )}
 
             <div className="my-16 bg-black/20 p-8 rounded-lg border border-gray-800">
-                <SectionHeader>SIGIL TREE</SectionHeader>
+                <SectionHeader>{language === 'ko' ? "표식 트리" : "SIGIL TREE"}</SectionHeader>
                 <div className="flex flex-col md:flex-row items-stretch justify-center gap-8 max-w-5xl mx-auto">
-                    {GOOD_TIDINGS_SIGIL_TREE_DATA.map((tier, index) => (
+                    {activeTree.map((tier, index) => (
                         <React.Fragment key={tier.id}>
                             <TierCard 
                                 tier={tier}
@@ -326,7 +369,7 @@ export const GoodTidingsSection: React.FC = () => {
                                 onToggleKp={() => handleKpToggle(tier.id)}
                                 isKpPaid={kpPaidNodes.has(tier.id)}
                             />
-                            {index < GOOD_TIDINGS_SIGIL_TREE_DATA.length - 1 && (
+                            {index < activeTree.length - 1 && (
                                 <div className="hidden md:flex items-center justify-center">
                                     <div className="h-px w-16 bg-gray-600"></div>
                                 </div>
@@ -337,10 +380,12 @@ export const GoodTidingsSection: React.FC = () => {
             </div>
 
             <div className="mt-16 px-4 lg:px-8">
-                <SectionHeader>ESSENTIAL BOONS</SectionHeader>
-                <SectionSubHeader>Picks Available: {availableEssentialBoonPicks - selectedEssentialBoons.size} / {availableEssentialBoonPicks}</SectionSubHeader>
+                <SectionHeader>{language === 'ko' ? "필수 혜택" : "ESSENTIAL BOONS"}</SectionHeader>
+                <SectionSubHeader>
+                    {language === 'ko' ? `선택 가능: ${availableEssentialBoonPicks - selectedEssentialBoons.size} / ${availableEssentialBoonPicks}` : `Picks Available: ${availableEssentialBoonPicks - selectedEssentialBoons.size} / ${availableEssentialBoonPicks}`}
+                </SectionSubHeader>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto" style={staticScaleStyle}>
-                    {ESSENTIAL_BOONS_DATA.map(boon => (
+                    {activeEssential.map(boon => (
                         <PowerCard 
                             key={boon.id} 
                             power={{...boon, cost: ''}} 
@@ -355,7 +400,7 @@ export const GoodTidingsSection: React.FC = () => {
             </div>
 
             <div className="mt-16 px-4 lg:px-8">
-                <SectionHeader>MINOR BOONS</SectionHeader>
+                <SectionHeader>{language === 'ko' ? "하위 혜택" : "MINOR BOONS"}</SectionHeader>
                 <div 
                     className={`my-4 max-w-sm mx-auto p-4 border rounded-lg transition-all bg-black/20 ${
                         isMinorBoosted
@@ -383,14 +428,18 @@ export const GoodTidingsSection: React.FC = () => {
                             {isOnisBlessingActive ? (
                                 <p className="text-[10px] text-red-400 mt-1 uppercase font-bold tracking-widest animate-pulse">Oni's Blessing Protocol</p>
                             ) : (
-                                !isMinorBoosted && <p className="text-xs text-gray-400 mt-1">Activating this will consume one Purth sigil.</p>
+                                !isMinorBoosted && <p className="text-xs text-gray-400 mt-1">
+                                    {language === 'ko' ? "활성화 시 퍼르스 표식 1개 소모" : "Activating this will consume one Purth sigil."}
+                                </p>
                             )}
                         </div>
                     </div>
                 </div>
-                <SectionSubHeader>Picks Available: {availableMinorBoonPicks - selectedMinorBoons.size} / {availableMinorBoonPicks}</SectionSubHeader>
+                <SectionSubHeader>
+                    {language === 'ko' ? `선택 가능: ${availableMinorBoonPicks - selectedMinorBoons.size} / ${availableMinorBoonPicks}` : `Picks Available: ${availableMinorBoonPicks - selectedMinorBoons.size} / ${availableMinorBoonPicks}`}
+                </SectionSubHeader>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" style={staticScaleStyle}>
-                    {MINOR_BOONS_DATA.map(boon => {
+                    {activeMinor.map(boon => {
                         const boostedText = isMinorBoosted && purthBoostDescriptions[boon.id];
                         
                         return (
@@ -411,7 +460,7 @@ export const GoodTidingsSection: React.FC = () => {
             </div>
             
             <div className="mt-16 px-4 lg:px-8">
-                <SectionHeader>MAJOR BOONS</SectionHeader>
+                <SectionHeader>{language === 'ko' ? "상위 혜택" : "MAJOR BOONS"}</SectionHeader>
                  <div 
                     className={`my-4 max-w-sm mx-auto p-4 border rounded-lg transition-all bg-black/20 ${
                         isMajorBoosted
@@ -439,20 +488,38 @@ export const GoodTidingsSection: React.FC = () => {
                             {isOnisBlessingActive ? (
                                 <p className="text-[10px] text-red-400 mt-1 uppercase font-bold tracking-widest animate-pulse">Oni's Blessing Protocol</p>
                             ) : (
-                                !isMajorBoosted && <p className="text-xs text-gray-400 mt-1">Activating this will consume one Xuth sigil.</p>
+                                !isMajorBoosted && <p className="text-xs text-gray-400 mt-1">
+                                    {language === 'ko' ? "활성화 시 주스 표식 1개 소모" : "Activating this will consume one Xuth sigil."}
+                                </p>
                             )}
                         </div>
                     </div>
                 </div>
-                <SectionSubHeader>Picks Available: {availableMajorBoonPicks - selectedMajorBoons.size} / {availableMajorBoonPicks}</SectionSubHeader>
+                <SectionSubHeader>
+                    {language === 'ko' ? `선택 가능: ${availableMajorBoonPicks - selectedMajorBoons.size} / ${availableMajorBoonPicks}` : `Picks Available: ${availableMajorBoonPicks - selectedMajorBoons.size} / ${availableMajorBoonPicks}`}
+                </SectionSubHeader>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto" style={staticScaleStyle}>
-                    {MAJOR_BOONS_DATA.map(boon => {
+                    {activeMajor.map(boon => {
                         const boostedText = isMajorBoosted && xuthBoostDescriptions[boon.id];
                         
+                        // We use MINOR_BOONS_DATA for lookups for English requirement string generation.
+                        // For Korean, we handle localized requirement text in the data directly if possible, or assume generic.
+                        // Here, we dynamically find the required boon name.
+                        let reqText = '';
+                        if (boon.requires) {
+                             const reqId = boon.requires; // Assuming single string for Major Boons per data
+                             // Get title from active data
+                             const activeReqBoon = activeMinor.find(b => b.id === reqId);
+                             
+                             if (activeReqBoon) {
+                                 reqText = language === 'ko' ? `필요: ${activeReqBoon.title}` : `Requires: ${activeReqBoon.title}`;
+                             }
+                        }
+
                         return (
                             <PowerCard 
                                 key={boon.id} 
-                                power={{...boon, cost: boon.requires ? `Requires: ${MINOR_BOONS_DATA.find(b => b.id === boon.requires)?.title}` : ''}} 
+                                power={{...boon, cost: reqText}} 
                                 isSelected={selectedMajorBoons.has(boon.id)} 
                                 onToggle={handleMajorBoonSelect}
                                 isDisabled={isMajorBoonDisabled(boon)}

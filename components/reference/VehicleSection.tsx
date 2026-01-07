@@ -1,16 +1,22 @@
-
 import React, { useEffect } from 'react';
 import * as Constants from '../../constants';
 import type { VehicleSelections, CompanionOption } from '../../types';
 import { ReferenceSection } from './ReferenceSection';
 import { ReferenceItemCard } from './ReferenceItemCard';
 import { Counter } from './Counter';
+import { useCharacterContext } from '../../context/CharacterContext';
 
 export const VehicleSection: React.FC<{ 
     setPoints: (points: number) => void;
     selections: VehicleSelections;
     setSelections: React.Dispatch<React.SetStateAction<VehicleSelections>>;
 }> = ({ setPoints, selections, setSelections }) => {
+    const { language } = useCharacterContext();
+    const activeIntro = language === 'ko' ? Constants.VEHICLE_INTRO_KO : Constants.VEHICLE_INTRO;
+    const activeCategories = language === 'ko' ? Constants.VEHICLE_CATEGORIES_KO : Constants.VEHICLE_CATEGORIES;
+    const activePerks = language === 'ko' ? Constants.VEHICLE_PERKS_KO : Constants.VEHICLE_PERKS;
+    const activeTraits = language === 'ko' ? Constants.COMPANION_PERSONALITY_TRAITS_KO : Constants.COMPANION_PERSONALITY_TRAITS;
+
     useEffect(() => {
         let total = 0;
         selections.category.forEach(catId => {
@@ -115,12 +121,13 @@ export const VehicleSection: React.FC<{
 
     const isPerkDisabled = (perk: CompanionOption) => {
         if (!perk.requirement) return false;
-        if (perk.requirement.includes("Requires Tank or Mecha") && !selections.category.includes('tank') && !selections.category.includes('mecha')) return true;
+        const req = perk.requirement;
+        if ((req.includes("Requires Tank or Mecha") || req.includes("탱크나 메카만 선택 가능")) && !selections.category.includes('tank') && !selections.category.includes('mecha')) return true;
         return false;
     };
     const getModifiedPerk = (perk: CompanionOption): CompanionOption => {
-        if (perk.id === 'chatterbox_vehicle' && selections.category.includes('car')) return { ...perk, cost: 0 };
-        if (perk.id === 'hellfire_volley' && (selections.category.includes('tank') || selections.category.includes('mecha'))) return { ...perk, cost: 0 };
+        if (perk.id === 'chatterbox_vehicle' && selections.category.includes('car')) return { ...perk, cost: 0, requirement: language === 'ko' ? '자동차 무료' : 'Free for Car' };
+        if (perk.id === 'hellfire_volley' && (selections.category.includes('tank') || selections.category.includes('mecha'))) return { ...perk, cost: 0, requirement: language === 'ko' ? '탱크/메카 무료' : 'Free for Tank/Mecha' };
         return perk;
     };
 
@@ -128,30 +135,52 @@ export const VehicleSection: React.FC<{
     const maxCategories = 1 + transformingCount;
     const firstCategoryCost = selections.category.length > 0 ? Constants.VEHICLE_CATEGORIES.find(c => c.id === selections.category[0])?.cost ?? 0 : Infinity;
 
+    const titles = language === 'ko' ? {
+        category: "카테고리",
+        perks: "특성",
+        personality: "성격",
+        visual: "커스텀 이미지",
+        changeImage: "이미지 변경",
+        uploadImage: "이미지 업로드",
+        purchases: "구매 횟수",
+        points: "포인트",
+        each: "개당"
+    } : {
+        category: "CATEGORY",
+        perks: "PERKS",
+        personality: "PERSONALITY TRAITS",
+        visual: "CUSTOM VISUAL",
+        changeImage: "Change Image",
+        uploadImage: "Upload Image",
+        purchases: "Purchases",
+        points: "points",
+        each: "each"
+    };
+
     return (
         <div className="p-8 bg-black/50">
-            <div className="text-center mb-10"><img src={Constants.VEHICLE_INTRO.imageSrc} alt="Vehicles" className="mx-auto rounded-xl border border-white/20 max-w-lg w-full" /><p className="text-center text-gray-400 italic max-w-xl mx-auto text-sm my-6">{Constants.VEHICLE_INTRO.description}</p></div>
-            <ReferenceSection title="CATEGORY"><div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">{Constants.VEHICLE_CATEGORIES.map(item => {
+            <div className="text-center mb-10"><img src={activeIntro.imageSrc} alt="Vehicles" className="mx-auto rounded-xl border border-white/20 max-w-lg w-full" /><p className="text-center text-gray-400 italic max-w-xl mx-auto text-sm my-6">{activeIntro.description}</p></div>
+            <ReferenceSection title={titles.category}><div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">{activeCategories.map(item => {
                 const isSelected = selections.category.includes(item.id);
                 // Disable if limit reached AND not selected. OR if trying to add secondary category that is too expensive.
                 const disabled = (!isSelected && selections.category.length >= maxCategories) || (!isSelected && selections.category.length > 0 && (item.cost ?? 0) > firstCategoryCost);
                 
                 return <ReferenceItemCard key={item.id} item={item} layout="default" isSelected={isSelected} onSelect={handleCategorySelect} disabled={disabled} />
             })}</div></ReferenceSection>
-            <ReferenceSection title="PERKS"><div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 max-w-7xl mx-auto">{Constants.VEHICLE_PERKS.map(item => {
+            <ReferenceSection title={titles.perks}><div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 max-w-7xl mx-auto">{activePerks.map(item => {
                 if (item.id === 'speed_boost') {
                     const count = selections.perks.get('speed_boost') ?? 0;
-                    return <ReferenceItemCard key={item.id} item={item} layout="default" isSelected={count > 0} onSelect={() => {}} disabled={isPerkDisabled(item)}><Counter label="Purchases" count={count} onCountChange={(n) => handlePerkCountChange('speed_boost', n, 3)} cost={`${item.cost} VP each`} max={3} /></ReferenceItemCard>;
+                    return <ReferenceItemCard key={item.id} item={item} layout="default" isSelected={count > 0} onSelect={() => {}} disabled={isPerkDisabled(item)}><Counter label={titles.purchases} count={count} onCountChange={(n) => handlePerkCountChange('speed_boost', n, 3)} cost={`${item.cost} ${language === 'ko' ? titles.points : 'VP'} ${titles.each}`} max={3} /></ReferenceItemCard>;
                 }
                 if (item.id === 'transforming_vehicle') {
                     const count = selections.perks.get('transforming_vehicle') ?? 0;
-                    return <ReferenceItemCard key={item.id} item={item} layout="default" isSelected={count > 0} onSelect={() => {}} disabled={isPerkDisabled(item)}><Counter label="Purchases" count={count} onCountChange={(n) => handlePerkCountChange('transforming_vehicle', n)} cost={`${item.cost} VP each`} /></ReferenceItemCard>;
+                    return <ReferenceItemCard key={item.id} item={item} layout="default" isSelected={count > 0} onSelect={() => {}} disabled={isPerkDisabled(item)}><Counter label={titles.purchases} count={count} onCountChange={(n) => handlePerkCountChange('transforming_vehicle', n)} cost={`${item.cost} ${language === 'ko' ? titles.points : 'VP'} ${titles.each}`} /></ReferenceItemCard>;
                 }
                 return <ReferenceItemCard key={item.id} item={getModifiedPerk(item)} layout="default" isSelected={selections.perks.has(item.id)} onSelect={handlePerkSelect} disabled={isPerkDisabled(item)} />;
             })}</div></ReferenceSection>
-            {selections.perks.has('chatterbox_vehicle') && <ReferenceSection title="PERSONALITY TRAITS"><div className="grid grid-cols-5 sm:grid-cols-6 md:grid-cols-10 gap-4 max-w-7xl mx-auto">{Constants.COMPANION_PERSONALITY_TRAITS.map(item => <ReferenceItemCard key={item.id} item={item} layout="trait" isSelected={selections.traits.has(item.id)} onSelect={handleVehicleTraitSelect} />)}</div></ReferenceSection>}
+            {selections.perks.has('chatterbox_vehicle') && <ReferenceSection title={titles.personality}><div className="grid grid-cols-5 sm:grid-cols-6 md:grid-cols-10 gap-4 max-w-7xl mx-auto">{activeTraits.map(item => <ReferenceItemCard key={item.id} item={item} layout="trait" isSelected={selections.traits.has(item.id)} onSelect={handleVehicleTraitSelect} />)}</div></ReferenceSection>}
             
-            <ReferenceSection title="CUSTOM VISUAL">
+            <ReferenceSection title={titles.visual}>
                  <div className="flex justify-center">
                     <label className={`
                         relative w-48 aspect-[9/16] border-2 border-dashed rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all overflow-hidden group
@@ -167,7 +196,7 @@ export const VehicleSection: React.FC<{
                             <>
                                 <img src={selections.customImage} alt="Custom" className="w-full h-full object-cover" />
                                 <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                                    <span className="text-xs text-white font-cinzel">Change Image</span>
+                                    <span className="text-xs text-white font-cinzel">{titles.changeImage}</span>
                                 </div>
                             </>
                         ) : (
@@ -175,7 +204,7 @@ export const VehicleSection: React.FC<{
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-gray-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                 </svg>
-                                <span className="text-xs text-gray-500 font-cinzel">Upload Image</span>
+                                <span className="text-xs text-gray-500 font-cinzel">{titles.uploadImage}</span>
                             </>
                         )}
                     </label>

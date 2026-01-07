@@ -2,6 +2,7 @@
 import React from 'react';
 import type { ChoiceItem } from '../types';
 import { renderFormattedText } from './ui';
+import { useCharacterContext } from '../context/CharacterContext';
 
 interface ChoiceCardProps {
   item: ChoiceItem;
@@ -26,251 +27,270 @@ interface ChoiceCardProps {
   imageAspectRatio?: string;
 }
 
-export const ChoiceCard = React.memo<ChoiceCardProps>(({ item, isSelected, onSelect, disabled = false, selectionColor = 'cyan', layout = 'vertical', imageShape = 'rect', aspect, assignedColors = [], noBorder = false, children, alwaysShowChildren = false, onIconButtonClick, iconButton, imageRounding = 'lg', objectFit, descriptionColor = 'text-gray-400', textScale = 1, descriptionSizeClass, imageAspectRatio }) => {
-  const { id, title, cost, description, imageSrc } = item;
+// Configuration for Glass Themes
+const GLASS_THEMES = {
+    cyan: {
+        borderSelected: 'border-cyan-400/60',
+        bgSelected: 'bg-cyan-900/30',
+        shadowSelected: 'shadow-[0_0_25px_rgba(34,211,238,0.15)]',
+        textSelected: 'text-cyan-200',
+        titleGlow: 'drop-shadow-[0_0_5px_rgba(34,211,238,0.8)]',
+        iconBg: 'bg-cyan-500',
+        accentGradient: 'from-cyan-500/0 via-cyan-500/10 to-cyan-500/0'
+    },
+    amber: {
+        borderSelected: 'border-amber-400/60',
+        bgSelected: 'bg-amber-900/30',
+        shadowSelected: 'shadow-[0_0_25px_rgba(251,191,36,0.15)]',
+        textSelected: 'text-amber-200',
+        titleGlow: 'drop-shadow-[0_0_5px_rgba(251,191,36,0.8)]',
+        iconBg: 'bg-amber-500',
+        accentGradient: 'from-amber-500/0 via-amber-500/10 to-amber-500/0'
+    },
+    green: {
+        borderSelected: 'border-green-400/60',
+        bgSelected: 'bg-green-900/30',
+        shadowSelected: 'shadow-[0_0_25px_rgba(74,222,128,0.15)]',
+        textSelected: 'text-green-200',
+        titleGlow: 'drop-shadow-[0_0_5px_rgba(74,222,128,0.8)]',
+        iconBg: 'bg-green-500',
+        accentGradient: 'from-green-500/0 via-green-500/10 to-green-500/0'
+    },
+    brown: { // Mapping Brown to a warm Orange/Sepia tone for better visuals
+        borderSelected: 'border-orange-400/60',
+        bgSelected: 'bg-orange-950/30',
+        shadowSelected: 'shadow-[0_0_25px_rgba(251,146,60,0.15)]',
+        textSelected: 'text-orange-200',
+        titleGlow: 'drop-shadow-[0_0_5px_rgba(251,146,60,0.8)]',
+        iconBg: 'bg-orange-500',
+        accentGradient: 'from-orange-500/0 via-orange-500/10 to-orange-500/0'
+    },
+    purple: {
+        borderSelected: 'border-purple-400/60',
+        bgSelected: 'bg-purple-900/30',
+        shadowSelected: 'shadow-[0_0_25px_rgba(192,38,211,0.15)]',
+        textSelected: 'text-purple-200',
+        titleGlow: 'drop-shadow-[0_0_5px_rgba(192,38,211,0.8)]',
+        iconBg: 'bg-purple-500',
+        accentGradient: 'from-purple-500/0 via-purple-500/10 to-purple-500/0'
+    }
+};
 
+export const ChoiceCard = React.memo<ChoiceCardProps>(({ 
+    item, isSelected, onSelect, disabled = false, selectionColor = 'cyan', layout = 'vertical', 
+    imageShape = 'rect', aspect, assignedColors = [], noBorder = false, children, 
+    alwaysShowChildren = false, onIconButtonClick, iconButton, imageRounding = 'lg', 
+    objectFit, descriptionColor = 'text-gray-400', textScale = 1, descriptionSizeClass, imageAspectRatio 
+}) => {
+  const { id, title, cost, description, imageSrc } = item;
+  const { language } = useCharacterContext();
+  const theme = GLASS_THEMES[selectionColor] || GLASS_THEMES.cyan;
+
+  // --- Cost Rendering (Localized) ---
   const renderCost = (costStr: string) => {
       if (!costStr) return null;
-      
       const processedStr = costStr.replace(/Costs\s+\+?0\s+(FP|BP)/i, 'Costs -0 $1');
 
-      // Tokenize by significant keywords and separators to style individually
-      const regex = /(Costs|Grants|varies|,|[-+]?\d+\s*FP|[-+]?\d+\s*BP|Free)/gi;
-      const parts = processedStr.split(regex).filter(p => p !== undefined && p !== "");
-      
-      let lastType: 'costs' | 'grants' | null = null;
+      // Helper for English parsing
+      const parseEnglish = () => {
+          const regex = /(Costs|Grants|varies|,|[-+]?\d+\s*FP|[-+]?\d+\s*BP|Free)/gi;
+          const parts = processedStr.split(regex).filter(p => p !== undefined && p !== "");
+          let lastType: 'costs' | 'grants' | null = null;
+          
+          return parts.map((part, i) => {
+              const upper = part.trim().toUpperCase();
+              let colorClass = 'text-gray-500';
+              if (upper === 'COSTS') { colorClass = "text-gray-400 font-bold uppercase text-[10px] tracking-wider"; lastType = 'costs'; }
+              else if (upper === 'GRANTS') { colorClass = "text-gray-400 font-bold uppercase text-[10px] tracking-wider"; lastType = 'grants'; }
+              else if (upper.includes('FP') || upper === 'FREE') colorClass = "text-green-400 font-bold shadow-black drop-shadow-sm";
+              else if (upper.includes('BP')) colorClass = "font-bold text-fuchsia-300 drop-shadow-[0_0_3px_rgba(216,180,254,0.6)]";
+              else if (upper.includes('VARIES')) colorClass = "text-yellow-400 font-bold";
+              
+              return <span key={i} className={colorClass}>{part} </span>;
+          });
+      };
+
+      // Helper for Korean parsing
+      const parseKorean = () => {
+           const parts = processedStr.split(/((?:Costs|Grants)\s*[+-]?\d+\s*(?:FP|BP)|Free|Costs\s+Varies|Costs\s+varies|varies)/i);
+           return parts.map((part, i) => {
+               const trimmed = part.trim();
+               if (!trimmed) return null;
+               if (trimmed.match(/^Free$/i)) return <span key={i} className="text-green-400 font-bold shadow-black drop-shadow-sm">무료</span>;
+               
+               const fpMatch = trimmed.match(/(?:Costs|Grants)\s*([+-]?\d+)\s*FP/i);
+               if (fpMatch) return <span key={i} className="text-green-400 font-bold shadow-black drop-shadow-sm">행운 점수 {fpMatch[1]}</span>;
+
+               const bpMatch = trimmed.match(/(?:Costs|Grants)\s*([+-]?\d+)\s*BP/i);
+               if (bpMatch) return <span key={i} className="font-bold text-fuchsia-300 drop-shadow-[0_0_3px_rgba(216,180,254,0.6)]">축복 점수 {bpMatch[1]}</span>;
+
+               if (trimmed.match(/Costs\s+Varies|Costs\s+varies|varies/i)) {
+                   if (id === 'magician') return <span key={i} className="font-bold text-fuchsia-300">축복 점수 -???</span>;
+                   return <span key={i} className="text-yellow-400 font-bold">비용 변동</span>;
+               }
+               if (['and', 'or', ','].includes(trimmed.toLowerCase())) return <span key={i} className="text-gray-500 mx-1">{trimmed === ',' ? ',' : (trimmed === 'and' ? '및' : '또는')}</span>;
+               return null;
+           });
+      };
 
       return (
-          <span className="text-[0.625rem] font-semibold my-1 block">
-              {parts.map((part, i) => {
-                  const upper = part.trim().toUpperCase();
-                  let colorClass = 'text-gray-500';
-
-                  if (upper === 'COSTS') {
-                      colorClass = "text-white";
-                      lastType = 'costs';
-                  } else if (upper === 'GRANTS') {
-                      colorClass = "text-white";
-                      lastType = 'grants';
-                  } else if (upper === 'VARIES') {
-                      // Special case: Magician trait on Page 1 uses BP for its varying cost
-                      if (id === 'magician' || lastType === 'grants') {
-                          colorClass = "font-bold text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-300 to-purple-400 drop-shadow-[0_0_2px_rgba(192,38,211,0.5)]";
-                      } else if (lastType === 'costs') {
-                          colorClass = "text-green-400 font-bold";
-                      } else {
-                          colorClass = "text-green-400 font-bold"; // Fallback
-                      }
-                  } else if (upper.includes('FP') || upper === 'FREE') {
-                      colorClass = "text-green-400 font-bold";
-                  } else if (upper.includes('BP')) {
-                      colorClass = "font-bold text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-300 to-purple-400 drop-shadow-[0_0_2px_rgba(192,38,211,0.5)]";
-                  } else if (part === ',') {
-                      colorClass = "text-white mr-1";
-                  }
-
-                  return <span key={i} className={colorClass}>{part}</span>;
-              })}
-          </span>
+          <div className="text-[11px] mt-1.5 mb-0.5 bg-black/40 px-2 py-1 rounded-md border border-white/5 inline-block">
+              {language === 'ko' ? parseKorean() : parseEnglish()}
+          </div>
       );
   };
 
-  const colorThemes = {
-    cyan: {
-        border: 'border-cyan-400',
-        ring: 'ring-cyan-400',
-        hover: 'hover:border-cyan-300/70',
-        ringHover: 'group-hover:ring-cyan-300/70',
-        bg: 'bg-slate-900/80',
-        iconBg: 'bg-cyan-900/50',
-        iconText: 'text-cyan-200/70',
-        iconHoverBg: 'hover:bg-cyan-800/60',
-        iconHoverText: 'hover:text-cyan-100',
-    },
-    amber: {
-        border: 'border-amber-400',
-        ring: 'ring-amber-400',
-        hover: 'hover:border-amber-300/70',
-        ringHover: 'group-hover:ring-amber-300/70',
-        bg: 'bg-slate-900/80',
-        iconBg: 'bg-amber-900/50',
-        iconText: 'text-amber-200/70',
-        iconHoverBg: 'hover:bg-amber-800/60',
-        iconHoverText: 'hover:text-amber-100',
-    },
-    green: {
-        border: 'border-green-400',
-        ring: 'ring-green-400',
-        hover: 'hover:border-green-300/70',
-        ringHover: 'group-hover:ring-amber-300/70',
-        bg: 'bg-slate-900/80',
-        iconBg: 'bg-green-900/50',
-        iconText: 'text-green-200/70',
-        iconHoverBg: 'hover:bg-green-800/60',
-        iconHoverText: 'hover:text-green-100',
-    },
-    brown: {
-        border: 'border-yellow-700',
-        ring: 'ring-yellow-700',
-        hover: 'hover:border-yellow-600/70',
-        ringHover: 'group-hover:ring-yellow-600/70',
-        bg: 'bg-black/40',
-        iconBg: 'bg-yellow-900/50',
-        iconText: 'text-yellow-200/70',
-        iconHoverBg: 'hover:bg-yellow-800/60',
-        iconHoverText: 'hover:text-yellow-100',
-    },
-    purple: {
-        border: 'border-purple-400',
-        ring: 'ring-purple-400',
-        hover: 'hover:border-purple-300/70',
-        ringHover: 'group-hover:ring-purple-300/70',
-        bg: 'bg-slate-900/80',
-        iconBg: 'bg-purple-900/50',
-        iconText: 'text-purple-200/70',
-        iconHoverBg: 'hover:bg-purple-800/60',
-        iconHoverText: 'hover:text-purple-100',
-    }
-  };
-  const currentTheme = colorThemes[selectionColor] || colorThemes.cyan;
-
-  const hasAssignedColors = assignedColors.length > 0;
+  // --- Dynamic Styles ---
   
-  const cardStyle: React.CSSProperties = {};
-  if (hasAssignedColors) {
-    cardStyle.boxShadow = assignedColors
-        .map((color, i) => `inset 0 0 0 ${2 * (i + 1)}px ${color}`)
-        .join(',');
+  // Container State
+  const containerClass = isSelected
+    ? `${theme.bgSelected} ${theme.borderSelected} ${theme.shadowSelected} backdrop-blur-xl`
+    : disabled
+        ? "bg-black/20 border-white/5 opacity-50 grayscale cursor-not-allowed"
+        : "bg-black/40 border-white/10 hover:border-white/30 hover:bg-black/60 hover:-translate-y-1 hover:shadow-xl backdrop-blur-md cursor-pointer";
+
+  // Family Member Ring Colors (if assigned)
+  const ringStyle: React.CSSProperties = {};
+  if (assignedColors.length > 0) {
+      ringStyle.boxShadow = assignedColors
+          .map((color, i) => `0 0 0 ${2 + i * 2}px ${color}, 0 0 10px ${2 + i * 2}px ${color}80`) // Glowy rings
+          .join(',');
+      // If family assigned, override border
+      // containerClass += " !border-transparent"; 
   }
 
-  let borderClass: string;
-  if (isSelected) {
-    if (hasAssignedColors) {
-      borderClass = 'border-2 border-transparent';
-    } else {
-      borderClass = `border-2 ${currentTheme.border}`;
-    }
-  } else {
-    borderClass = `border border-gray-800 ${currentTheme.hover}`;
-  }
-  
-  const interactionClass = disabled
-    ? 'opacity-50 cursor-not-allowed'
-    : 'cursor-pointer transition-colors';
+  // Rounding
+  const roundingMap = { none: 'rounded-none', sm: 'rounded-sm', md: 'rounded-md', lg: 'rounded-lg', xl: 'rounded-xl' };
+  const roundingClass = roundingMap[imageRounding] || 'rounded-lg';
 
-  const showChildren = (isSelected || alwaysShowChildren) && React.Children.count(children) > 0;
-  
-  const handleIconButtonClick = (e: React.MouseEvent) => {
-      e.stopPropagation();
-      onIconButtonClick?.();
-  };
+  // --- Layout Renders ---
 
-  const roundingClasses = {
-      none: 'rounded-none',
-      sm: 'rounded-sm',
-      md: 'rounded-md',
-      lg: 'rounded-lg',
-      xl: 'rounded-xl',
-  };
-  const imageRoundingClass = roundingClasses[imageRounding] || 'rounded-md';
-
-  const CardWrapper: React.FC<{ children: React.ReactNode, className: string }> = ({ children, className }) => (
-    <div
-      className={`${className} relative`}
-      style={cardStyle}
-      onClick={() => !disabled && onSelect(id)}
-      aria-disabled={disabled}
-      role="button"
-      tabIndex={disabled ? -1 : 0}
-    >
-      {children}
-      {onIconButtonClick && iconButton && (
-        <button 
-          onClick={handleIconButtonClick}
-          className={`absolute top-2 right-2 p-3 rounded-full ${currentTheme.iconBg} ${currentTheme.iconText} ${currentTheme.iconHoverBg} ${currentTheme.iconHoverText} transition-colors z-10`}
-          aria-label="Card action"
-          title="Card action"
-          disabled={disabled}
-        >
-          {iconButton}
-        </button>
-      )}
-    </div>
-  );
-
-  const textSpanStyle = textScale !== 1 ? { fontSize: `${textScale * 100}%` } : undefined;
-
+  // 1. Horizontal Tall (e.g. Uniforms)
   if (layout === 'horizontal-tall') {
     return (
-      <CardWrapper className={`${currentTheme.bg} backdrop-blur-sm rounded-lg p-3 flex flex-row items-start gap-4 h-full text-left ${borderClass} ${interactionClass}`}>
-        <img src={imageSrc} alt={title} className={`w-28 h-48 object-cover ${imageRoundingClass} flex-shrink-0`} />
-        <div className="flex flex-col justify-start pt-2">
-          <h4 className="font-bold font-cinzel text-white text-base"><span style={textSpanStyle}>{title}</span></h4>
-          {cost && renderCost(cost)}
-          <p className={`${descriptionSizeClass || 'text-sm'} leading-snug mt-1 whitespace-pre-wrap ${descriptionColor}`}>{renderFormattedText(description)}</p>
-          {showChildren && (
-              <div className="mt-2 pt-2 border-t border-gray-700/50">
-                  {children}
-              </div>
-          )}
+      <div
+        className={`relative flex flex-row p-1 rounded-xl border transition-all duration-300 group overflow-hidden ${containerClass}`}
+        onClick={() => !disabled && onSelect(id)}
+        style={ringStyle}
+      >
+        {/* Selection Gradient Overlay */}
+        {isSelected && <div className={`absolute inset-0 bg-gradient-to-r ${theme.accentGradient} opacity-50 pointer-events-none`}></div>}
+        
+        <div className="relative w-28 h-40 flex-shrink-0 m-1 overflow-hidden rounded-lg">
+             <div className={`absolute inset-0 bg-black/20 z-10 transition-opacity ${isSelected ? 'opacity-0' : 'opacity-20 group-hover:opacity-0'}`}></div>
+             <img src={imageSrc} alt={title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
         </div>
-      </CardWrapper>
+        
+        <div className="flex flex-col justify-center p-3 flex-grow relative z-10">
+             <h4 className={`font-cinzel font-bold text-sm leading-tight transition-colors ${isSelected ? theme.textSelected : 'text-gray-200 group-hover:text-white'}`}>
+                <span style={textScale !== 1 ? { fontSize: `${textScale * 100}%` } : undefined}>{title}</span>
+            </h4>
+            {cost && renderCost(cost)}
+            <div className="h-px w-full bg-white/10 my-2"></div>
+            <p className="text-xs text-gray-400 leading-relaxed font-sans">{renderFormattedText(description)}</p>
+            {(isSelected || alwaysShowChildren) && children && <div className="mt-2 pt-2 border-t border-white/10 w-full">{children}</div>}
+        </div>
+      </div>
     );
   }
     
+  // 2. Horizontal (e.g. Traits)
   if (layout === 'horizontal') {
-    const imageSizeClass = aspect === 'square' ? 'w-32 h-32' : 'w-32 h-24';
-    const objectFitClass = objectFit || (aspect === 'square' ? 'object-cover' : 'object-contain');
-
+    const isSquare = aspect === 'square';
+    const imgSize = isSquare ? 'w-24 h-24' : 'w-32 h-20';
+    
     return (
-      <CardWrapper className={`${currentTheme.bg} backdrop-blur-sm rounded-lg p-3 flex flex-row items-start gap-4 h-full text-left ${borderClass} ${interactionClass}`}>
-        <img 
-            src={imageSrc} 
-            alt={title} 
-            className={`${imageSizeClass} ${objectFitClass} bg-black/20 flex-shrink-0 ${imageShape === 'circle' ? 'rounded-full' : imageRoundingClass}`} 
-        />
-        <div className="flex flex-col justify-center">
-          <h4 className="font-bold font-cinzel text-white"><span style={textSpanStyle}>{title}</span></h4>
-          {cost && renderCost(cost)}
-          <p className={`${descriptionSizeClass || 'text-sm'} leading-snug mt-1 whitespace-pre-wrap ${descriptionColor}`}>{renderFormattedText(description)}</p>
-           {showChildren && (
-              <div className="mt-2 pt-2 border-t border-gray-700/50">
-                  {children}
-              </div>
-          )}
+      <div
+        className={`relative flex items-center gap-4 p-3 rounded-xl border transition-all duration-300 group overflow-hidden ${containerClass}`}
+        onClick={() => !disabled && onSelect(id)}
+        style={ringStyle}
+      >
+        {/* Shine */}
+        <div className="absolute top-0 -left-[100%] w-[50%] h-full bg-gradient-to-r from-transparent via-white/5 to-transparent skew-x-12 group-hover:animate-shine pointer-events-none"></div>
+
+        <div className={`relative ${imgSize} flex-shrink-0 overflow-hidden ${imageShape === 'circle' ? 'rounded-full border border-white/20' : roundingClass}`}>
+             <img src={imageSrc} alt={title} className={`w-full h-full ${objectFit || 'object-cover'} transition-transform duration-500 group-hover:scale-110`} />
+             {onIconButtonClick && iconButton && (
+                <button 
+                  onClick={(e) => { e.stopPropagation(); onIconButtonClick(); }}
+                  className={`absolute bottom-0 right-0 p-1.5 rounded-tl-lg ${theme.iconBg} text-white shadow-lg hover:brightness-110 transition-all z-20`}
+                >
+                  {iconButton}
+                </button>
+             )}
         </div>
-      </CardWrapper>
+        
+        <div className="flex flex-col justify-center min-w-0 relative z-10">
+          <h4 className={`font-cinzel font-bold text-sm truncate pr-2 transition-colors ${isSelected ? theme.textSelected : 'text-gray-200 group-hover:text-white'}`}>
+              <span style={textScale !== 1 ? { fontSize: `${textScale * 100}%` } : undefined}>{title}</span>
+          </h4>
+          {cost && renderCost(cost)}
+          <p className="text-[10px] text-gray-400 leading-tight mt-1 line-clamp-3">{renderFormattedText(description)}</p>
+           {(isSelected || alwaysShowChildren) && children && <div className="mt-2">{children}</div>}
+        </div>
+      </div>
     );
   }
 
+  // 3. Vertical (Standard Card)
   const fitClass = objectFit ? `object-${objectFit}` : (aspect === 'square' ? 'object-contain' : 'object-cover');
+  const imageHeight = aspect === 'square' ? 'h-full aspect-square' : (imageAspectRatio || 'h-40');
 
   return (
-    <CardWrapper className={`${currentTheme.bg} backdrop-blur-sm rounded-lg p-2 sm:p-4 flex flex-col h-full text-center ${borderClass} ${interactionClass} ${aspect === 'square' ? 'aspect-square' : ''}`}>
-      {imageShape === 'circle' ? (
-        <div className={`p-1 rounded-full mx-auto mb-2 sm:mb-4 transition-all`}>
-          <img src={imageSrc} alt={title} className="w-36 h-36 object-cover rounded-full" />
-        </div>
-      ) : (
-        <img 
+    <div
+      className={`relative flex flex-col p-2 rounded-xl border transition-all duration-500 group overflow-hidden h-full ${containerClass}`}
+      onClick={() => !disabled && onSelect(id)}
+      style={ringStyle}
+    >
+      {/* Background Gradient for Selected */}
+      {isSelected && <div className={`absolute inset-0 bg-gradient-to-b ${theme.accentGradient} opacity-30 pointer-events-none`}></div>}
+      
+      {/* Image Container */}
+      <div className={`relative w-full ${imageHeight} overflow-hidden ${imageShape === 'circle' ? 'rounded-full aspect-square mx-auto w-32 border-2 border-white/10' : roundingClass} mb-3 flex-shrink-0 bg-black/20`}>
+         <div className={`absolute inset-0 transition-opacity duration-300 ${isSelected ? 'bg-transparent' : 'bg-black/10 group-hover:bg-transparent'}`}></div>
+         <img 
             src={imageSrc} 
             alt={title} 
-            className={`w-full ${aspect === 'square' ? 'flex-grow min-h-0' : (imageAspectRatio || 'h-48')} ${fitClass} ${imageRoundingClass} ${aspect === 'square' ? 'mb-2' : 'mb-4'}`} 
-        />
-      )}
-      
-      <div className={`flex flex-col justify-center ${aspect === 'square' ? '' : 'flex-grow'}`}>
-        <h4 className={`font-bold font-cinzel text-white whitespace-pre-wrap ${description ? 'text-sm sm:text-base' : 'text-xs sm:text-sm'}`}>
-            <span style={textSpanStyle}>{title}</span>
+            className={`w-full h-full ${fitClass} transition-transform duration-700 ease-out group-hover:scale-105`} 
+         />
+         
+         {/* Icon Button Overlay */}
+         {onIconButtonClick && iconButton && (
+            <button 
+              onClick={(e) => { e.stopPropagation(); onIconButtonClick(); }}
+              className={`absolute top-2 right-2 p-2 rounded-full backdrop-blur-md bg-black/50 border border-white/20 text-white hover:${theme.iconBg} hover:border-transparent transition-all z-20 shadow-lg`}
+            >
+              {iconButton}
+            </button>
+         )}
+      </div>
+
+      {/* Content */}
+      <div className="flex flex-col flex-grow relative z-10 px-1">
+        <h4 className={`font-cinzel font-bold text-center leading-tight transition-all duration-300 ${description ? 'text-sm mb-1' : 'text-xs'} ${isSelected ? `${theme.textSelected} ${theme.titleGlow}` : 'text-gray-200 group-hover:text-white'}`}>
+             <span style={textScale !== 1 ? { fontSize: `${textScale * 100}%` } : undefined}>{title}</span>
         </h4>
-        {cost && renderCost(cost)}
-        {description && aspect !== 'square' && <p className={`${descriptionSizeClass || 'text-xs'} leading-snug mt-2 flex-grow text-left whitespace-pre-wrap ${descriptionColor}`}>{renderFormattedText(description)}</p>}
-        {showChildren && (
-            <div className="mt-2 pt-2 border-t border-gray-700/50">
+        
+        {cost && <div className="flex justify-center mb-2">{renderCost(cost)}</div>}
+        
+        {description && aspect !== 'square' && (
+             <>
+                <div className={`h-px w-12 mx-auto my-2 transition-all duration-500 ${isSelected ? 'bg-white/30 w-full' : 'bg-white/10 group-hover:w-24'}`}></div>
+                <p className={`${descriptionSizeClass || 'text-[10px]'} leading-relaxed text-gray-400 text-left flex-grow font-sans`}>
+                    {renderFormattedText(description)}
+                </p>
+             </>
+        )}
+
+        {(isSelected || alwaysShowChildren) && children && (
+            <div className="mt-3 pt-2 border-t border-white/10 w-full animate-fade-in">
                 {children}
             </div>
         )}
       </div>
-    </CardWrapper>
+
+      {/* Selection Border Glow (Extra aesthetic layer) */}
+      {isSelected && <div className={`absolute inset-0 rounded-xl border ${theme.borderSelected} pointer-events-none`}></div>}
+    </div>
   );
 });

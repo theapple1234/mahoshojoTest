@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { renderFormattedText } from '../ui';
+import { useCharacterContext } from '../../context/CharacterContext';
 
 interface ReferenceItemCardProps { 
     item: any; 
@@ -14,6 +15,8 @@ interface ReferenceItemCardProps {
 }
 
 export const ReferenceItemCard: React.FC<ReferenceItemCardProps> = ({ item, isSelected, onSelect, disabled, layout = 'default', children, iconButton, onIconButtonClick }) => {
+    const { language } = useCharacterContext();
+
     let borderClass = isSelected 
         ? 'border-cyan-400 ring-2 ring-cyan-400/50' 
         : disabled 
@@ -32,6 +35,18 @@ export const ReferenceItemCard: React.FC<ReferenceItemCardProps> = ({ item, isSe
         
         bgClass = isSelected ? 'bg-cyan-900/20' : 'bg-transparent';
     }
+    
+    const renderCost = (cost: any) => {
+         if (language === 'ko') {
+             if (typeof cost === 'number') {
+                 return `${cost} 포인트`;
+             }
+             if (typeof cost === 'string') {
+                 return cost.replace('points', '포인트').replace('pts', '포인트');
+             }
+         }
+         return typeof cost === 'number' ? `${cost} points` : cost;
+    };
 
     return (
         <div 
@@ -64,7 +79,7 @@ export const ReferenceItemCard: React.FC<ReferenceItemCardProps> = ({ item, isSe
                 </div>
             )}
             
-            <h4 className={`font-cinzel font-bold text-white ${layout === 'trait' ? 'text-xs' : 'text-sm'}`}>{item.title}</h4>
+            <h4 className={`font-cinzel font-bold text-white ${layout === 'trait' ? 'text-sm' : 'text-lg'}`}>{item.title}</h4>
             
             {layout === 'default' && item.requirement && (
                 <p className="text-[10px] text-yellow-500/90 italic font-medium mt-1 mb-0.5 px-1 leading-tight">{item.requirement}</p>
@@ -72,7 +87,7 @@ export const ReferenceItemCard: React.FC<ReferenceItemCardProps> = ({ item, isSe
 
             {item.cost !== undefined && item.cost !== 0 && (
                 <p className="text-xs text-red-400 font-semibold mt-1">
-                    {typeof item.cost === 'number' ? `${item.cost} points` : item.cost}
+                    {renderCost(item.cost)}
                 </p>
             )}
             

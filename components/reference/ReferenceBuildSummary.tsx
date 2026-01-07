@@ -1,7 +1,7 @@
-
 import React from 'react';
 import * as Constants from '../../constants';
 import type { BuildType, AllBuilds } from '../../types';
+import { useCharacterContext } from '../../context/CharacterContext';
 
 interface ReferenceBuildSummaryProps {
     type: BuildType;
@@ -14,28 +14,12 @@ interface ReferenceBuildSummaryProps {
     onImageUpload?: (base64: string) => void;
 }
 
-const STORAGE_KEY = 'seinaru_magecraft_builds';
-
 const BUILD_INTROS: Record<BuildType, { imageSrc: string; description: string }> = {
     companions: Constants.COMPANION_INTRO,
     weapons: Constants.WEAPON_INTRO,
     beasts: Constants.BEAST_INTRO,
     vehicles: Constants.VEHICLE_INTRO,
 };
-
-const ALL_SPELLS = [
-    ...Constants.ESSENTIAL_BOONS_DATA, ...Constants.MINOR_BOONS_DATA, ...Constants.MAJOR_BOONS_DATA,
-    ...Constants.TELEKINETICS_DATA, ...Constants.METATHERMICS_DATA,
-    ...Constants.ELEANORS_TECHNIQUES_DATA, ...Constants.GENEVIEVES_TECHNIQUES_DATA,
-    ...Constants.BREWING_DATA, ...Constants.SOUL_ALCHEMY_DATA, ...Constants.TRANSFORMATION_DATA,
-    ...Constants.CHANNELLING_DATA, ...Constants.NECROMANCY_DATA, ...Constants.BLACK_MAGIC_DATA,
-    ...Constants.TELEPATHY_DATA, ...Constants.MENTAL_MANIPULATION_DATA,
-    ...Constants.ENTRANCE_DATA, ...Constants.FEATURES_DATA, ...Constants.INFLUENCE_DATA,
-    ...Constants.NET_AVATAR_DATA, ...Constants.TECHNOMANCY_DATA, ...Constants.NANITE_CONTROL_DATA,
-    ...Constants.RIGHTEOUS_CREATION_SPECIALTIES_DATA, ...Constants.RIGHTEOUS_CREATION_MAGITECH_DATA, 
-    ...Constants.RIGHTEOUS_CREATION_ARCANE_CONSTRUCTS_DATA, ...Constants.RIGHTEOUS_CREATION_METAMAGIC_DATA,
-    ...Constants.STAR_CROSSED_LOVE_PACTS_DATA
-];
 
 // --- STANDARD RENDER HELPERS ---
 const renderItem = (id: string, pool: any[], label: string, theme: any) => {
@@ -53,7 +37,7 @@ const renderItem = (id: string, pool: any[], label: string, theme: any) => {
             </div>
             <div>
                 <p className={`text-[10px] ${theme.textAccent} ${theme.fontBody} tracking-widest uppercase`}>{label}</p>
-                <p className={`text-sm ${theme.fontHead} font-bold ${theme.textMain} uppercase`}>{item.title}</p>
+                <p className={`text-[21px] ${theme.fontHead} font-bold ${theme.textMain} uppercase`}>{item.title}</p>
             </div>
         </div>
     );
@@ -82,7 +66,7 @@ const renderGrid = (ids: string[] | Set<string> | Map<string, any>, pool: any[],
                                 />
                             </div>
                             <div className="min-w-0">
-                                <p className={`text-[11px] font-bold ${theme.textMain} truncate ${theme.fontBody}`}>{item.title}</p>
+                                <p className={`text-[16.5px] font-bold ${theme.textMain} truncate ${theme.fontBody}`}>{item.title}</p>
                                 {count && count > 1 && <p className={`text-[9px] ${theme.textAccent} ${theme.fontTech}`}>x{count}</p>}
                             </div>
                         </div>
@@ -93,7 +77,7 @@ const renderGrid = (ids: string[] | Set<string> | Map<string, any>, pool: any[],
     );
 };
 
-const renderSpells = (spellIds: Set<string> | string[], label: string, color: string, theme: any, limit: number = Infinity) => {
+const renderSpells = (spellIds: Set<string> | string[], label: string, color: string, theme: any, allSpells: any[], limit: number = Infinity) => {
     const arr = Array.from(spellIds).slice(0, limit);
     if (arr.length === 0) return null;
     
@@ -111,7 +95,7 @@ const renderSpells = (spellIds: Set<string> | string[], label: string, color: st
             <h5 className={`${theme.fontTech} text-[10px] ${theme.textDim} uppercase tracking-[0.3em] mb-2`}>{label}</h5>
             <div className="grid grid-cols-2 gap-2">
                 {arr.map(id => {
-                    const spell = ALL_SPELLS.find(s => s.id === id);
+                    const spell = allSpells.find(s => s.id === id);
                     if (!spell) return null;
                     return (
                         <div key={id} className={`flex items-center gap-2 ${theme.cardBg} border ${theme.cardBorder} p-2 rounded`}>
@@ -128,9 +112,49 @@ const renderSpells = (spellIds: Set<string> | string[], label: string, color: st
 export const ReferenceBuildSummary: React.FC<ReferenceBuildSummaryProps> = ({ 
     type, name, selections, pointsSpent, discount = 0, isSunForgerActive, template = 'default', onImageUpload
 }) => {
+    const { language } = useCharacterContext();
     if (!selections) return null;
 
-    const visualSrc = selections.customImage || BUILD_INTROS[type].imageSrc;
+    // Use localized data for lookups and spell titles
+    const activeCategories = language === 'ko' ? (type === 'companions' ? Constants.COMPANION_CATEGORIES_KO : type === 'beasts' ? Constants.BEAST_CATEGORIES_KO : type === 'vehicles' ? Constants.VEHICLE_CATEGORIES_KO : Constants.WEAPON_CATEGORIES_KO) : (type === 'companions' ? Constants.COMPANION_CATEGORIES : type === 'beasts' ? Constants.BEAST_CATEGORIES : type === 'vehicles' ? Constants.VEHICLE_CATEGORIES : Constants.WEAPON_CATEGORIES);
+    const activeRelationships = language === 'ko' ? Constants.COMPANION_RELATIONSHIPS_KO : Constants.COMPANION_RELATIONSHIPS;
+    const activePowerLevels = language === 'ko' ? Constants.COMPANION_POWER_LEVELS_KO : Constants.COMPANION_POWER_LEVELS;
+    const activePerks = language === 'ko' ? (type === 'companions' ? Constants.COMPANION_PERKS_KO : type === 'beasts' ? Constants.BEAST_PERKS_KO : type === 'vehicles' ? Constants.VEHICLE_PERKS_KO : Constants.WEAPON_PERKS_KO) : (type === 'companions' ? Constants.COMPANION_PERKS : type === 'beasts' ? Constants.BEAST_PERKS : type === 'vehicles' ? Constants.VEHICLE_PERKS : Constants.WEAPON_PERKS);
+    const activeTraits = language === 'ko' ? Constants.COMPANION_PERSONALITY_TRAITS_KO : Constants.COMPANION_PERSONALITY_TRAITS;
+    const activeSizes = language === 'ko' ? Constants.BEAST_SIZES_KO : Constants.BEAST_SIZES;
+
+    const ALL_SPELLS = language === 'ko' ? [
+        ...Constants.ESSENTIAL_BOONS_DATA_KO, ...Constants.MINOR_BOONS_DATA_KO, ...Constants.MAJOR_BOONS_DATA_KO,
+        ...Constants.TELEKINETICS_DATA_KO, ...Constants.METATHERMICS_DATA_KO,
+        ...Constants.ELEANORS_TECHNIQUES_DATA_KO, ...Constants.GENEVIEVES_TECHNIQUES_DATA_KO,
+        ...Constants.BREWING_DATA_KO, ...Constants.SOUL_ALCHEMY_DATA_KO, ...Constants.TRANSFORMATION_DATA_KO,
+        ...Constants.CHANNELLING_DATA_KO, ...Constants.NECROMANCY_DATA_KO, ...Constants.BLACK_MAGIC_DATA_KO,
+        ...Constants.TELEPATHY_DATA_KO, ...Constants.MENTAL_MANIPULATION_DATA_KO,
+        ...Constants.ENTRANCE_DATA_KO, ...Constants.FEATURES_DATA_KO, ...Constants.INFLUENCE_DATA_KO,
+        ...Constants.NET_AVATAR_DATA_KO, ...Constants.TECHNOMANCY_DATA_KO, ...Constants.NANITE_CONTROL_DATA_KO,
+        ...Constants.RIGHTEOUS_CREATION_SPECIALTIES_DATA_KO, ...Constants.RIGHTEOUS_CREATION_MAGITECH_DATA_KO, 
+        ...Constants.RIGHTEOUS_CREATION_ARCANE_CONSTRUCTS_DATA_KO, ...Constants.RIGHTEOUS_CREATION_METAMAGIC_DATA_KO,
+        ...Constants.STAR_CROSSED_LOVE_PACTS_DATA_KO
+    ] : [
+        ...Constants.ESSENTIAL_BOONS_DATA, ...Constants.MINOR_BOONS_DATA, ...Constants.MAJOR_BOONS_DATA,
+        ...Constants.TELEKINETICS_DATA, ...Constants.METATHERMICS_DATA,
+        ...Constants.ELEANORS_TECHNIQUES_DATA, ...Constants.GENEVIEVES_TECHNIQUES_DATA,
+        ...Constants.BREWING_DATA, ...Constants.SOUL_ALCHEMY_DATA, ...Constants.TRANSFORMATION_DATA,
+        ...Constants.CHANNELLING_DATA, ...Constants.NECROMANCY_DATA, ...Constants.BLACK_MAGIC_DATA,
+        ...Constants.TELEPATHY_DATA, ...Constants.MENTAL_MANIPULATION_DATA,
+        ...Constants.ENTRANCE_DATA, ...Constants.FEATURES_DATA, ...Constants.INFLUENCE_DATA,
+        ...Constants.NET_AVATAR_DATA, ...Constants.TECHNOMANCY_DATA, ...Constants.NANITE_CONTROL_DATA,
+        ...Constants.RIGHTEOUS_CREATION_SPECIALTIES_DATA, ...Constants.RIGHTEOUS_CREATION_MAGITECH_DATA, 
+        ...Constants.RIGHTEOUS_CREATION_ARCANE_CONSTRUCTS_DATA, ...Constants.RIGHTEOUS_CREATION_METAMAGIC_DATA,
+        ...Constants.STAR_CROSSED_LOVE_PACTS_DATA
+    ];
+
+    const visualSrc = selections.customImage || (type === 'companions' 
+        ? (language === 'ko' ? Constants.COMPANION_INTRO_KO.imageSrc : Constants.COMPANION_INTRO.imageSrc)
+        : type === 'weapons' ? (language === 'ko' ? Constants.WEAPON_INTRO_KO.imageSrc : Constants.WEAPON_INTRO.imageSrc)
+        : type === 'beasts' ? (language === 'ko' ? Constants.BEAST_INTRO_KO.imageSrc : Constants.BEAST_INTRO.imageSrc)
+        : (language === 'ko' ? Constants.VEHICLE_INTRO_KO.imageSrc : Constants.VEHICLE_INTRO.imageSrc)
+    );
     const hasDiscount = discount > 0 || isSunForgerActive;
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -145,6 +169,19 @@ export const ReferenceBuildSummary: React.FC<ReferenceBuildSummaryProps> = ({
         reader.readAsDataURL(file);
     };
 
+    const getLocalizedBuildType = (rawType: BuildType) => {
+        if (language !== 'ko') return rawType.toUpperCase() + " BUILD";
+        const map: Record<string, string> = {
+            companions: "동료 빌드",
+            weapons: "무기 빌드",
+            beasts: "동물 빌드",
+            vehicles: "탈것 빌드"
+        };
+        return map[rawType] || rawType.toUpperCase();
+    };
+
+    const buildTitle = language === 'ko' ? "성스러운 마법소녀 CYOA" : "Seinaru Magecraft Girls";
+
     // --- VORTEX LAYOUT LOGIC ---
     if (template === 'vortex') {
         const isWeaponMultiCat = type === 'weapons' && (selections.category?.length >= 2);
@@ -153,28 +190,24 @@ export const ReferenceBuildSummary: React.FC<ReferenceBuildSummaryProps> = ({
         // Ring 1: Inner (Category, Relationship, Power Level, Size)
         const orbit1Items: any[] = [];
         if (type === 'companions') {
-            if (selections.category) orbit1Items.push(Constants.COMPANION_CATEGORIES.find(c => c.id === selections.category));
-            if (selections.relationship) orbit1Items.push(Constants.COMPANION_RELATIONSHIPS.find(c => c.id === selections.relationship));
-            if (selections.powerLevel) orbit1Items.push(Constants.COMPANION_POWER_LEVELS.find(c => c.id === selections.powerLevel));
+            if (selections.category) orbit1Items.push(activeCategories.find(c => c.id === selections.category));
+            if (selections.relationship) orbit1Items.push(activeRelationships.find(c => c.id === selections.relationship));
+            if (selections.powerLevel) orbit1Items.push(activePowerLevels.find(c => c.id === selections.powerLevel));
         } else if (type === 'weapons' || type === 'vehicles' || type === 'beasts') {
             // Add Categories
             selections.category?.forEach((c: string) => {
-                const pool = type === 'weapons' ? Constants.WEAPON_CATEGORIES : type === 'vehicles' ? Constants.VEHICLE_CATEGORIES : Constants.BEAST_CATEGORIES;
-                orbit1Items.push(pool.find(cat => cat.id === c));
+                orbit1Items.push(activeCategories.find(cat => cat.id === c));
             });
             // Add Size (Beasts)
-            if (type === 'beasts' && selections.size) orbit1Items.push(Constants.BEAST_SIZES.find(s => s.id === selections.size));
+            if (type === 'beasts' && selections.size) orbit1Items.push(activeSizes.find(s => s.id === selections.size));
         }
 
         // Ring 2: Middle (Perks)
         const orbit2Items: any[] = [];
-        const perksPool = type === 'companions' ? Constants.COMPANION_PERKS : 
-                          type === 'weapons' ? Constants.WEAPON_PERKS : 
-                          type === 'beasts' ? Constants.BEAST_PERKS : Constants.VEHICLE_PERKS;
-
+        
         if (selections.perks instanceof Map) {
             selections.perks.forEach((count: number, perkId: string) => {
-                const perk = perksPool.find(p => p.id === perkId);
+                const perk = activePerks.find(p => p.id === perkId);
                 if (!perk) return;
                 
                 // Construct base item
@@ -183,7 +216,7 @@ export const ReferenceBuildSummary: React.FC<ReferenceBuildSummaryProps> = ({
                 // Assign names instead of creating duplicate items
                 if (perkId === 'inhuman_form' && selections.inhumanFormBeastName) {
                     item.assignedName = selections.inhumanFormBeastName;
-                    item.isDerived = true; // Optional: Keep for styling if needed, though mostly used for border color
+                    item.isDerived = true; 
                 }
                 if (perkId === 'special_weapon' && selections.specialWeaponName) {
                     item.assignedName = selections.specialWeaponName;
@@ -198,7 +231,7 @@ export const ReferenceBuildSummary: React.FC<ReferenceBuildSummaryProps> = ({
         const orbit3Items: any[] = [];
         if (selections.traits instanceof Set) {
             Array.from(selections.traits).forEach(key => {
-                const item = Constants.COMPANION_PERSONALITY_TRAITS.find(t => t.id === key);
+                const item = activeTraits.find(t => t.id === key);
                 if (item) orbit3Items.push({ ...item, noBorder: true });
             });
         }
@@ -220,12 +253,12 @@ export const ReferenceBuildSummary: React.FC<ReferenceBuildSummaryProps> = ({
         addSpells(selections.magicalBeastMap, selections.magicalBeastCount || 0);
 
         return (
-            <div className="flex flex-col items-center bg-black p-8 rounded-xl shadow-2xl border-4 border-double border-purple-900/30">
+            <div className="flex flex-col items-center bg-black p-8 rounded-none shadow-2xl border-4 border-double border-purple-900/30">
                 {/* Header */}
                 <div className="text-center mb-6">
-                    <p className="font-mono text-[10px] text-purple-400/60 uppercase tracking-[0.5em] mb-2">Seinaru Magecraft Girls</p>
+                    <p className={`font-mono ${language === 'ko' ? 'text-xl tracking-widest' : 'text-[10px] tracking-[0.5em]'} text-purple-400/60 uppercase mb-2`}>{buildTitle}</p>
                     <h1 className="font-cinzel text-3xl font-bold text-white tracking-[0.1em] mb-1 uppercase">{name}</h1>
-                    <p className="font-cinzel text-sm text-purple-400 tracking-widest">{type.toUpperCase()} BUILD</p>
+                    <p className="font-cinzel text-sm text-purple-400 tracking-widest">{getLocalizedBuildType(type)}</p>
                 </div>
 
                 <div className="relative w-full aspect-square flex items-center justify-center p-10 font-cinzel text-white">
@@ -329,7 +362,7 @@ export const ReferenceBuildSummary: React.FC<ReferenceBuildSummaryProps> = ({
                         
                         {/* Points Overlay - Kept here for Reference Page as requested */}
                         <div className="absolute bottom-2 px-3 py-1 bg-black/60 rounded-full border border-purple-500/30 backdrop-blur-sm z-20 pointer-events-none">
-                            <span className="text-purple-100 font-cinzel font-bold text-xs tracking-widest">{pointsSpent} Points</span>
+                            <span className="text-purple-100 font-cinzel font-bold text-xs tracking-widest">{pointsSpent} {language === 'ko' ? "점" : "Points"}</span>
                         </div>
 
                         {onImageUpload && (
@@ -341,8 +374,8 @@ export const ReferenceBuildSummary: React.FC<ReferenceBuildSummaryProps> = ({
                                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-50"
                                     title="Change Image"
                                 />
-                                <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-40">
-                                    <span className="text-[10px] text-white font-bold uppercase tracking-widest text-center">Change<br/>Image</span>
+                                <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-40 rounded-full">
+                                    <span className="text-[10px] text-white font-bold uppercase tracking-widest text-center font-cinzel">{language === 'ko' ? <>이미지<br/>변경</> : <>Change<br/>Image</>}</span>
                                 </div>
                             </>
                         )}
@@ -406,30 +439,81 @@ export const ReferenceBuildSummary: React.FC<ReferenceBuildSummaryProps> = ({
 
     const theme = themes[template as keyof typeof themes] || themes.default;
     const isTerminal = template === 'terminal';
+    
+    // Labels
+    const labels = language === 'ko' ? {
+        category: "카테고리",
+        relationship: "관계",
+        powerLevel: "힘의 척도",
+        classification: "분류",
+        physicalScale: "크기",
+        form: "형태",
+        model: "모델",
+        activePerks: "활성 특성",
+        systemUpgrades: "시스템 업그레이드",
+        mutationsPerks: "변이 & 특성",
+        integratedSystems: "통합 시스템",
+        personalityMatrix: "성격 매트릭스",
+        standardSpells: "마법",
+        signaturePowers: "주력기",
+        weaponEnchant: "무기 마법부여",
+        forbidden: "금지된 마법",
+        attuned: "조율된 마법",
+        instincts: "마법적 본능",
+        inhumanCore: "이형의 핵",
+        sigArmament: "대표 무장",
+        points: "점수",
+        type: "타입",
+        discPoints: "할인된 점수"
+    } : {
+        category: "Category",
+        relationship: "Relationship",
+        powerLevel: "Power Level",
+        classification: "Classification",
+        physicalScale: "Physical Scale",
+        form: "Form",
+        model: "Model",
+        activePerks: "Active Perks",
+        systemUpgrades: "System Upgrades",
+        mutationsPerks: "Mutations & Perks",
+        integratedSystems: "Integrated Systems",
+        personalityMatrix: "Personality Matrix",
+        standardSpells: "Standard Mage Spells",
+        signaturePowers: "Signature Empowerments",
+        weaponEnchant: "Weaponized Enchantments",
+        forbidden: "Dark Arts & Forbidden Magic",
+        attuned: "Attuned Spell Matrix",
+        instincts: "Magical Instincts",
+        inhumanCore: "Inhuman Core",
+        sigArmament: "Signature Armament",
+        points: "Points",
+        type: "Type",
+        discPoints: "Discounted Points"
+    };
 
     return (
-        <div className={`p-8 flex flex-col ${theme.bg} ${theme.border} rounded-xl shadow-2xl`}>
+        <div className={`p-8 flex flex-col ${theme.bg} ${theme.border} rounded-none shadow-2xl`}>
             {/* Header */}
             <div className={`text-center mb-8 border-b-2 ${theme.divider} pb-6`}>
-                <p className={`${theme.fontTech} text-[10px] ${theme.textDim} uppercase tracking-[0.5em] mb-2`}>
-                    {isTerminal ? 'Seinaru Magecraft Girls' : 'Seinaru Magecraft Girls'}
+                <p className={`${theme.fontTech} ${language === 'ko' ? 'text-base tracking-wider' : 'text-[10px] tracking-[0.5em]'} ${theme.textDim} uppercase mb-2`}>
+                    {buildTitle}
                 </p>
                 <h1 className={`${theme.fontHead} text-3xl font-bold ${theme.textMain} tracking-[0.1em] mb-1 uppercase`}>{name}</h1>
-                <p className={`${theme.fontHead} text-sm ${theme.textAccent} tracking-widest`}>{type.toUpperCase()} BUILD</p>
+                <p className={`${theme.fontHead} text-sm ${theme.textAccent} tracking-widest`}>{getLocalizedBuildType(type)}</p>
             </div>
 
             {/* Main Stats Bar */}
             <div className="grid grid-cols-3 gap-4 mb-8">
                 <div className={`${theme.statBox} border rounded-lg p-2 text-center`}>
-                    <p className={`text-[9px] ${theme.textDim} uppercase ${theme.fontTech} tracking-widest`}>Points</p>
+                    <p className={`text-[9px] ${theme.textDim} uppercase ${theme.fontTech} tracking-widest`}>{labels.points}</p>
                     <p className={`text-xl ${theme.fontHead} font-bold ${theme.textMain}`}>{pointsSpent}</p>
                 </div>
                 <div className={`${theme.statBox} border rounded-lg p-2 text-center`}>
-                    <p className={`text-[9px] ${theme.textDim} uppercase ${theme.fontTech} tracking-widest`}>Type</p>
+                    <p className={`text-[9px] ${theme.textDim} uppercase ${theme.fontTech} tracking-widest`}>{labels.type}</p>
                     <p className={`text-lg ${theme.fontHead} font-bold ${theme.textAccent} uppercase`}>{type.slice(0, -1)}</p>
                 </div>
                 <div className={`${theme.statBox} border rounded-lg p-2 text-center`}>
-                    <p className={`text-[9px] ${theme.textDim} uppercase ${theme.fontTech} tracking-widest`}>Discounted Points</p>
+                    <p className={`text-[9px] ${theme.textDim} uppercase ${theme.fontTech} tracking-widest`}>{labels.discPoints}</p>
                     <p className={`text-xl ${theme.fontHead} font-bold text-yellow-500`}>
                         {isSunForgerActive ? `${selections.bpSpent || 0} BP` : (discount > 0 ? `${discount} pts` : "N/A")}
                     </p>
@@ -462,27 +546,27 @@ export const ReferenceBuildSummary: React.FC<ReferenceBuildSummaryProps> = ({
                     <div className="space-y-3">
                         {type === 'companions' && (
                             <>
-                                {renderItem(selections.category, Constants.COMPANION_CATEGORIES, 'Category', theme)}
-                                {renderItem(selections.relationship, Constants.COMPANION_RELATIONSHIPS, 'Relationship', theme)}
-                                {renderItem(selections.powerLevel, Constants.COMPANION_POWER_LEVELS, 'Power Level', theme)}
+                                {renderItem(selections.category, activeCategories, labels.category, theme)}
+                                {renderItem(selections.relationship, activeRelationships, labels.relationship, theme)}
+                                {renderItem(selections.powerLevel, activePowerLevels, labels.powerLevel, theme)}
                             </>
                         )}
                         {type === 'beasts' && (
                             <>
-                                {selections.category.map((c: string) => renderItem(c, Constants.BEAST_CATEGORIES, 'Classification', theme))}
-                                {renderItem(selections.size, Constants.BEAST_SIZES, 'Physical Scale', theme)}
+                                {selections.category.map((c: string) => renderItem(c, activeCategories, labels.classification, theme))}
+                                {renderItem(selections.size, activeSizes, labels.physicalScale, theme)}
                             </>
                         )}
                         {type === 'weapons' && (
                             <div className="space-y-2">
-                                <h5 className={`${theme.fontTech} text-[10px] ${theme.textDim} uppercase tracking-[0.3em]`}>Categories</h5>
-                                {selections.category.map((c: string) => renderItem(c, Constants.WEAPON_CATEGORIES, 'Form', theme))}
+                                <h5 className={`${theme.fontTech} text-[10px] ${theme.textDim} uppercase tracking-[0.3em]`}>{labels.category}</h5>
+                                {selections.category.map((c: string) => renderItem(c, activeCategories, labels.form, theme))}
                             </div>
                         )}
                         {type === 'vehicles' && (
                             <div className="space-y-2">
-                                <h5 className={`${theme.fontTech} text-[10px] ${theme.textDim} uppercase tracking-[0.3em]`}>Categories</h5>
-                                {selections.category.map((c: string) => renderItem(c, Constants.VEHICLE_CATEGORIES, 'Model', theme))}
+                                <h5 className={`${theme.fontTech} text-[10px] ${theme.textDim} uppercase tracking-[0.3em]`}>{labels.category}</h5>
+                                {selections.category.map((c: string) => renderItem(c, activeCategories, labels.model, theme))}
                             </div>
                         )}
                     </div>
@@ -491,31 +575,31 @@ export const ReferenceBuildSummary: React.FC<ReferenceBuildSummaryProps> = ({
                 {/* Details Column */}
                 <div className="col-span-12 md:col-span-8 space-y-8">
                     {/* Perks Section */}
-                    {type === 'companions' && renderGrid(selections.perks, Constants.COMPANION_PERKS, 'Active Perks', theme)}
-                    {type === 'weapons' && renderGrid(selections.perks, Constants.WEAPON_PERKS, 'System Upgrades', theme)}
-                    {type === 'beasts' && renderGrid(selections.perks, Constants.BEAST_PERKS, 'Mutations & Perks', theme)}
-                    {type === 'vehicles' && renderGrid(selections.perks, Constants.VEHICLE_PERKS, 'Integrated Systems', theme)}
+                    {type === 'companions' && renderGrid(selections.perks, activePerks, labels.activePerks, theme)}
+                    {type === 'weapons' && renderGrid(selections.perks, activePerks, labels.systemUpgrades, theme)}
+                    {type === 'beasts' && renderGrid(selections.perks, activePerks, labels.mutationsPerks, theme)}
+                    {type === 'vehicles' && renderGrid(selections.perks, activePerks, labels.integratedSystems, theme)}
 
                     {/* Personality Section */}
                     {(type === 'companions' || (type === 'weapons' && selections.perks.has('chatterbox')) || (type === 'beasts' && selections.perks.has('chatterbox_beast')) || (type === 'vehicles' && selections.perks.has('chatterbox_vehicle'))) && (
-                        renderGrid(selections.traits, Constants.COMPANION_PERSONALITY_TRAITS, 'Personality Matrix', theme)
+                        renderGrid(selections.traits, activeTraits, labels.personalityMatrix, theme)
                     )}
 
                     {/* Spells & Map Selections */}
                     <div className="grid grid-cols-1 gap-4">
                         {type === 'companions' && (
                             <>
-                                {selections.powerLevelMap?.size > 0 && renderSpells(selections.powerLevelMap, 'Standard Mage Spells', 'text-cyan-400', theme)}
-                                {selections.signaturePowerMap?.size > 0 && renderSpells(selections.signaturePowerMap, 'Signature Empowerments', 'text-yellow-400', theme, selections.perks.get('signature_power'))}
-                                {selections.specialWeaponMap?.size > 0 && renderSpells(selections.specialWeaponMap, 'Weaponized Enchantments', 'text-orange-400', theme)}
-                                {selections.darkMagicianMap?.size > 0 && renderSpells(selections.darkMagicianMap, 'Dark Arts & Forbidden Magic', 'text-purple-400', theme, selections.perks.get('dark_magician'))}
+                                {selections.powerLevelMap?.size > 0 && renderSpells(selections.powerLevelMap, labels.standardSpells, 'text-cyan-400', theme, ALL_SPELLS)}
+                                {selections.signaturePowerMap?.size > 0 && renderSpells(selections.signaturePowerMap, labels.signaturePowers, 'text-yellow-400', theme, ALL_SPELLS, selections.perks.get('signature_power'))}
+                                {selections.specialWeaponMap?.size > 0 && renderSpells(selections.specialWeaponMap, labels.weaponEnchant, 'text-orange-400', theme, ALL_SPELLS)}
+                                {selections.darkMagicianMap?.size > 0 && renderSpells(selections.darkMagicianMap, labels.forbidden, 'text-purple-400', theme, ALL_SPELLS, selections.perks.get('dark_magician'))}
                             </>
                         )}
                         {type === 'weapons' && selections.attunedSpellMap?.size > 0 && (
-                            renderSpells(selections.attunedSpellMap, 'Attuned Spell Matrix', 'text-cyan-400', theme, selections.perks.get('attuned_spell'))
+                            renderSpells(selections.attunedSpellMap, labels.attuned, 'text-cyan-400', theme, ALL_SPELLS, selections.perks.get('attuned_spell'))
                         )}
                         {type === 'beasts' && selections.magicalBeastMap?.size > 0 && (
-                            renderSpells(selections.magicalBeastMap, 'Magical Instincts', 'text-green-400', theme, selections.magicalBeastCount)
+                            renderSpells(selections.magicalBeastMap, labels.instincts, 'text-green-400', theme, ALL_SPELLS, selections.magicalBeastCount)
                         )}
                     </div>
 
@@ -524,13 +608,13 @@ export const ReferenceBuildSummary: React.FC<ReferenceBuildSummaryProps> = ({
                         <div className="grid grid-cols-2 gap-4">
                             {selections.inhumanFormBeastName && (
                                 <div className={`${theme.cardBg} border ${theme.cardBorder} p-3 rounded-lg text-center`}>
-                                    <p className={`text-[9px] ${theme.textDim} uppercase ${theme.fontTech} tracking-widest mb-1`}>Inhuman Core</p>
+                                    <p className={`text-[9px] ${theme.textDim} uppercase ${theme.fontTech} tracking-widest mb-1`}>{labels.inhumanCore}</p>
                                     <p className={`text-xs font-bold ${theme.textAccent}`}>{selections.inhumanFormBeastName}</p>
                                 </div>
                             )}
                             {selections.specialWeaponName && (
                                 <div className={`${theme.cardBg} border ${theme.cardBorder} p-3 rounded-lg text-center`}>
-                                    <p className={`text-[9px] ${theme.textDim} uppercase ${theme.fontTech} tracking-widest mb-1`}>Signature Armament</p>
+                                    <p className={`text-[9px] ${theme.textDim} uppercase ${theme.fontTech} tracking-widest mb-1`}>{labels.sigArmament}</p>
                                     <p className={`text-xs font-bold ${theme.textAccent}`}>{selections.specialWeaponName}</p>
                                 </div>
                             )}

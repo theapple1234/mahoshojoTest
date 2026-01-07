@@ -1,4 +1,3 @@
-
 import React from 'react';
 import * as Constants from '../../constants';
 import { SummaryHeader } from './BuildSummaryShared';
@@ -77,7 +76,7 @@ export const VortexLayout: React.FC<{ sections: any[], ctx: ICharacterContext, n
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,#1a1a2e_0%,#000000_100%)] opacity-80 pointer-events-none h-full"></div>
             
             <div className="absolute top-10 left-0 right-0 z-50">
-                 <SummaryHeader theme="dark" />
+                 <SummaryHeader theme="dark" language={ctx.language} />
             </div>
 
             {/* Scale Container for the Vortex */}
@@ -160,6 +159,9 @@ export const VortexLayout: React.FC<{ sections: any[], ctx: ICharacterContext, n
                                     
                                     if (item.isLostPower) {
                                         borderClass = 'border-purple-400 shadow-[0_0_20px_rgba(168,85,247,0.8)]';
+                                    } else if (item.isMagicianActive) {
+                                         // Blue Glow for Magician (Requested)
+                                        borderClass = 'border-blue-400 shadow-[0_0_30px_rgba(96,165,250,0.8)] ring-2 ring-blue-500/50';
                                     } else if (item.isBoosted) {
                                         // Golden Glow for Boosted Items
                                         borderClass = 'border-amber-400 shadow-[0_0_30px_rgba(245,158,11,0.8)] ring-2 ring-amber-500/50';
@@ -181,13 +183,18 @@ export const VortexLayout: React.FC<{ sections: any[], ctx: ICharacterContext, n
                                                     />
                                                 </div>
                                                 {item.count && item.count > 1 && (
-                                                    <span className="absolute -bottom-1 -right-1 z-50 bg-purple-600 text-white text-[12px] font-bold px-2 py-0.5 rounded-full border-2 border-black shadow-md">x{item.count}</span>
+                                                    <span className="absolute build-summary-count-badge -bottom-1 -right-1 z-50 bg-purple-600 text-white text-[12px] font-bold px-2 py-0.5 rounded-full border-2 border-black shadow-md">x{item.count}</span>
                                                 )}
                                             </div>
-                                            <div className="mt-3 text-[10px] text-purple-200 text-center w-40 whitespace-normal leading-loose group-hover:text-white transition-colors z-20 min-h-[2.5em] flex flex-col items-center justify-center drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
+                                            <div className="mt-3 text-[15px] text-purple-200 text-center w-40 whitespace-normal leading-loose group-hover:text-white transition-colors z-20 min-h-[2.5em] flex flex-col items-center justify-center drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
                                                 <span>{item.title}</span>
                                                 {item.isBoosted && (
                                                     <span className="text-[9px] text-amber-400 font-bold block mt-0.5 w-full whitespace-normal leading-loose">BOOSTED</span>
+                                                )}
+                                                {item.isMagicianActive && (
+                                                    <span className="text-[9px] text-blue-300 font-bold block mt-0.5 w-full whitespace-normal leading-loose drop-shadow-[0_0_5px_rgba(96,165,250,0.8)]">
+                                                        {ctx.language === 'ko' ? "MAGICIAN (마법사)" : "MAGICIAN"}
+                                                    </span>
                                                 )}
                                                 {item.assignedName && <span className="text-[9px] text-cyan-300 font-bold block mt-0.5 w-full whitespace-normal leading-loose">[{item.assignedName}]</span>}
                                                 {item.uniformName && <span className="text-[9px] text-pink-300 font-bold block mt-0.5 w-full whitespace-normal leading-loose">Costume: {item.uniformName}</span>}
@@ -206,13 +213,17 @@ export const VortexLayout: React.FC<{ sections: any[], ctx: ICharacterContext, n
                 <div className="relative z-50 w-full max-w-6xl mt-[-700px] mb-8 p-8 bg-black/80 border-2 border-purple-500/30 rounded-2xl backdrop-blur-md shadow-[0_0_50px_rgba(168,85,247,0.1)]">
                     <div className="flex items-center gap-4 mb-8">
                         <div className="h-px bg-gradient-to-r from-transparent to-purple-500/50 flex-grow"></div>
-                        <h3 className="font-cinzel text-2xl text-center tracking-[0.2em] text-purple-200 uppercase whitespace-nowrap drop-shadow-[0_0_8px_rgba(168,85,247,0.5)]">ORIGINS & ASSETS</h3>
+                        <h3 className="font-cinzel text-2xl text-center tracking-[0.2em] text-purple-200 uppercase whitespace-nowrap drop-shadow-[0_0_8px_rgba(168,85,247,0.5)]">
+                            {ctx.language === 'ko' ? '기원 및 자산' : 'ORIGINS & ASSETS'}
+                        </h3>
                         <div className="h-px bg-gradient-to-l from-transparent to-purple-500/50 flex-grow"></div>
                     </div>
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         {familyMembers.length > 0 && (
                             <div className="space-y-4">
-                                <h4 className="font-cinzel text-sm text-purple-400 border-b border-purple-500/20 pb-2 mb-4">FOSTER FAMILY</h4>
+                                <h4 className="font-cinzel text-sm text-purple-400 border-b border-purple-500/20 pb-2 mb-4">
+                                    {ctx.language === 'ko' ? '위탁 가족' : 'FOSTER FAMILY'}
+                                </h4>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     {familyMembers.map((member: any, i: number) => (
                                         <div key={member.id} className="flex gap-3 bg-slate-900/40 border border-purple-500/20 p-3 rounded-lg">
@@ -238,7 +249,9 @@ export const VortexLayout: React.FC<{ sections: any[], ctx: ICharacterContext, n
                         )}
                         {allHousing.length > 0 && (
                             <div className="space-y-4">
-                                <h4 className="font-cinzel text-sm text-purple-400 border-b border-purple-500/20 pb-2 mb-4">REAL ESTATE</h4>
+                                <h4 className="font-cinzel text-sm text-purple-400 border-b border-purple-500/20 pb-2 mb-4">
+                                    {ctx.language === 'ko' ? '부동산' : 'REAL ESTATE'}
+                                </h4>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     {allHousing.map((home: any, i: number) => {
                                         return (

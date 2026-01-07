@@ -1,8 +1,8 @@
 
 import React from 'react';
-import { SummaryHeader, FamilyDetailCard, HousingDetailCard, CustomSpellCard } from './BuildSummaryShared';
+import { SummaryHeader, FamilyDetailCard, HousingDetailCard, CustomSpellCard, formatCostDisplay } from './BuildSummaryShared';
 
-export const ArcaneLayout: React.FC<{ sections: any[] }> = ({ sections }) => {
+export const ArcaneLayout: React.FC<{ sections: any[], language?: 'en' | 'ko' }> = ({ sections, language = 'en' }) => {
     const theme = {
         cardBg: "bg-slate-900/60",
         cardBorder: "border-slate-700/50 hover:border-cyan-500/40",
@@ -28,14 +28,14 @@ export const ArcaneLayout: React.FC<{ sections: any[] }> = ({ sections }) => {
                             aria-label={item.title}
                         />
                         {item.count && item.count > 1 && (
-                            <div className="absolute top-1 right-1 bg-black/90 text-cyan-300 font-mono text-[9px] px-1.5 py-0.5 rounded border border-cyan-500/30">
+                            <div className="absolute build-summary-count-badge top-1 right-1 bg-black/90 text-cyan-300 font-mono text-[9px] px-1.5 py-0.5 rounded border border-cyan-500/30">
                                 x{item.count}
                             </div>
                         )}
                     </div>
                     <div className="p-2 flex flex-col flex-grow">
-                        <h4 className="font-cinzel text-[10px] font-bold text-gray-300 group-hover:text-white leading-[2.5] mb-1 truncate">{item.title}</h4>
-                        {item.cost && <p className="text-[9px] text-cyan-500/60 font-mono mt-auto leading-[2.5]">{item.cost}</p>}
+                        <h4 className="font-cinzel text-[15px] font-bold text-gray-300 group-hover:text-white leading-[2.5] mb-1 truncate">{item.title}</h4>
+                        {item.cost && <p className="text-[9px] text-cyan-500/60 font-mono mt-auto leading-[2.5]">{formatCostDisplay(item.cost, language as 'en' | 'ko')}</p>}
                         {item.assignedName && (
                             <div className="mt-1 pt-1 border-t border-white/5">
                                 <p className="text-[9px] text-cyan-300 font-bold truncate leading-[2.5]">[{item.assignedName}]</p>
@@ -54,7 +54,7 @@ export const ArcaneLayout: React.FC<{ sections: any[] }> = ({ sections }) => {
 
     return (
         <div className="space-y-16">
-            <SummaryHeader theme="dark" />
+            <SummaryHeader theme="dark" language={language} />
             {sections.map(section => (
                 <div key={section.id} className="animate-fade-in-up">
                     <div className="flex items-center gap-4 mb-6">
@@ -70,13 +70,17 @@ export const ArcaneLayout: React.FC<{ sections: any[] }> = ({ sections }) => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
                             {section.familyDetails?.length > 0 && (
                                 <div className="space-y-2">
-                                    <h5 className="font-mono text-[10px] text-cyan-500/70 uppercase tracking-widest pl-1 mb-2">Foster Family</h5>
+                                    <h5 className={`font-mono ${language === 'ko' ? 'text-lg' : 'text-[10px]'} text-cyan-500/70 uppercase tracking-widest pl-1 mb-2`}>
+                                        {language === 'ko' ? '위탁 가족' : 'Foster Family'}
+                                    </h5>
                                     {section.familyDetails.map((m: any) => <FamilyDetailCard key={m.id} member={m} theme={theme} />)}
                                 </div>
                             )}
                             {section.housingDetails?.length > 0 && (
                                 <div className="space-y-2">
-                                    <h5 className="font-mono text-[10px] text-cyan-500/70 uppercase tracking-widest pl-1 mb-2">Real Estate</h5>
+                                    <h5 className={`font-mono ${language === 'ko' ? 'text-lg' : 'text-[10px]'} text-cyan-500/70 uppercase tracking-widest pl-1 mb-2`}>
+                                        {language === 'ko' ? '부동산' : 'Real Estate'}
+                                    </h5>
                                     {section.housingDetails.map((h: any) => <HousingDetailCard key={h.id} home={h} theme={theme} />)}
                                 </div>
                             )}
@@ -89,7 +93,7 @@ export const ArcaneLayout: React.FC<{ sections: any[] }> = ({ sections }) => {
                             {section.blessingGroups.map((group: any) => (
                                 <div key={group.title} className="bg-black/20 p-4 rounded-lg border border-cyan-900/20">
                                     <div className="border-b border-cyan-900/30 mb-4 pb-2 flex flex-wrap gap-3 items-center">
-                                        <h4 className="font-cinzel text-sm text-cyan-500 uppercase tracking-widest mr-2">{group.title}</h4>
+                                        <h4 className={`font-cinzel ${language === 'ko' ? 'text-2xl font-bold' : 'text-sm'} text-cyan-500 uppercase tracking-widest mr-2`}>{group.title}</h4>
                                         {group.engraving && <span className="text-[10px] text-cyan-700/80 font-mono uppercase tracking-wide mr-2">{group.engraving}</span>}
                                         
                                         {/* Boost Indicators */}
@@ -101,6 +105,11 @@ export const ArcaneLayout: React.FC<{ sections: any[] }> = ({ sections }) => {
                                                     </span>
                                                 ))}
                                             </div>
+                                        )}
+                                        {group.isMagicianActive && (
+                                             <span className="text-[10px] font-bold text-purple-400 uppercase tracking-wider flex items-center gap-1 ml-2 border border-purple-500/30 px-1.5 py-0.5 rounded bg-purple-900/10">
+                                                <span className="text-purple-500 text-xs">✦</span> {language === 'ko' ? '마법사' : 'Magician'}
+                                            </span>
                                         )}
                                     </div>
                                     {renderItemsGrid(group.items)}

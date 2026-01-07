@@ -18,6 +18,9 @@ export const usePageTwoState = ({ isMultiplayer }: { isMultiplayer: boolean }) =
     // Mentor State
     const [selectedMentors, setSelectedMentors] = useState<Mentor[]>([]);
 
+    // Intro State for Page 2
+    const [isPageTwoIntroDone, setIsPageTwoIntroDone] = useState(false);
+
     // Lock choices in multiplayer
     useEffect(() => {
         if (isMultiplayer) {
@@ -163,6 +166,9 @@ export const usePageTwoState = ({ isMultiplayer }: { isMultiplayer: boolean }) =
         setIsBoardingSchool(data.isBoardingSchool || false);
         setCustomClassmates(Array.isArray(data.customClassmates) ? data.customClassmates : []);
         setSelectedMentors(Array.isArray(data.selectedMentors) ? data.selectedMentors : []);
+        if (data.isPageTwoIntroDone !== undefined) {
+             setIsPageTwoIntroDone(data.isPageTwoIntroDone);
+        }
     }, []);
 
     return {
@@ -182,6 +188,7 @@ export const usePageTwoState = ({ isMultiplayer }: { isMultiplayer: boolean }) =
         handleCloseAssignModal,
         handleAssignCustomClassmateName,
         selectedMentors, handleMentorSelect, handleMentorRemove,
+        isPageTwoIntroDone, setIsPageTwoIntroDone,
         loadPageTwoState // Export load function
     };
 };

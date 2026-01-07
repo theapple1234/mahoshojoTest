@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useCharacterContext } from '../context/CharacterContext';
 import { CompanionSection } from './reference/CompanionSection';
@@ -60,6 +59,8 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
     const fileInputRef = useRef<HTMLInputElement>(null);
     const summaryRef = useRef<HTMLDivElement>(null);
     const previewSectionRef = useRef<HTMLDivElement>(null);
+
+    const language = ctx.language;
 
     // Refresh builds whenever buildsRefreshTrigger changes (e.g. after a load)
     useEffect(() => {
@@ -135,7 +136,8 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
         newBuilds[activeTab][name] = buildData;
         saveBuildsToStorage(newBuilds);
         
-        alert(`Saved ${activeTab.slice(0, -1)} "${name}"!`);
+        const msgSaved = language === 'ko' ? `"${name}" 빌드가 저장되었습니다!` : `Saved ${activeTab.slice(0, -1)} "${name}"!`;
+        alert(msgSaved);
         setCurrentName(name);
         setOriginalLoadedName(name); // Update loaded state to the new name
     };
@@ -147,7 +149,8 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
         // If renaming, checking if target name exists
         if (currentName !== originalLoadedName) {
             if (allBuilds[activeTab][currentName]) {
-                if (!confirm(`Build "${currentName}" already exists. Overwrite?`)) return;
+                const msgConfirm = language === 'ko' ? `"${currentName}" 빌드가 이미 존재합니다. 덮어쓰시겠습니까?` : `Build "${currentName}" already exists. Overwrite?`;
+                if (!confirm(msgConfirm)) return;
             }
         }
         saveToName(currentName, originalLoadedName);
@@ -157,21 +160,27 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
         const nameToSave = currentName.trim();
         
         if (!nameToSave) {
-            alert("Please enter a name for the build.");
+            const msgNoName = language === 'ko' ? "빌드 이름을 입력해 주세요." : "Please enter a name for the build.";
+            alert(msgNoName);
             return;
         }
 
-        if (allBuilds[activeTab][nameToSave] && !confirm(`Build "${nameToSave}" already exists. Overwrite?`)) return;
+        if (allBuilds[activeTab][nameToSave]) {
+            const msgConfirm = language === 'ko' ? `"${nameToSave}" 빌드가 이미 존재합니다. 덮어쓰시겠습니까?` : `Build "${nameToSave}" already exists. Overwrite?`;
+            if (!confirm(msgConfirm)) return;
+        }
         saveToName(nameToSave); // No original name passed implies new entry
     };
 
     const handleInitialSave = () => {
         if (!currentName.trim()) {
-            alert("Please enter a name.");
+            const msgNoName = language === 'ko' ? "이름을 입력해 주세요." : "Please enter a name.";
+            alert(msgNoName);
             return;
         }
         if (allBuilds[activeTab][currentName]) {
-            if (!confirm(`Build "${currentName}" already exists. Overwrite?`)) return;
+            const msgConfirm = language === 'ko' ? `"${currentName}" 빌드가 이미 존재합니다. 덮어쓰시겠습니까?` : `Build "${currentName}" already exists. Overwrite?`;
+            if (!confirm(msgConfirm)) return;
         }
         saveToName(currentName);
     };
@@ -221,7 +230,8 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
     };
 
     const handleDelete = (name: string) => {
-        if (!confirm(`Are you sure you want to delete "${name}"?`)) return;
+        const msgConfirm = language === 'ko' ? `정말로 "${name}" 빌드를 삭제하시겠습니까?` : `Are you sure you want to delete "${name}"?`;
+        if (!confirm(msgConfirm)) return;
         const newBuilds = { ...allBuilds };
         delete newBuilds[activeTab][name];
         saveBuildsToStorage(newBuilds);
@@ -256,7 +266,8 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
 
     const handleExport = () => {
         if (!currentName) {
-            alert("Please save or name the build before exporting.");
+            const msgNoSave = language === 'ko' ? "내보내기 전에 빌드를 저장하거나 이름을 지정해 주세요." : "Please save or name the build before exporting.";
+            alert(msgNoSave);
             return;
         }
         
@@ -348,12 +359,15 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
                             setCurrentName(targetName);
                             setOriginalLoadedName(targetName); // Treat as loaded
                             loadDataIntoView(targetType, mainData);
-                            alert(`Imported ${importCount} builds. Loaded "${targetName}".`);
+                            const msgSuccess = language === 'ko' ? `${importCount}개의 빌드를 가져왔습니다. "${targetName}" 빌드를 로드합니다.` : `Imported ${importCount} builds. Loaded "${targetName}".`;
+                            alert(msgSuccess);
                         } else {
-                            alert(`Imported ${importCount} builds.`);
+                            const msgSuccess = language === 'ko' ? `${importCount}개의 빌드를 가져왔습니다.` : `Imported ${importCount} builds.`;
+                            alert(msgSuccess);
                         }
                     } else {
-                        alert(`Imported ${importCount} builds.`);
+                        const msgSuccess = language === 'ko' ? `${importCount}개의 빌드를 가져왔습니다.` : `Imported ${importCount} builds.`;
+                        alert(msgSuccess);
                     }
                     return;
                 }
@@ -370,7 +384,8 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
                     }
 
                     if (allBuilds[type][name]) {
-                        if (!confirm(`Overwrite existing "${name}"?`)) return;
+                        const msgOverwrite = language === 'ko' ? `기존의 "${name}" 빌드를 덮어쓰시겠습니까?` : `Overwrite existing "${name}"?`;
+                        if (!confirm(msgOverwrite)) return;
                     }
 
                     const newAllBuilds: AllBuilds = {
@@ -382,7 +397,8 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
                     };
 
                     saveBuildsToStorage(newAllBuilds);
-                    alert(`Imported "${name}" into ${type}!`);
+                    const msgSuccess = language === 'ko' ? `"${name}" 빌드를 ${type} 항목으로 가져왔습니다!` : `Imported "${name}" into ${type}!`;
+                    alert(msgSuccess);
                     setActiveTab(type);
                     setCurrentName(name);
                     setOriginalLoadedName(name); // Treat as loaded
@@ -390,11 +406,13 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
                     return;
                 }
 
-                alert("Invalid file format.");
+                const msgInvalid = language === 'ko' ? "잘못된 파일 형식입니다." : "Invalid file format.";
+                alert(msgInvalid);
 
             } catch (err: any) {
                 console.error(err);
-                alert("Failed to parse file.");
+                const msgFail = language === 'ko' ? "파일 분석에 실패했습니다." : "Failed to parse file.";
+                alert(msgFail);
             }
         };
         reader.readAsText(file);
@@ -403,7 +421,8 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
 
     const handleDownloadImage = async () => {
         if (!summaryRef.current || !window.html2canvas) {
-            alert('Image generation feature is not ready. Please try again in a moment.');
+            const msgError = language === 'ko' ? "이미지 생성 기능을 준비 중입니다. 잠시 후 다시 시도해 주세요." : 'Image generation feature is not ready. Please try again in a moment.';
+            alert(msgError);
             return;
         }
 
@@ -445,7 +464,8 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
             link.click();
         } catch (error) {
             console.error("Error generating build image:", error);
-            alert("Sorry, there was an error generating the build image.");
+            const msgError = language === 'ko' ? "이미지 생성 도중 오류가 발생했습니다." : "Sorry, there was an error generating the build image.";
+            alert(msgError);
         }
     };
 
@@ -473,39 +493,39 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
         const usages: string[] = [];
         
         if (activeTab === 'companions') {
-            ctx.blessedCompanions.forEach((assignedName, memberId) => { if (assignedName === targetName) usages.push(`Blessed Family Member (${memberId})`); });
-            ctx.customClassmates.forEach(c => { if (c.companionName === targetName) usages.push(`Custom Classmate`); });
-            ctx.humanMarionetteCompanionNames.forEach((name, idx) => { if (name === targetName) usages.push(`Puppet #${idx+1}`); });
-            if (ctx.roboticistCompanionName === targetName) usages.push(`Roboticist II`);
-            if (ctx.undeadThrallCompanionName === targetName) usages.push(`Undead Thrall`);
-            ctx.verseAttendantCompanionNames.forEach((name, idx) => { if (name === targetName) usages.push(`Verse Attendant #${idx+1}`); });
-            ctx.customSpells.forEach((spell, idx) => { if (spell.mialgrathApplied && spell.assignedEntityType === 'companion' && spell.assignedEntityName === targetName) usages.push(`Milgrath Spell #${idx+1}`); });
-            if (ctx.joysOfParentingCompanionName === targetName) usages.push(`Child (Joys of Parenting)`);
-            ctx.customColleagues.forEach(c => { if (c.companionName === targetName) usages.push(`Custom Colleague`); });
-            if (ctx.mentee?.type === 'custom' && ctx.mentee.name === targetName) usages.push(`Mentee`);
+            ctx.blessedCompanions.forEach((assignedName, memberId) => { if (assignedName === targetName) usages.push(`축복받은 가족 구성원 (${memberId})`); });
+            ctx.customClassmates.forEach(c => { if (c.companionName === targetName) usages.push(`커스텀 클래스메이트`); });
+            ctx.humanMarionetteCompanionNames.forEach((name, idx) => { if (name === targetName) usages.push(`퍼펫 #${idx+1}`); });
+            if (ctx.roboticistCompanionName === targetName) usages.push(`로봇술사 II`);
+            if (ctx.undeadThrallCompanionName === targetName) usages.push(`언데드 노예`);
+            ctx.verseAttendantCompanionNames.forEach((name, idx) => { if (name === targetName) usages.push(`가상 우주 관리자 #${idx+1}`); });
+            ctx.customSpells.forEach((spell, idx) => { if (spell.mialgrathApplied && spell.assignedEntityType === 'companion' && spell.assignedEntityName === targetName) usages.push(`밀그라스 주문 #${idx+1}`); });
+            if (ctx.joysOfParentingCompanionName === targetName) usages.push(`자녀 (부모의 기쁨)`);
+            ctx.customColleagues.forEach(c => { if (c.companionName === targetName) usages.push(`커스텀 동료`); });
+            if (ctx.mentee?.type === 'custom' && ctx.mentee.name === targetName) usages.push(`제자`);
         }
         
         if (activeTab === 'beasts') {
-            if (ctx.mythicalPetBeastName === targetName) usages.push(`Mythical Pet`);
-            if (ctx.inhumanAppearanceBeastName === targetName) usages.push(`Inhuman Appearance`);
-            if (ctx.mageFamiliarBeastName === targetName) usages.push(`Familiar`);
-            ctx.beastmasterBeastNames.forEach((name, idx) => { if (name === targetName) usages.push(`Beastmaster Familiar #${idx+1}`); });
-            if (ctx.shedHumanityBeastName === targetName) usages.push(`Shed Humanity Form`);
-            if (ctx.malrayootsMageFormName === targetName) usages.push(`Malrayoots (Mage)`);
-            if (ctx.malrayootsUniversalFormName === targetName) usages.push(`Malrayoots (Universal)`);
-            if (ctx.roboticistIBeastName === targetName) usages.push(`Roboticist I Automaton`);
-            if (ctx.undeadBeastName === targetName) usages.push(`Undead Beast`);
-            ctx.livingInhabitants.forEach((inhabitant, idx) => { if (inhabitant.beastName === targetName) usages.push(`Living Inhabitant #${idx+1}`); });
-            if (ctx.overlordBeastName === targetName) usages.push(`Overlord Form`);
-            if (ctx.naniteFormBeastName === targetName) usages.push(`Nanite Form`);
-            if (ctx.onisBlessingGuardianName === targetName) usages.push(`Oni Guardian`);
-            ctx.customSpells.forEach((spell, idx) => { if (spell.mialgrathApplied && spell.assignedEntityType === 'beast' && spell.assignedEntityName === targetName) usages.push(`Milgrath Spell #${idx+1}`); });
+            if (ctx.mythicalPetBeastName === targetName) usages.push(`신비한 애완동물`);
+            if (ctx.inhumanAppearanceBeastName === targetName) usages.push(`인간이 아닌 모습`);
+            if (ctx.mageFamiliarBeastName === targetName) usages.push(`패밀리어`);
+            ctx.beastmasterBeastNames.forEach((name, idx) => { if (name === targetName) usages.push(`동물 조련사 패밀리어 #${idx+1}`); });
+            if (ctx.shedHumanityBeastName === targetName) usages.push(`괴수화 형태`);
+            if (ctx.malrayootsMageFormName === targetName) usages.push(`말레이우트 (마법소녀 전용)`);
+            if (ctx.malrayootsUniversalFormName === targetName) usages.push(`말레이우트 (일반용)`);
+            if (ctx.roboticistIBeastName === targetName) usages.push(`로봇술사 I 오토마톤`);
+            if (ctx.undeadBeastName === targetName) usages.push(`언데드 야수`);
+            ctx.livingInhabitants.forEach((inhabitant, idx) => { if (inhabitant.beastName === targetName) usages.push(`우주의 마수 #${idx+1}`); });
+            if (ctx.overlordBeastName === targetName) usages.push(`최고존엄 형태`);
+            if (ctx.naniteFormBeastName === targetName) usages.push(`나나이트 형체`);
+            if (ctx.onisBlessingGuardianName === targetName) usages.push(`오니 수호자`);
+            ctx.customSpells.forEach((spell, idx) => { if (spell.mialgrathApplied && spell.assignedEntityType === 'beast' && spell.assignedEntityName === targetName) usages.push(`밀그라스 주문 #${idx+1}`); });
              // Check saved references
             Object.entries(allBuilds.companions).forEach(([compName, comp]) => {
-                const cData = comp.data;
-                if (cData.inhumanFormBeastName === targetName) usages.push(`Inhuman Form for ${compName}`);
+                const cData = (comp as SavedBuildData).data;
+                if (cData.inhumanFormBeastName === targetName) usages.push(`${compName}의 인외 형상`);
             });
-             ctx.vacationHomes.forEach((home, idx) => { if (home.mythicalPetName === targetName) usages.push(`Vacation Home #${idx+1} Pet`); });
+             ctx.vacationHomes.forEach((home, idx) => { if (home.mythicalPetName === targetName) usages.push(`휴가지 #${idx+1} 애완동물`); });
         }
 
         if (activeTab === 'weapons') {
@@ -520,21 +540,21 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
                 { id: 'Closed Circuits', name: ctx.closedCircuitsWeaponName },
                 { id: 'Righteous Creation', name: ctx.righteousCreationWeaponName },
              ];
-             engravingUsers.forEach(u => { if (u.name === targetName) usages.push(`${u.id} Engraving`); });
-             if (ctx.thermalWeaponryWeaponName === targetName) usages.push(`Thermal Weaponry`);
-             if (ctx.weaponsmithWeaponName === targetName) usages.push(`Masterpiece Weapon`);
-             if (ctx.heavilyArmedWeaponName === targetName) usages.push(`Nanite Weapon`);
-             ctx.customSpells.forEach((spell, idx) => { if (spell.mialgrathApplied && spell.assignedEntityType === 'weapon' && spell.assignedEntityName === targetName) usages.push(`Milgrath Spell #${idx+1}`); });
+             engravingUsers.forEach(u => { if (u.name === targetName) usages.push(`${u.id} 각인`); });
+             if (ctx.thermalWeaponryWeaponName === targetName) usages.push(`열 병기`);
+             if (ctx.weaponsmithWeaponName === targetName) usages.push(`역작 무기`);
+             if (ctx.heavilyArmedWeaponName === targetName) usages.push(`나나이트 무기`);
+             ctx.customSpells.forEach((spell, idx) => { if (spell.mialgrathApplied && spell.assignedEntityType === 'weapon' && spell.assignedEntityName === targetName) usages.push(`밀그라스 주문 #${idx+1}`); });
              Object.entries(allBuilds.companions).forEach(([compName, comp]) => {
-                const cData = comp.data;
-                if (cData.specialWeaponName === targetName) usages.push(`Special Weapon for ${compName}`);
+                const cData = (comp as SavedBuildData).data;
+                if (cData.specialWeaponName === targetName) usages.push(`${compName}의 특별한 무기`);
             });
         }
 
         if (activeTab === 'vehicles') {
-             if (ctx.assignedVehicleName === targetName) usages.push(`Signature Vehicle`);
-             if (ctx.masterMechanicVehicleName === targetName) usages.push(`Master Mechanic Vehicle`);
-             ctx.customSpells.forEach((spell, idx) => { if (spell.mialgrathApplied && spell.assignedEntityType === 'vehicle' && spell.assignedEntityName === targetName) usages.push(`Milgrath Spell #${idx+1}`); });
+             if (ctx.assignedVehicleName === targetName) usages.push(`당신만의 탈것`);
+             if (ctx.masterMechanicVehicleName === targetName) usages.push(`전문 기계공 탈것`);
+             ctx.customSpells.forEach((spell, idx) => { if (spell.mialgrathApplied && spell.assignedEntityType === 'vehicle' && spell.assignedEntityName === targetName) usages.push(`밀그라스 주문 #${idx+1}`); });
         }
 
         return usages;
@@ -546,43 +566,40 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
         const errors: string[] = [];
         const points = netPoints;
 
-        // ... [Identical Logic to Previous, just removed outer wrapper logic] ...
-        // Re-pasting the logic for completeness and correctness in context of the new structure
-        
         // --- COMPANIONS ---
         if (activeTab === 'companions') {
             const data = companionSelections;
-            ctx.blessedCompanions.forEach((assignedName, memberId) => { if (assignedName === targetName) { if (data.category !== 'mage') errors.push(`Blessed Family Member (${memberId}): Must be 'Mage'.`); if (points > 35) errors.push(`Blessed Family Member (${memberId}): Cost (${points}) > 35.`); } });
-            ctx.customClassmates.forEach(c => { if (c.companionName === targetName) { const limit = c.optionId === 'custom_classmate_25' ? 25 : c.optionId === 'custom_classmate_35' ? 35 : 50; if (points > limit) errors.push(`Custom Classmate: Cost (${points}) > ${limit}.`); } });
-            ctx.humanMarionetteCompanionNames.forEach((name, idx) => { if (name === targetName) { if (data.category !== 'puppet') errors.push(`Puppet #${idx+1}: Must be 'Puppet'.`); const limit = Math.floor((100 + (ctx.isSoulAlchemyBoosted ? 20 : 0)) / (ctx.humanMarionetteCount || 1)); if (points > limit) errors.push(`Puppet #${idx+1}: Cost (${points}) > ${limit}.`); } });
-            if (ctx.roboticistCompanionName === targetName) { if (!data.category?.includes('automaton')) errors.push(`Roboticist II: Must be 'Automaton'.`); if (points > 50) errors.push(`Roboticist II: Cost (${points}) > 50.`); }
-            if (ctx.undeadThrallCompanionName === targetName) { if (!data.category?.includes('undead')) errors.push(`Undead Thrall: Must be 'Undead'.`); const limit = ctx.blackMagicBoostSigil ? 60 : 50; if (points > limit) errors.push(`Undead Thrall: Cost (${points}) > ${limit}.`); }
-            ctx.verseAttendantCompanionNames.forEach((name, idx) => { if (name === targetName) { if (data.category !== 'mage') errors.push(`Verse Attendant #${idx+1}: Must be 'Mage'.`); const limit = 50 + (ctx.isFeaturesBoosted ? 50 : 0); if (points > limit) errors.push(`Verse Attendant #${idx+1}: Cost (${points}) > ${limit}.`); } });
-            ctx.customSpells.forEach((spell, idx) => { if (spell.mialgrathApplied && spell.assignedEntityType === 'companion' && spell.assignedEntityName === targetName) { if (points > 100) errors.push(`Milgrath Spell #${idx+1}: Cost (${points}) > 100.`); } });
-            if (ctx.joysOfParentingCompanionName === targetName) { if (data.category !== 'mage') errors.push(`Child: Must be 'Mage'.`); if (points > 50) errors.push(`Child: Cost (${points}) > 50.`); }
-            ctx.customColleagues.forEach(c => { if (c.companionName === targetName) { const limit = c.optionId === 'custom_colleague_25' ? 25 : c.optionId === 'custom_colleague_35' ? 35 : 50; if (points > limit) errors.push(`Custom Colleague: Cost (${points}) > ${limit}.`); } });
-            if (ctx.mentee?.type === 'custom' && ctx.mentee.name === targetName) { if (points > ctx.mentee.originalCost) errors.push(`Mentee: Cost (${points}) > ${ctx.mentee.originalCost}.`); }
+            ctx.blessedCompanions.forEach((assignedName, memberId) => { if (assignedName === targetName) { if (data.category !== 'mage') errors.push(`축복받은 가족 구성원 (${memberId}): 반드시 '마법소녀'여야 합니다.`); if (points > 35) errors.push(`축복받은 가족 구성원 (${memberId}): 비용(${points})이 35를 초과합니다.`); } });
+            ctx.customClassmates.forEach(c => { if (c.companionName === targetName) { const limit = c.optionId === 'custom_classmate_25' ? 25 : c.optionId === 'custom_classmate_35' ? 35 : 50; if (points > limit) errors.push(`커스텀 클래스메이트: 비용(${points})이 ${limit}을 초과합니다.`); } });
+            ctx.humanMarionetteCompanionNames.forEach((name, idx) => { if (name === targetName) { if (data.category !== 'puppet') errors.push(`퍼펫 #${idx+1}: 반드시 '퍼펫'이어야 합니다.`); const limit = Math.floor((100 + (ctx.isSoulAlchemyBoosted ? 20 : 0)) / (ctx.humanMarionetteCount || 1)); if (points > limit) errors.push(`퍼펫 #${idx+1}: 비용(${points})이 ${limit}을 초과합니다.`); } });
+            if (ctx.roboticistCompanionName === targetName) { if (!data.category?.includes('automaton')) errors.push(`로봇술사 II: 반드시 '오토마톤'이어야 합니다.`); if (points > 50) errors.push(`로봇술사 II: 비용(${points})이 50을 초과합니다.`); }
+            if (ctx.undeadThrallCompanionName === targetName) { if (!data.category?.includes('undead')) errors.push(`언데드 노예: 반드시 '언데드'여야 합니다.`); const limit = ctx.blackMagicBoostSigil ? 60 : 50; if (points > limit) errors.push(`언데드 노예: 비용(${points})이 ${limit}을 초과합니다.`); }
+            ctx.verseAttendantCompanionNames.forEach((name, idx) => { if (name === targetName) { if (data.category !== 'mage') errors.push(`가상 우주 관리자 #${idx+1}: 반드시 '마법소녀'여야 합니다.`); const limit = 50 + (ctx.isFeaturesBoosted ? 50 : 0); if (points > limit) errors.push(`가상 우주 관리자 #${idx+1}: 비용(${points})이 ${limit}을 초과합니다.`); } });
+            ctx.customSpells.forEach((spell, idx) => { if (spell.mialgrathApplied && spell.assignedEntityType === 'companion' && spell.assignedEntityName === targetName) { if (points > 100) errors.push(`밀그라스 주문 #${idx+1}: 비용(${points})이 100을 초과합니다.`); } });
+            if (ctx.joysOfParentingCompanionName === targetName) { if (data.category !== 'mage') errors.push(`자녀: 반드시 '마법소녀'여야 합니다.`); if (points > 50) errors.push(`자녀: 비용(${points})이 50을 초과합니다.`); }
+            ctx.customColleagues.forEach(c => { if (c.companionName === targetName) { const limit = c.optionId === 'custom_colleague_25' ? 25 : c.optionId === 'custom_colleague_35' ? 35 : 50; if (points > limit) errors.push(`커스텀 동료: 비용(${points})이 ${limit}을 초과합니다.`); } });
+            if (ctx.mentee?.type === 'custom' && ctx.mentee.name === targetName) { if (points > ctx.mentee.originalCost) errors.push(`제자: 비용(${points})이 ${ctx.mentee.originalCost}을 초과합니다.`); }
         }
         
         // --- BEASTS ---
         if (activeTab === 'beasts') {
             const data = beastSelections;
-            if (ctx.mythicalPetBeastName === targetName && points > 30) errors.push(`Mythical Pet: Cost (${points}) > 30.`);
-            if (ctx.inhumanAppearanceBeastName === targetName) { if (points > 40) errors.push(`Inhuman Appearance: Cost (${points}) > 40.`); if (data.perks.has('chatterbox_beast')) errors.push(`Inhuman Appearance: No Chatterbox.`); if (data.perks.has('magical_beast')) errors.push(`Inhuman Appearance: No Magical Beast.`); }
-            if (ctx.mageFamiliarBeastName === targetName) { let limit = 30; if (ctx.selectedSoulAlchemy.has('mages_familiar_ii')) limit = 60; if (ctx.selectedSoulAlchemy.has('mages_familiar_iii')) limit = 90; if (ctx.isSoulAlchemyBoosted) limit += 10; if (points > limit) errors.push(`Familiar: Cost (${points}) > ${limit}.`); }
-            ctx.beastmasterBeastNames.forEach((name, idx) => { if (name === targetName) { const limit = ctx.totalBeastPoints / (ctx.beastmasterCount || 1); if (points > limit) errors.push(`Familiar #${idx+1}: Cost (${points}) > ${Math.floor(limit)}.`); } });
-            if (ctx.shedHumanityBeastName === targetName) { let limit = 50; if (ctx.selectedTransformation.has('shed_humanity_ii')) limit = 80; if (ctx.isTransformationBoosted) limit += 10; if (points > limit) errors.push(`Shed Humanity: Cost (${points}) > ${limit}.`); if (data.perks.has('chatterbox_beast')) errors.push(`Shed Humanity: No Chatterbox.`); if (data.perks.has('magical_beast')) errors.push(`Shed Humanity: No Magical Beast.`); }
-            if (ctx.malrayootsMageFormName === targetName && points > 70) errors.push(`Malrayoots (Mage): Cost (${points}) > 70.`);
-            if (ctx.malrayootsUniversalFormName === targetName && points > 40) errors.push(`Malrayoots (Universal): Cost (${points}) > 40.`);
-            if (ctx.roboticistIBeastName === targetName) { if (points > 40) errors.push(`Automaton: Cost (${points}) > 40.`); if (!data.perks.has('automaton_perk')) errors.push(`Automaton: Must have Automaton perk.`); if (data.perks.has('chatterbox_beast')) errors.push(`Automaton: No Chatterbox.`); if (data.perks.has('magical_beast')) errors.push(`Automaton: No Magical Beast.`); }
-            if (ctx.undeadBeastName === targetName) { const limit = ctx.isNecromancyBoosted ? 70 : 60; if (points > limit) errors.push(`Undead Beast: Cost (${points}) > ${limit}.`); if (!data.perks.has('undead_perk')) errors.push(`Undead Beast: Must have Undead perk.`); if (data.perks.has('chatterbox_beast')) errors.push(`Undead Beast: No Chatterbox.`); if (data.perks.has('magical_beast')) errors.push(`Undead Beast: No Magical Beast.`); }
-            ctx.livingInhabitants.forEach((inhabitant, idx) => { if (inhabitant.beastName === targetName) { const limit = inhabitant.type === 'populated' ? (40 + (ctx.isFeaturesBoosted ? 10 : 0)) : (70 + (ctx.isFeaturesBoosted ? 10 : 0)); if (points > limit) errors.push(`Inhabitant #${idx+1}: Cost (${points}) > ${limit}.`); } });
-            if (ctx.overlordBeastName === targetName) { if (data.perks.has('chatterbox_beast')) errors.push(`Overlord: No Chatterbox.`); if (data.perks.has('magical_beast')) errors.push(`Overlord: No Magical Beast.`); }
-            if (ctx.naniteFormBeastName === targetName) { const limit = ctx.isNaniteControlBoosted ? 50 : 40; if (points > limit) errors.push(`Nanite Form: Cost (${points}) > ${limit}.`); if (!data.category.includes('humanoid')) errors.push(`Nanite Form: Must be Humanoid.`); if (data.perks.has('chatterbox_beast')) errors.push(`Nanite Form: No Chatterbox.`); if (data.perks.has('magical_beast')) errors.push(`Nanite Form: No Magical Beast.`); }
-            if (ctx.onisBlessingGuardianName === targetName && points > 100) errors.push(`Oni Guardian: Cost (${points}) > 100.`);
-            ctx.customSpells.forEach((spell, idx) => { if (spell.mialgrathApplied && spell.assignedEntityType === 'beast' && spell.assignedEntityName === targetName) { if (points > 100) errors.push(`Milgrath Spell #${idx+1}: Cost (${points}) > 100.`); } });
-            Object.entries(allBuilds.companions).forEach(([compName, comp]) => { const cData = comp.data; if (cData.inhumanFormBeastName === targetName) { if (points > 40) errors.push(`Inhuman Form (${compName}): Cost > 40.`); if (data.perks.has('chatterbox_beast')) errors.push(`Inhuman Form (${compName}): No Chatterbox.`); if (data.perks.has('magical_beast')) errors.push(`Inhuman Form (${compName}): No Magical Beast.`); } });
-            ctx.vacationHomes.forEach((home, idx) => { if (home.mythicalPetName === targetName && points > 30) errors.push(`Vacation Home #${idx+1} Pet: Cost > 30.`); });
+            if (ctx.mythicalPetBeastName === targetName && points > 30) errors.push(`신비한 애완동물: 비용(${points})이 30을 초과합니다.`);
+            if (ctx.inhumanAppearanceBeastName === targetName) { if (points > 40) errors.push(`인간이 아닌 모습: 비용(${points})이 40을 초과합니다.`); if (data.perks.has('chatterbox_beast')) errors.push(`인간이 아닌 모습: 수다쟁이 선택 불가.`); if (data.perks.has('magical_beast')) errors.push(`인간이 아닌 모습: 마수 선택 불가.`); }
+            if (ctx.mageFamiliarBeastName === targetName) { let limit = 30; if (ctx.selectedSoulAlchemy.has('mages_familiar_ii')) limit = 60; if (ctx.selectedSoulAlchemy.has('mages_familiar_iii')) limit = 90; if (ctx.isSoulAlchemyBoosted) limit += 10; if (points > limit) errors.push(`패밀리어: 비용(${points})이 ${limit}을 초과합니다.`); }
+            ctx.beastmasterBeastNames.forEach((name, idx) => { if (name === targetName) { const limit = ctx.totalBeastPoints / (ctx.beastmasterCount || 1); if (points > limit) errors.push(`패밀리어 #${idx+1}: 비용(${points})이 ${Math.floor(limit)}을 초과합니다.`); } });
+            if (ctx.shedHumanityBeastName === targetName) { let limit = 50; if (ctx.selectedTransformation.has('shed_humanity_ii')) limit = 80; if (ctx.isTransformationBoosted) limit += 10; if (points > limit) errors.push(`괴수화 형태: 비용(${points})이 ${limit}을 초과합니다.`); if (data.perks.has('chatterbox_beast')) errors.push(`괴수화 형태: 수다쟁이 선택 불가.`); if (data.perks.has('magical_beast')) errors.push(`괴수화 형태: 마수 선택 불가.`); }
+            if (ctx.malrayootsMageFormName === targetName && points > 70) errors.push(`말레이우트 (마법소녀 전용): 비용(${points})이 70을 초과합니다.`);
+            if (ctx.malrayootsUniversalFormName === targetName && points > 40) errors.push(`말레이우트 (일반용): 비용(${points})이 40을 초과합니다.`);
+            if (ctx.roboticistIBeastName === targetName) { if (points > 40) errors.push(`오토마톤: 비용(${points})이 40을 초과합니다.`); if (!data.perks.has('automaton_perk')) errors.push(`오토마톤: '오토마톤' 특성 필수.`); if (data.perks.has('chatterbox_beast')) errors.push(`오토마톤: 수다쟁이 선택 불가.`); if (data.perks.has('magical_beast')) errors.push(`오토마톤: 마수 선택 불가.`); }
+            if (ctx.undeadBeastName === targetName) { const limit = ctx.isNecromancyBoosted ? 70 : 60; if (points > limit) errors.push(`언데드 야수: 비용(${points})이 ${limit}을 초과합니다.`); if (!data.perks.has('undead_perk')) errors.push(`언데드 야수: '언데드' 특성 필수.`); if (data.perks.has('chatterbox_beast')) errors.push(`언데드 야수: 수다쟁이 선택 불가.`); if (data.perks.has('magical_beast')) errors.push(`언데드 야수: 마수 선택 불가.`); }
+            ctx.livingInhabitants.forEach((inhabitant, idx) => { if (inhabitant.beastName === targetName) { const limit = inhabitant.type === 'populated' ? (40 + (ctx.isFeaturesBoosted ? 10 : 0)) : (70 + (ctx.isFeaturesBoosted ? 10 : 0)); if (points > limit) errors.push(`우주의 마수 #${idx+1}: 비용(${points})이 ${limit}을 초과합니다.`); } });
+            if (ctx.overlordBeastName === targetName) { if (data.perks.has('chatterbox_beast')) errors.push(`최고존엄: 수다쟁이 선택 불가.`); if (data.perks.has('magical_beast')) errors.push(`최고존엄: 마수 선택 불가.`); }
+            if (ctx.naniteFormBeastName === targetName) { const limit = ctx.isNaniteControlBoosted ? 50 : 40; if (points > limit) errors.push(`나나이트 형체: 비용(${points})이 ${limit}을 초과합니다.`); if (!data.category.includes('humanoid')) errors.push(`나나이트 형체: 반드시 인간형이어야 합니다.`); if (data.perks.has('chatterbox_beast')) errors.push(`나나이트 형체: 수다쟁이 선택 불가.`); if (data.perks.has('magical_beast')) errors.push(`나나이트 형체: 마수 선택 불가.`); }
+            if (ctx.onisBlessingGuardianName === targetName && points > 100) errors.push(`오니 수호자: 비용(${points})이 100을 초과합니다.`);
+            ctx.customSpells.forEach((spell, idx) => { if (spell.mialgrathApplied && spell.assignedEntityType === 'beast' && spell.assignedEntityName === targetName) { if (points > 100) errors.push(`밀그라스 주문 #${idx+1}: 비용(${points})이 100을 초과합니다.`); } });
+            Object.entries(allBuilds.companions).forEach(([compName, comp]) => { const cData = (comp as SavedBuildData).data; if (cData.inhumanFormBeastName === targetName) { if (points > 40) errors.push(`인외의 형상 (${compName}): 비용이 40을 초과합니다.`); if (data.perks.has('chatterbox_beast')) errors.push(`인외의 형상 (${compName}): 수다쟁이 선택 불가.`); if (data.perks.has('magical_beast')) errors.push(`인외의 형상 (${compName}): 마수 선택 불가.`); } });
+            ctx.vacationHomes.forEach((home, idx) => { if (home.mythicalPetName === targetName && points > 30) errors.push(`휴가지 #${idx+1} 애완동물: 비용이 30을 초과합니다.`); });
         }
 
         // --- WEAPONS ---
@@ -598,58 +615,40 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
                 { id: 'Closed Circuits', name: ctx.closedCircuitsWeaponName },
                 { id: 'Righteous Creation', name: ctx.righteousCreationWeaponName },
              ];
-             engravingUsers.forEach(u => { if (u.name === targetName) { if (points > 20) errors.push(`${u.id} Weapon: Cost (${points}) > 20.`); } });
-             if (ctx.thermalWeaponryWeaponName === targetName) { const limit = ctx.isMetathermicsBoosted ? 35 : 30; if (points > limit) errors.push(`Thermal Weaponry: Cost (${points}) > ${limit}.`); if (!weaponSelections.category.includes('bladed_melee') && !weaponSelections.category.includes('blunt_melee')) errors.push(`Thermal Weaponry: Must be Melee.`); if (!weaponSelections.perks.has('thermal_supercharge')) errors.push(`Thermal Weaponry: Must have Thermal Supercharge.`); }
-             if (ctx.weaponsmithWeaponName === targetName && points > 40) errors.push(`Masterpiece Weapon: Cost (${points}) > 40.`);
-             if (ctx.heavilyArmedWeaponName === targetName) { const limit = ctx.isNaniteControlBoosted ? 40 : 30; if (points > limit) errors.push(`Nanite Weapon: Cost (${points}) > ${limit}.`); if (!weaponSelections.perks.has('physically_attached')) errors.push(`Nanite Weapon: Must have Physically Attached.`); }
-             ctx.customSpells.forEach((spell, idx) => { if (spell.mialgrathApplied && spell.assignedEntityType === 'weapon' && spell.assignedEntityName === targetName) { if (points > 100) errors.push(`Milgrath Spell #${idx+1}: Cost (${points}) > 100.`); } });
-             Object.entries(allBuilds.companions).forEach(([compName, comp]) => { const cData = comp.data; if (cData.specialWeaponName === targetName) { if (points > 20) errors.push(`Special Weapon (${compName}): Cost > 20.`); } });
+             engravingUsers.forEach(u => { if (u.name === targetName) { if (points > 20) errors.push(`${u.id} 각인 무기: 비용(${points})이 20을 초과합니다.`); } });
+             if (ctx.thermalWeaponryWeaponName === targetName) { const limit = ctx.isMetathermicsBoosted ? 35 : 30; if (points > limit) errors.push(`열 병기: 비용(${points})이 ${limit}을 초과합니다.`); if (!weaponSelections.category.includes('bladed_melee') && !weaponSelections.category.includes('blunt_melee')) errors.push(`열 병기: 반드시 근접 무기여야 합니다.`); if (!weaponSelections.perks.has('thermal_supercharge')) errors.push(`열 병기: '열에너지 과충전' 특성 필수.`); }
+             if (ctx.weaponsmithWeaponName === targetName && points > 40) errors.push(`역작 무기: 비용(${points})이 40을 초과합니다.`);
+             if (ctx.heavilyArmedWeaponName === targetName) { const limit = ctx.isNaniteControlBoosted ? 40 : 30; if (points > limit) errors.push(`나나이트 무기: 비용(${points})이 ${limit}을 초과합니다.`); if (!weaponSelections.perks.has('physically_attached')) errors.push(`나나이트 무기: '신체 부착' 특성 필수.`); }
+             ctx.customSpells.forEach((spell, idx) => { if (spell.mialgrathApplied && spell.assignedEntityType === 'weapon' && spell.assignedEntityName === targetName) { if (points > 100) errors.push(`밀그라스 주문 #${idx+1}: 비용(${points})이 100을 초과합니다.`); } });
+             Object.entries(allBuilds.companions).forEach(([compName, comp]) => { const cData = (comp as SavedBuildData).data; if (cData.specialWeaponName === targetName) { if (points > 20) errors.push(`특별한 무기 (${compName}): 비용이 20을 초과합니다.`); } });
         }
 
         // --- VEHICLES ---
         if (activeTab === 'vehicles') {
-             if (ctx.assignedVehicleName === targetName && points > 30) errors.push(`Signature Vehicle: Cost (${points}) > 30.`);
-             if (ctx.masterMechanicVehicleName === targetName) { const limit = ctx.selectedMagitechPowers.has('master_mechanic_ii') ? 100 : 50; if (points > limit) errors.push(`Master Mechanic Vehicle: Cost (${points}) > ${limit}.`); }
-             ctx.customSpells.forEach((spell, idx) => { if (spell.mialgrathApplied && spell.assignedEntityType === 'vehicle' && spell.assignedEntityName === targetName) { if (points > 100) errors.push(`Milgrath Spell #${idx+1}: Cost (${points}) > 100.`); } });
+             if (ctx.assignedVehicleName === targetName && points > 30) errors.push(`당신만의 탈것: 비용(${points})이 30을 초과합니다.`);
+             if (ctx.masterMechanicVehicleName === targetName) { const limit = ctx.selectedMagitechPowers.has('master_mechanic_ii') ? 100 : 50; if (points > limit) errors.push(`전문 기계공 탈것: 비용(${points})이 ${limit}을 초과합니다.`); }
+             ctx.customSpells.forEach((spell, idx) => { if (spell.mialgrathApplied && spell.assignedEntityType === 'vehicle' && spell.assignedEntityName === targetName) { if (points > 100) errors.push(`밀그라스 주문 #${idx+1}: 비용(${points})이 100을 초과합니다.`); } });
         }
 
         return errors;
     };
 
     // Calculate validation errors for the UI state
-    // We check errors depending on what we are doing:
-    // 1. If Rename (Edit mode + name changed): Cannot rename if original is used.
-    // 2. If Overwrite (Edit mode + same name): Check constraint violation for that name.
-    // 3. If Save (New mode + existing name): Check constraint violation for that name.
     const validationErrors = useMemo(() => {
         const errors: string[] = [];
-        
-        // 1. Rename Protection (Removed: We allow renaming now via propagation)
-        // If it's a rename, we don't block. We update references.
-
-        // 2. Overwrite / Update Constraints (Target Name)
-        // If we are saving (new or overwrite), check if the resulting build violates where the target name is used.
-        // NOTE: When renaming, 'currentName' is the NEW name. If new name is used elsewhere, we check that too.
-        // But usually new name is unique.
-        
         const targetUsages = getBuildUsages(currentName);
         if (targetUsages.length > 0) {
             const violations = getValidationErrors(currentName);
             if (violations.length > 0) {
-                errors.push(`Overwrite of "${currentName}" violates assignments:`);
+                errors.push(`"${currentName}" 덮어쓰기 시 할당 조건 위반:`);
                 violations.forEach(v => errors.push(v));
             }
         }
-        
         return errors;
     }, [currentName, originalLoadedName, activeTab, companionSelections, weaponSelections, beastSelections, vehicleSelections, pointsSpent, ctx, allBuilds]);
 
     const isEditMode = !!originalLoadedName;
     const isRename = isEditMode && currentName !== originalLoadedName;
-
-    // ... rest of component ...
-    
-    // ... (helper functions like loadDataIntoView, handleLoad, etc.)
 
     const containerBgClass = template === 'temple' ? 'bg-[#f8f5f2]' : (template === 'default' ? 'bg-[#0a0f1e]' : 'bg-black');
     
@@ -666,39 +665,63 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
         template === 'vortex' ? 'border-purple-900/50' :
         'border-cyan-900/30';
 
+    const transLabels = {
+        refPage: language === 'ko' ? "참고 페이지" : "REFERENCE PAGE",
+        totalPoints: language === 'ko' ? "총 사용 포인트" : "Total Points",
+        discPoints: language === 'ko' ? "할인된 포인트" : "Discounted Points",
+        savedBuilds: (type: string) => language === 'ko' ? `저장된 ${type}` : `Saved ${type}`,
+        noSaved: language === 'ko' ? "저장된 빌드가 없습니다." : "No saved builds.",
+        buildName: language === 'ko' ? "빌드 이름..." : "Build Name...",
+        changeThis: language === 'ko' ? "현재 파일 변경" : "Change This File",
+        saveAsNew: language === 'ko' ? "새로 저장" : "Save as New",
+        save: language === 'ko' ? "저장" : "Save",
+        reset: language === 'ko' ? "초기화" : "Reset",
+        export: language === 'ko' ? "내보내기" : "Export",
+        downloadImg: language === 'ko' ? "이미지 다운로드" : "Download IMG",
+        sunForger: language === 'ko' ? "태양 제련사의 선물" : "Sun Forger's Boon",
+        preview: language === 'ko' ? "미리보기" : "PREVIEW",
+        saveImage: language === 'ko' ? "이미지 저장" : "SAVE IMAGE",
+        import: language === 'ko' ? "가져오기" : "Import"
+    };
+
+    const displayTabName = language === 'ko' ? (activeTab === 'companions' ? '동료' : activeTab === 'weapons' ? '무기' : activeTab === 'beasts' ? '동물' : '탈것') : activeTab;
+
     return (
         <div className={`fixed inset-0 bg-[#0a101f] z-[100] overflow-y-auto overflow-x-hidden transition-opacity duration-300 ${isTransparent ? 'opacity-15 pointer-events-none' : 'opacity-100'}`}>
              {/* Header */}
             <header className="sticky top-0 z-50 bg-[#0a101f]/95 backdrop-blur-md border-b border-gray-800 p-4 flex justify-between items-center pointer-events-auto">
                 <div className="flex items-center gap-4">
-                    <h2 className="font-cinzel text-2xl text-white tracking-widest">REFERENCE PAGE</h2>
+                    <h2 className="font-cinzel text-2xl text-white tracking-widest">{transLabels.refPage}</h2>
                     <div className="flex bg-black/40 rounded p-1">
-                        {BUILD_TYPES.map(type => (
-                            <button
-                                key={type}
-                                onClick={() => handleTabChange(type)}
-                                className={`px-4 py-2 text-sm font-bold uppercase rounded transition-all ${activeTab === type ? 'bg-cyan-900/50 text-cyan-200 shadow-sm' : 'text-gray-500 hover:text-gray-300'}`}
-                            >
-                                {type}
-                            </button>
-                        ))}
+                        {BUILD_TYPES.map(type => {
+                            const tabName = language === 'ko' ? (type === 'companions' ? '동료' : type === 'weapons' ? '무기' : type === 'beasts' ? '동물' : '탈것') : type;
+                            return (
+                                <button
+                                    key={type}
+                                    onClick={() => handleTabChange(type)}
+                                    className={`px-4 py-2 text-sm font-bold uppercase rounded transition-all ${activeTab === type ? 'bg-cyan-900/50 text-cyan-200 shadow-sm' : 'text-gray-500 hover:text-gray-300'}`}
+                                >
+                                    {tabName}
+                                </button>
+                            );
+                        })}
                     </div>
                 </div>
                 <div className="flex items-center gap-4">
                     <div className="text-right mr-4">
                         <p className="text-xs text-gray-500 font-mono uppercase tracking-widest">
-                            Total Points
+                            {transLabels.totalPoints}
                         </p>
                         <p className="text-2xl font-bold font-mono text-green-400">
                             {pointsSpent}
                         </p>
-                        {discount > 0 && <p className="text-[10px] text-green-500">(Discounted Points: {discount})</p>}
+                        {discount > 0 && <p className="text-[10px] text-green-500">({transLabels.discPoints}: {discount})</p>}
                     </div>
                     {/* Transparency Toggle */}
                     <button 
                         onClick={() => setIsTransparent(!isTransparent)} 
                         className="text-gray-400 hover:text-white transition-colors p-1 rounded"
-                        title={isTransparent ? "Restore View" : "Peek Behind"}
+                        title={isTransparent ? (language === 'ko' ? "복귀" : "Restore View") : (language === 'ko' ? "배경 보기" : "Peek Behind")}
                     >
                          {isTransparent ? (
                              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -719,8 +742,8 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
                 {/* Sidebar: Saved Builds */}
                 <aside className="w-full lg:w-96 bg-black/20 border-r border-gray-800 p-4 shrink-0">
                     <div className="flex justify-between items-center mb-4">
-                        <h3 className="font-bold text-gray-400 uppercase text-xs tracking-wider">Saved {activeTab}</h3>
-                        <button onClick={handleImportClick} className="text-xs text-cyan-400 hover:text-cyan-200 underline">Import</button>
+                        <h3 className="font-bold text-gray-400 uppercase text-xs tracking-wider">{transLabels.savedBuilds(displayTabName)}</h3>
+                        <button onClick={handleImportClick} className="text-xs text-cyan-400 hover:text-cyan-200 underline">{transLabels.import}</button>
                         <input type="file" ref={fileInputRef} className="hidden" accept=".json" onChange={handleFileChange} />
                     </div>
                     <div className="space-y-2">
@@ -736,7 +759,7 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
                             </div>
                         ))}
                         {Object.keys(allBuilds[activeTab]).length === 0 && (
-                            <p className="text-xs text-gray-600 italic text-center py-4">No saved builds.</p>
+                            <p className="text-xs text-gray-600 italic text-center py-4">{transLabels.noSaved}</p>
                         )}
                     </div>
                 </aside>
@@ -749,11 +772,10 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
                             type="text" 
                             value={currentName} 
                             onChange={(e) => setCurrentName(e.target.value)} 
-                            placeholder="Build Name..." 
+                            placeholder={transLabels.buildName} 
                             className="bg-gray-900 border border-gray-700 text-white px-3 py-2 rounded focus:outline-none focus:border-cyan-500 flex-grow"
                         />
                         
-                        {/* New Save Buttons Logic */}
                         {isEditMode ? (
                             <>
                                 <div className="relative group">
@@ -766,18 +788,20 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
                                                 : 'bg-green-900/40 text-green-300 border-green-700 hover:bg-green-800/50'
                                         }`}
                                     >
-                                        Change This File
+                                        {transLabels.changeThis}
                                     </button>
                                     {validationErrors.length > 0 && (
                                         <div className="absolute bottom-full right-0 mb-2 w-72 p-3 bg-red-900/90 text-white text-xs rounded shadow-lg z-50 border border-red-500 animate-fade-in-up-toast">
-                                            <p className="font-bold border-b border-white/20 pb-1 mb-1">Action Blocked:</p>
+                                            <p className="font-bold border-b border-white/20 pb-1 mb-1">
+                                                {language === 'ko' ? "작업 차단됨:" : "Action Blocked:"}
+                                            </p>
                                             <ul className="list-disc pl-4 space-y-0.5">
                                                 {validationErrors.map((e, i) => <li key={i}>{e}</li>)}
                                             </ul>
                                         </div>
                                     )}
                                 </div>
-                                <button onClick={handleSaveAsNew} className="px-4 py-2 bg-blue-900/30 text-blue-200 border border-blue-700/50 rounded hover:bg-blue-800/40 transition-colors">Save as New</button>
+                                <button onClick={handleSaveAsNew} className="px-4 py-2 bg-blue-900/30 text-blue-200 border border-blue-700/50 rounded hover:bg-blue-800/40 transition-colors">{transLabels.saveAsNew}</button>
                             </>
                         ) : (
                              <div className="relative group">
@@ -786,11 +810,11 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
                                     disabled={validationErrors.length > 0} 
                                     className={`px-4 py-2 bg-green-900/40 text-green-300 border border-green-700 rounded hover:bg-green-800/50 transition-colors ${validationErrors.length > 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
                                 >
-                                    Save
+                                    {transLabels.save}
                                 </button>
                                 {validationErrors.length > 0 && (
                                     <div className="absolute bottom-full right-0 mb-2 w-72 p-3 bg-red-900/90 text-white text-xs rounded shadow-lg z-50 border border-red-500 animate-fade-in-up-toast">
-                                        <p className="font-bold border-b border-white/20 pb-1 mb-1">Cannot overwrite:</p>
+                                        <p className="font-bold border-b border-white/20 pb-1 mb-1">{language === 'ko' ? "덮어쓰기 불가:" : "Cannot overwrite:"}</p>
                                         <ul className="list-disc pl-4 space-y-0.5">
                                             {validationErrors.map((e, i) => <li key={i}>{e}</li>)}
                                         </ul>
@@ -801,13 +825,13 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
 
                         <div className="h-6 w-px bg-gray-700 mx-2"></div>
 
-                        <button onClick={handleReset} className="px-4 py-2 bg-gray-800 text-gray-300 border border-gray-600 rounded hover:bg-gray-700 transition-colors">Reset</button>
-                        <button onClick={handleExport} className="px-4 py-2 bg-indigo-900/40 text-indigo-300 border border-indigo-700 rounded hover:bg-indigo-800/50 transition-colors">Export</button>
-                        <button onClick={scrollToPreview} className="px-4 py-2 bg-purple-900/40 text-purple-300 border border-purple-700 rounded hover:bg-purple-800/50 transition-colors">Download IMG</button>
+                        <button onClick={handleReset} className="px-4 py-2 bg-gray-800 text-gray-300 border border-gray-600 rounded hover:bg-gray-700 transition-colors">{transLabels.reset}</button>
+                        <button onClick={handleExport} className="px-4 py-2 bg-indigo-900/40 text-indigo-300 border border-indigo-700 rounded hover:bg-indigo-800/50 transition-colors">{transLabels.export}</button>
+                        <button onClick={scrollToPreview} className="px-4 py-2 bg-purple-900/40 text-purple-300 border border-purple-700 rounded hover:bg-purple-800/50 transition-colors">{transLabels.downloadImg}</button>
                     
                         {isSunForgerActive && (
                             <div className="flex items-center gap-2 ml-auto border-l border-gray-700 pl-4">
-                                <span className="text-xs text-yellow-500 font-bold uppercase">Sun Forger's Boon</span>
+                                <span className="text-xs text-yellow-500 font-bold uppercase">{transLabels.sunForger}</span>
                                 <div className="flex items-center bg-gray-900 rounded p-1">
                                     <button onClick={() => handleBpSpentChange(Math.max(0, (currentSelections as any).bpSpent - 1))} className="px-2 text-gray-400 hover:text-white">-</button>
                                     <span className="px-2 text-yellow-300 font-mono text-sm">{(currentSelections as any).bpSpent} BP</span>
@@ -827,7 +851,7 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
                     {/* Preview Summary */}
                     <div className="mt-12 pt-8 border-t border-gray-800 scroll-mt-32" ref={previewSectionRef}>
                          <div className="flex flex-col md:flex-row items-center justify-between mb-6">
-                            <h3 className="font-cinzel text-xl text-gray-500 text-center md:text-left">PREVIEW</h3>
+                            <h3 className="font-cinzel text-xl text-gray-500 text-center md:text-left">{transLabels.preview}</h3>
                             <div className="flex items-center gap-4 mt-4 md:mt-0">
                                 {/* Template Selector */}
                                 <div className="flex bg-black/40 rounded p-1 border border-gray-700">
@@ -844,7 +868,7 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                                         <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
                                     </svg>
-                                    SAVE IMAGE
+                                    {transLabels.saveImage}
                                 </button>
                             </div>
                         </div>

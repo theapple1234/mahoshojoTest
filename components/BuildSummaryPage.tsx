@@ -1,4 +1,3 @@
-
 import React, { useRef, useState, useEffect, useMemo } from 'react';
 import { useCharacterContext } from '../context/CharacterContext';
 import * as Constants from '../constants';
@@ -139,6 +138,7 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
     const ctx = useCharacterContext();
     const summaryContentRef = useRef<HTMLDivElement>(null);
     const { sections } = useBuildSummaryData(ctx);
+    // FIX: Replaced setTemplate with useState to fix 'used before declaration' error
     const [template, setTemplate] = useState<TemplateType>('default');
     const [showTemplateSelector, setShowTemplateSelector] = useState(false);
     const [showDownloadMenu, setShowDownloadMenu] = useState(false);
@@ -173,11 +173,11 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
 
     // -- Helper: Generate Filename with User Input --
     const generateDownloadFilename = () => {
-        const wantToName = window.confirm("Do you want to enter a build name for this file?");
+        const wantToName = window.confirm(ctx.language === 'ko' ? "파일 이름을 지정하시겠습니까?" : "Do you want to enter a build name for this file?");
         let fileNameBase = "";
         
         if (wantToName) {
-            const inputName = window.prompt("Enter build name:");
+            const inputName = window.prompt(ctx.language === 'ko' ? "이름 입력:" : "Enter build name:");
             if (inputName && inputName.trim()) {
                  const safeName = inputName.trim().replace(/[\\/:*?"<>|]/g, '_'); // Sanitize illegal chars
                  fileNameBase = `Build_${safeName}`;
@@ -243,33 +243,31 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
                 useCORS: true,
                 scale: 2,
                 logging: false,
-                // Do NOT set height or windowHeight. Let html2canvas calculate height automatically based on content.
                 windowWidth: captureWidth, 
                 onclone: (clonedDoc: Document) => {
                     const clonedElement = clonedDoc.querySelector('[data-capture-target]') as HTMLElement;
                     if (clonedElement) {
-                        // Ensure container can expand freely
                         clonedElement.style.overflow = 'visible';
                         clonedElement.style.height = 'auto';
                         clonedElement.style.maxHeight = 'none';
                         clonedElement.style.minHeight = '100%';
                         clonedElement.style.width = `${captureWidth}px`;
                     
-                        // Inject style to raise text by 7.5px (default)
                         const style = clonedDoc.createElement('style');
                         style.innerHTML = `
                             h1, h2, h3, h4, h5, h6, p, label, button, a, div > span:not(.absolute) {
                                 position: relative;
                                 top: -7.5px;
                             }
-                            /* Extra shift for Vortex stage numbers (total -22.5px relative to normal) */
                             .vortex-stage-number {
                                 top: -22.5px !important;
+                            }
+                            .build-summary-count-badge {
+                                transform: translateY(-7px) !important;
                             }
                         `;
                         clonedDoc.head.appendChild(style);
 
-                        // Special exceptions for Trait titles to raise them by 10px
                         const traitsToAdjust = [
                             "LOADED (Parent only)", "GREAT CHEF", "CREATIVE SAVANT", 
                             "BLESSED (Female only)", "BADASS", "BRILLIANT", "ROLE MODEL", 
@@ -289,7 +287,6 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
                             }
                         });
                         
-                        // Apply Milgrath visual shift ONLY during capture
                         const milgrathElements = clonedElement.querySelectorAll('.milgrath-override-content');
                         milgrathElements.forEach((el: any) => {
                             el.style.position = 'relative';
@@ -297,14 +294,12 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
                         });
                     }
                     
-                    // Force background color on body to prevent transparency artifacts
                     const clonedBody = clonedDoc.body;
                     clonedBody.style.backgroundColor = bgColor;
                     clonedBody.style.width = `${captureWidth}px`;
                 }
             };
 
-            // Fix for Vortex Layout needing extra space and specific width
             if (template === 'vortex') {
                 options.windowWidth = 2600;
             }
@@ -313,24 +308,18 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
             const mainBlob = await new Promise<Blob | null>(resolve => mainCanvas.toBlob(resolve, 'image/png'));
             
             if (!includeReference) {
-                // Build Only: Download single image with simple name
                 downloadImage(mainCanvas, `${baseName}.png`);
             } else {
-                // Build + Reference: Zip Download (forced)
                 const zip = new window.JSZip();
                 
-                // Add Main Build directly to ZIP root
                 if (mainBlob) {
                     zip.file("Full_Build.png", mainBlob);
                 }
 
-                // 2. Capture References
                 const hasReferenceContent = Object.values(referenceBuilds).some(cat => Object.keys(cat).length > 0);
                 
                 if (hasReferenceContent) {
-                    // Show appendix so we can capture elements
                     setShowReferenceAppendix(true);
-                    // Artificial delay to ensure DOM is fully repainted before capture loops begin
                     await new Promise(resolve => setTimeout(resolve, 800)); 
 
                     const appendixElement = document.getElementById('reference-appendix');
@@ -339,10 +328,8 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
                          for (let i = 0; i < refItems.length; i++) {
                              const item = refItems[i] as HTMLElement;
                              const refName = item.dataset.name || `ref-${i}`;
-                             
-                             // Calculate dimensions for reference card
                              const rect = item.getBoundingClientRect();
-                             const refWidth = Math.max(rect.width, 900); // Ensure width
+                             const refWidth = Math.max(rect.width, 900);
                              
                              const refCanvas = await window.html2canvas(item, {
                                  backgroundColor: bgColor,
@@ -351,44 +338,36 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
                                  logging: false,
                                  windowWidth: refWidth,
                                  onclone: (clonedDoc: Document) => {
-                                     // Similar expansion logic for reference cards
                                      const clonedNode = clonedDoc.querySelector(`[data-name="${refName}"]`) as HTMLElement;
                                      if (clonedNode) {
                                         clonedNode.style.height = 'auto';
                                         clonedNode.style.overflow = 'visible';
                                      }
-
-                                     // Inject style to raise text by 7.5px
                                      const style = clonedDoc.createElement('style');
                                      style.innerHTML = `
                                          h1, h2, h3, h4, h5, h6, p, label, button, a, div > span:not(.absolute) {
                                              position: relative;
                                              top: -7.5px;
                                          }
+                                         .build-summary-count-badge {
+                                            transform: translateY(-7px) !important;
+                                         }
                                      `;
                                      clonedDoc.head.appendChild(style);
                                  }
                              });
-                             
                              const refBlob = await new Promise<Blob | null>(resolve => refCanvas.toBlob(resolve, 'image/png'));
-                             
                              if (refBlob) {
                                  const safeRefName = refName.replace(/[\/\\?%*:|"<>]/g, '_');
-                                 // Add Reference images directly to ZIP root
                                  zip.file(`${safeRefName}.png`, refBlob);
                              }
-                             
-                             // Add small delay between captures
                              await new Promise(r => setTimeout(r, 100));
                          }
                     }
                 }
-
-                // Generate and download zip
                 const zipContent = await zip.generateAsync({ type: "blob" });
                 window.saveAs(zipContent, `${baseName}.zip`);
             }
-
         } catch (error) {
             console.error("Error generating images:", error);
             alert("Error generating images. Please try again.");
@@ -399,7 +378,7 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
     };
     
     const handleSaveToBrowser = () => {
-        const buildName = prompt("Enter a name for this build:");
+        const buildName = prompt(ctx.language === 'ko' ? "저장할 빌드의 이름을 입력하세요:" : "Enter a name for this build:");
         if (!buildName || buildName.trim() === '') return;
         const serializableCtx = ctx.serializeState();
         const refBuilds = localStorage.getItem(STORAGE_KEY) || '{}';
@@ -422,7 +401,7 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
             const transaction = db.transaction('saves', 'readwrite');
             const store = transaction.objectStore('saves');
             const putRequest = store.put(fullSaveData);
-            putRequest.onsuccess = () => alert(`Build "${buildName}" saved successfully!`);
+            putRequest.onsuccess = () => alert(ctx.language === 'ko' ? `"${buildName}" 빌드가 브라우저에 저장되었습니다!` : `Build "${buildName}" saved successfully!`);
             putRequest.onerror = () => alert(`Error saving build: ${putRequest.error?.message}`);
         };
     };
@@ -433,6 +412,7 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
         const serializableCtx = ctx.serializeState();
         const refBuilds = localStorage.getItem(STORAGE_KEY) || '{}';
         const fullSaveData = {
+            // FIX: Use serializableCtx instead of non-existent mainState
             character: serializableCtx,
             reference: JSON.parse(refBuilds),
             version: '1.0'
@@ -478,11 +458,13 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
                     <div className="flex items-center gap-4">
                         <div className="p-2 bg-cyan-950 rounded-lg border border-cyan-700/50">
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2z" />
                             </svg>
                         </div>
                         <div>
-                            <h2 className="font-cinzel text-2xl text-white tracking-widest drop-shadow-md">YOUR BUILD</h2>
+                            <h2 className="font-cinzel text-2xl text-white tracking-widest drop-shadow-md">
+                                {ctx.language === 'ko' ? "당신의 빌드" : "YOUR BUILD"}
+                            </h2>
                         </div>
                     </div>
                     <button 
@@ -496,17 +478,15 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
 
                 {/* Main Content Area */}
                 <main className="flex-grow overflow-y-auto bg-black relative">
-                     {/* Add data-capture-target attribute to be found by onclone */}
                      <div ref={summaryContentRef} data-capture-target="true" className={`min-h-full flex flex-col ${containerBgClass}`}>
                         <div className="flex-grow">
                             {template === 'default' && (
                                 <div className="p-8 bg-[#0a0f1e] min-h-full relative overflow-hidden">
-                                    {/* Using a cleaner gradient instead of blur to avoid render issues */}
                                     <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[radial-gradient(circle,rgba(22,78,99,0.3)_0%,transparent_70%)] pointer-events-none -translate-y-1/2 translate-x-1/2"></div>
-                                    <ArcaneLayout sections={sections} />
+                                    <ArcaneLayout sections={sections} language={ctx.language} />
                                 </div>
                             )}
-                            {template === 'temple' && <TempleLayout sections={sections} />}
+                            {template === 'temple' && <TempleLayout sections={sections} language={ctx.language} />}
                             {template === 'vortex' && (
                                 <VortexLayout 
                                     sections={sections} 
@@ -518,9 +498,8 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
                                     onImageUpload={handleImageUpload}
                                 />
                             )}
-                            {template === 'terminal' && <TerminalLayout sections={sections} />}
+                            {template === 'terminal' && <TerminalLayout sections={sections} language={ctx.language} />}
 
-                            {/* Reference Appendix - Rendered only when downloading if requested */}
                             {showReferenceAppendix && (
                                 <div id="reference-appendix" className={`mt-20 pt-16 pb-20 border-t-4 border-double ${appendixDividerClass} px-10`}>
                                     <div className="text-center mb-16">
@@ -543,12 +522,10 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
                                                     <div className="grid grid-cols-1 xl:grid-cols-2 gap-12">
                                                         {buildKeys.map(key => {
                                                             const buildData = builds[key].data;
-                                                            // Normalize data for display
                                                             const normalizedData = {
                                                                 ...buildData,
                                                                 perks: buildData.perks instanceof Map ? buildData.perks : new Map(Array.isArray(buildData.perks) ? buildData.perks : []),
                                                                 traits: buildData.traits instanceof Set ? buildData.traits : new Set(Array.isArray(buildData.traits) ? buildData.traits : []),
-                                                                // Convert all Map-like arrays back to Maps/Sets if needed by sub-components
                                                                 specialWeaponMap: new Set(buildData.specialWeaponMap || []),
                                                                 signaturePowerMap: new Set(buildData.signaturePowerMap || []),
                                                                 darkMagicianMap: new Set(buildData.darkMagicianMap || []),
@@ -568,7 +545,6 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
                                                                         pointsSpent={cost}
                                                                         isSunForgerActive={isSunForgerActive}
                                                                         template={template}
-                                                                        // No interactive image upload in static render
                                                                     />
                                                                 </div>
                                                             );
@@ -582,7 +558,7 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
                             )}
                         </div>
 
-                        {/* Points Summary Breakdown - Inside Image Capture Area */}
+                        {/* Points Summary Breakdown */}
                         <div className={`w-full p-4 flex justify-center items-center gap-8 text-xs font-mono tracking-wide ${
                             template === 'temple' ? 'bg-[#f4f1ea] border-t border-amber-900/20 text-slate-600' : 
                             template === 'terminal' ? 'bg-black border-t border-green-500/50 text-green-500' :
@@ -590,24 +566,27 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
                             'bg-[#0a0f1e] border-t border-cyan-900/30 text-gray-400'
                         }`}>
                             <div className="flex items-baseline gap-2">
-                               <span className={`${template === 'terminal' ? 'text-green-400' : template === 'temple' ? 'text-amber-800' : template === 'vortex' ? 'text-purple-400' : 'text-cyan-400'} font-bold`}>BP:</span> 
+                               <span className={`${template === 'terminal' ? 'text-green-400' : template === 'temple' ? 'text-amber-800' : template === 'vortex' ? 'text-purple-400' : 'text-cyan-400'} font-bold`}>
+                                   {ctx.language === 'ko' ? "축복 점수:" : "BP:"}
+                               </span> 
                                <span className={`text-lg font-bold ${template === 'terminal' ? 'text-green-300' : template === 'temple' ? 'text-slate-900' : 'text-white'}`}>{ctx.blessingPoints}</span>
                                <span className="opacity-60 text-[10px]">(+{ctx.bpGained + 100} / -{ctx.bpSpent})</span>
                             </div>
-
                             <span className="opacity-30">|</span>
-
                             <div className="flex items-baseline gap-2">
-                               <span className={`${template === 'terminal' ? 'text-green-400' : template === 'temple' ? 'text-green-700' : template === 'vortex' ? 'text-green-400' : 'text-green-400'} font-bold`}>FP:</span> 
+                               <span className={`${template === 'terminal' ? 'text-green-400' : template === 'temple' ? 'text-green-700' : template === 'vortex' ? 'text-green-400' : 'text-green-400'} font-bold`}>
+                                   {ctx.language === 'ko' ? "행운 점수:" : "FP:"}
+                               </span> 
                                <span className={`text-lg font-bold ${template === 'terminal' ? 'text-green-300' : template === 'temple' ? 'text-slate-900' : 'text-white'}`}>{ctx.fortunePoints}</span>
                                <span className="opacity-60 text-[10px]">(+{ctx.fpGained + 100} / -{ctx.fpSpent})</span>
                             </div>
-
                             {(ctx.kpGained > 0 || ctx.kpSpent > 0) && (
                                 <>
                                     <span className="opacity-30">|</span>
                                     <div className="flex items-baseline gap-2">
-                                       <span className={`${template === 'terminal' ? 'text-green-400' : template === 'temple' ? 'text-pink-600' : template === 'vortex' ? 'text-pink-400' : 'text-pink-400'} font-bold`}>KP:</span> 
+                                       <span className={`${template === 'terminal' ? 'text-green-400' : template === 'temple' ? 'text-pink-600' : template === 'vortex' ? 'text-pink-400' : 'text-pink-400'} font-bold`}>
+                                           {ctx.language === 'ko' ? "쿠리-오단 점수:" : "KP:"}
+                                       </span> 
                                        <span className={`text-lg font-bold ${template === 'terminal' ? 'text-green-300' : template === 'temple' ? 'text-slate-900' : 'text-white'}`}>{ctx.kuriPoints}</span>
                                        <span className="opacity-60 text-[10px]">(+{ctx.kpGained} / -{ctx.kpSpent})</span>
                                     </div>
@@ -617,9 +596,9 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
                     </div>
                 </main>
 
-                {/* Footer Action Bar */}
-                <footer className="relative z-[150] bg-[#0a0f1e]/95 border-t border-cyan-900/50 flex flex-col">
-                    <div className="p-4 flex flex-col md:flex-row items-center gap-4 justify-between">
+                {/* Footer Action Bar - ENHANCED FOR VISIBILITY */}
+                <footer className="relative z-[150] bg-[#0a0f1e] border-t-2 border-cyan-500/50 flex flex-col shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
+                    <div className="p-6 flex flex-col md:flex-row items-center gap-6 justify-between">
                         {/* Template Switcher */}
                         <div className="relative">
                             <button 
@@ -627,89 +606,92 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
                                     setShowTemplateSelector(!showTemplateSelector);
                                     setShowDownloadMenu(false);
                                 }}
-                                className="flex items-center gap-2 px-5 py-2 font-cinzel text-sm text-white font-bold bg-cyan-800/80 border-2 border-cyan-500 rounded-lg hover:bg-cyan-600 hover:border-cyan-300 hover:shadow-[0_0_20px_rgba(6,182,212,0.4)] transition-all"
+                                className="flex items-center gap-3 px-6 py-3 font-mono text-base text-white font-bold bg-slate-900 border-2 border-cyan-500/80 rounded-xl hover:bg-cyan-900 hover:border-cyan-300 hover:shadow-[0_0_25px_rgba(6,182,212,0.4)] transition-all active:scale-95"
                             >
                                 <TemplateIcon />
-                                <div className="flex flex-col items-start leading-none">
-                                    <span className="text-[8px] text-cyan-400 font-normal tracking-wider mb-0.5">DOWNLOAD STYLE</span>
-                                    <span>{
-                                        template === 'temple' ? 'Divine (Temple)' :
-                                        template === 'vortex' ? 'Spiral (Vortex)' :
-                                        template === 'terminal' ? 'Cyber (Terminal)' :
+                                <div className="flex flex-col items-start leading-tight">
+                                    <span className="text-[10px] text-cyan-400 font-bold tracking-widest uppercase mb-1">
+                                        {ctx.language === 'ko' ? "이미지 스타일" : "IMAGE STYLE"}
+                                    </span>
+                                    <span className="font-mono text-sm">{
+                                        template === 'temple' ? 'Temple (Divine)' :
+                                        template === 'vortex' ? 'Vortex (Spiral)' :
+                                        template === 'terminal' ? 'Terminal (Cyber)' :
                                         'Arcane (Default)'
                                     }</span>
                                 </div>
                             </button>
 
-                            {/* Template Popup */}
                             {showTemplateSelector && (
-                                <div className="absolute bottom-full left-0 mb-2 w-48 bg-black/95 border border-gray-700 rounded-lg shadow-xl overflow-hidden animate-fade-in-up z-50">
-                                    <button onClick={() => { setTemplate('default'); setShowTemplateSelector(false); }} className={`w-full text-left px-4 py-3 text-xs font-cinzel hover:bg-white/10 ${template === 'default' ? 'text-cyan-400' : 'text-gray-300'}`}>
+                                <div className="absolute bottom-full left-0 mb-3 w-56 bg-black border-2 border-cyan-500 rounded-xl shadow-2xl overflow-hidden animate-fade-in-up z-[200]">
+                                    <button onClick={() => { setTemplate('default'); setShowTemplateSelector(false); }} className={`w-full text-left px-5 py-4 text-xs font-mono font-bold hover:bg-white/10 ${template === 'default' ? 'text-cyan-300 bg-cyan-900/20' : 'text-gray-400'}`}>
                                         Arcane (Default)
                                     </button>
-                                    <button onClick={() => { setTemplate('temple'); setShowTemplateSelector(false); }} className={`w-full text-left px-4 py-3 text-xs font-cinzel hover:bg-white/10 ${template === 'temple' ? 'text-amber-400' : 'text-gray-300'}`}>
+                                    <button onClick={() => { setTemplate('temple'); setShowTemplateSelector(false); }} className={`w-full text-left px-5 py-4 text-xs font-mono font-bold hover:bg-white/10 ${template === 'temple' ? 'text-amber-400 bg-amber-900/20' : 'text-gray-400'}`}>
                                         Temple (Divine)
                                     </button>
-                                    <button onClick={() => { setTemplate('vortex'); setShowTemplateSelector(false); }} className={`w-full text-left px-4 py-3 text-xs font-cinzel hover:bg-white/10 ${template === 'vortex' ? 'text-purple-400' : 'text-gray-300'}`}>
+                                    <button onClick={() => { setTemplate('vortex'); setShowTemplateSelector(false); }} className={`w-full text-left px-5 py-4 text-xs font-mono font-bold hover:bg-white/10 ${template === 'vortex' ? 'text-purple-400 bg-purple-900/20' : 'text-gray-400'}`}>
                                         Vortex (Spiral)
                                     </button>
-                                    <button onClick={() => { setTemplate('terminal'); setShowTemplateSelector(false); }} className={`w-full text-left px-4 py-3 text-xs font-mono hover:bg-white/10 ${template === 'terminal' ? 'text-green-400' : 'text-gray-300'}`}>
+                                    <button onClick={() => { setTemplate('terminal'); setShowTemplateSelector(false); }} className={`w-full text-left px-5 py-4 text-xs font-mono font-bold hover:bg-white/10 ${template === 'terminal' ? 'text-green-400 bg-green-900/20' : 'text-gray-400'}`}>
                                         Terminal (Cyber)
                                     </button>
                                 </div>
                             )}
                         </div>
 
-                        <div className="flex items-center gap-4 w-full md:w-auto justify-end">
+                        <div className="flex flex-wrap items-center gap-4 w-full md:w-auto justify-center md:justify-end">
+                            {/* JSON Export */}
                             <button 
                                 onClick={handleSaveToFile}
-                                className="hidden lg:flex items-center justify-center gap-2 px-4 py-3 font-cinzel text-xs font-bold bg-slate-800 border border-slate-600 rounded text-slate-300 hover:bg-slate-700 hover:text-white hover:border-slate-400 transition-all"
+                                className="flex items-center justify-center gap-3 px-6 py-4 font-mono text-sm font-bold bg-slate-800 border-2 border-slate-600 rounded-xl text-slate-100 hover:bg-slate-700 hover:text-white hover:border-slate-300 transition-all active:scale-95 shadow-lg"
                                 title="Download JSON File"
                             >
                                 <FileExportIcon /> 
-                                <span>EXPORT JSON</span>
+                                <span>{ctx.language === 'ko' ? "JSON 내보내기" : "EXPORT JSON"}</span>
                             </button>
 
+                            {/* Browser Save */}
                             <button 
                                 onClick={handleSaveToBrowser}
-                                className="hidden lg:flex items-center justify-center gap-2 px-4 py-3 font-cinzel text-xs font-bold bg-slate-800 border border-slate-600 rounded text-slate-300 hover:bg-slate-700 hover:text-white hover:border-slate-400 transition-all"
+                                className="flex items-center justify-center gap-3 px-6 py-4 font-mono text-sm font-bold bg-indigo-900/40 border-2 border-indigo-500 rounded-xl text-indigo-100 hover:bg-indigo-800 hover:text-white hover:border-indigo-300 transition-all active:scale-95 shadow-lg"
                             >
                                 <SaveDiskIcon /> 
-                                <span>BROWSER SAVE</span>
+                                <span>{ctx.language === 'ko' ? "브라우저 저장" : "BROWSER SAVE"}</span>
                             </button>
                             
-                            {/* Improved Download Menu */}
+                            {/* Download Image Menu */}
                             <div className="relative">
                                 <button 
                                     onClick={() => {
                                         setShowDownloadMenu(!showDownloadMenu);
                                         setShowTemplateSelector(false);
                                     }}
-                                    className="flex items-center justify-center gap-2 px-8 py-3 font-cinzel text-sm font-bold bg-cyan-900/30 border border-cyan-500 rounded text-cyan-200 hover:bg-cyan-800/50 hover:text-white hover:border-cyan-400 hover:shadow-[0_0_20px_rgba(34,211,238,0.4)] transition-all"
+                                    className="flex items-center justify-center gap-3 px-8 py-4 font-mono text-base font-bold bg-cyan-600 border-2 border-cyan-400 rounded-xl text-white hover:bg-cyan-500 hover:shadow-[0_0_30px_rgba(34,211,238,0.6)] transition-all active:scale-95 shadow-xl"
                                 >
                                     <DownloadIcon /> 
-                                    <span>DOWNLOAD IMG</span>
+                                    <span>{ctx.language === 'ko' ? "이미지 다운로드" : "DOWNLOAD IMG"}</span>
                                 </button>
                                 
                                 {showDownloadMenu && (
-                                    <div className="absolute bottom-full right-0 mb-2 w-64 bg-black/95 border border-cyan-500/30 rounded-lg shadow-2xl overflow-hidden animate-fade-in-up z-50">
-                                        <div className="p-2 border-b border-white/5 bg-white/5">
-                                            <p className="text-[10px] text-gray-400 font-cinzel text-center tracking-widest uppercase">Select Option</p>
+                                    <div className="absolute bottom-full right-0 mb-3 w-64 bg-black border-2 border-cyan-400 rounded-xl shadow-[0_0_40px_rgba(0,0,0,0.8)] overflow-hidden animate-fade-in-up z-[200]">
+                                        <div className="p-3 border-b border-white/10 bg-white/5">
+                                            <p className="text-[10px] text-cyan-400 font-mono text-center font-bold tracking-widest uppercase">DOWNLOAD_OPTIONS</p>
                                         </div>
                                         <button 
                                             onClick={() => handleDownload(false)} 
-                                            className="w-full text-left px-4 py-3 hover:bg-cyan-900/20 group transition-colors"
+                                            className="w-full text-left px-5 py-4 hover:bg-cyan-900/40 group transition-colors"
                                         >
-                                            <span className="block text-xs font-bold text-cyan-300 group-hover:text-white font-cinzel">Build Only</span>
-                                            <span className="block text-[10px] text-gray-500 group-hover:text-gray-400">Main Summary Image Only</span>
+                                            <span className="block text-sm font-bold text-white font-mono uppercase">Build Only</span>
+                                            <span className="block text-[10px] text-cyan-500/70 group-hover:text-cyan-300">Single PNG file</span>
                                         </button>
-                                        <div className="h-px bg-white/5 mx-2"></div>
+                                        <div className="h-px bg-white/10 mx-2"></div>
                                         <button 
                                             onClick={() => handleDownload(true)} 
-                                            className="w-full text-left px-4 py-3 hover:bg-purple-900/20 group transition-colors"
+                                            className="w-full text-left px-5 py-4 hover:bg-purple-900/40 group transition-colors"
                                         >
-                                            <span className="block text-xs font-bold text-purple-300 group-hover:text-white font-cinzel">Build + Reference</span>
-                                            <span className="block text-[10px] text-gray-500 group-hover:text-gray-400">ZIP File Download</span>
+                                            <span className="block text-sm font-bold text-white font-mono uppercase">Build + Reference</span>
+                                            <span className="block text-[10px] text-purple-500/70 group-hover:text-purple-300">Full ZIP archive</span>
                                         </button>
                                     </div>
                                 )}
@@ -726,6 +708,9 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
                 }
                 .animate-spin-slow-reverse {
                     animation: spin-slow-reverse 6s linear infinite;
+                }
+                .text-shadow-glow {
+                    text-shadow: 0 0 10px rgba(6, 182, 212, 0.5), 0 0 20px rgba(6, 182, 212, 0.3);
                 }
             `}</style>
         </div>

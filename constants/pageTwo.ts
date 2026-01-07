@@ -2,14 +2,121 @@
 import type { School, ChoiceItem, Classmate, CustomClassmateOption } from '../types';
 
 export const SCHOOLS_DATA: { [key: string]: School } = {
-  halidew: { id: 'kaliam_tech', title: 'KALIAM TECH', description: "The forefront of magitechnological innovation the world over, almost every modern luxury we take for granted has its roots in Kaliam researchers. Hard-working and ambitious students will fit in well, but lazier sorts may be put off by the often brutal workload. You'll be surrounded by brilliant minds.", costBlurb: "Juathas Sigil: Costs 2 BP less for Blessings administered by Margra.", imageSrc: '/images/W4bHtB7F-sch1.jpg' },
-  shinar: { id: 'sheol_ academy', title: 'SHEOL ACADEMY', description: "The oldest school of magecraft, Sheol seems strange and impenetrable to new students, but if you apply yourself enough (or have good connections), you can slowly work your way into its ancient, exclusive sororities and discover there's a {i}lot{/i} more going on here meets the eye. There's long-buried secrets hidden around every corner, if you know where to look.", costBlurb: "Sinthru Sigil: Costs 2 BP less.", imageSrc: '/images/4wQRPD9B-sch2.jpg' },
-  unterseeisch: { id: 'st_lucindas', title: "ST. LUCINDA'S SCHOOL", description: "A small town in itself, St. Lucinda's is probably the most laid-back and fun school out there, with quite relaxed standards and lots of partying. While students here are often stereotyped as lazy, there's actually plenty of opportunities for more ambitious student to learn a lot from the school's wise Sea Saints.", costBlurb: "Juathas Sigil: Costs 2 BP less for Blessings administered by Fidelia.", imageSrc: '/images/FqLwSkw3-sch3.jpg' },
-  valsereth: { id: 'strasmara', title: 'STRASMARA', description: "This Earth's equivalent of the Ivy League. This school boasts some of the smartest and most powerful mages in the world, but its students are stereotyped as snobbish and egotistical. It's the forefront of efforts to research ways to push the Blessings to their limits, and is even the institution that hosts the Irrun Gauntlet. Can be stressful due to its high standards.", costBlurb: "Xuth Sigil: Costs 3 BP less.", imageSrc: '/images/tpKN3jCW-sch4.png' },
-  gohwood: { id: 'eglaesaria', title: 'THE EGLAESARIA', description: "Formed by a group of powerful dragons many millennia ago; only one of these dragons still lives, serving as the academy's massive, imposing headmaster. It prizes a more simple, combat-centered approach to magic, and many of the greatest warriors in history were taught here. Honor is paramount.", costBlurb: "Juathas Sigil: Costs 2 BP less for Blessings administered by Arabella.", imageSrc: '/images/TB1z4y1d-sch5.jpg' },
-  palisade: { id: 'triumph_towers', title: 'TRIUMPH TOWERS', description: "Tied for the tallest towers in New Palisade, so much so that they use portals instead of elevators. This is a private school known as the spot for rich kids, and life here is the pinnacle of opulence and luxury, although it can sometimes feel unnervingly corporate. Social influence is treasured here, so it's a good choice for those who want to establish some celebrity status.", costBlurb: "Lekolu Sigil: Costs 2 BP less.", imageSrc: '/images/Y4CG2h57-sch6.jpg' },
-  rovines: { id: 'droudnore', title: 'DROUDNORE INSTITUTE', description: "Known for its smokestacks, the Droudnore Institute is perhaps the most modest school, situated on its own spacious private island. Criticized by some for having a less exciting atmosphere than other schools, but it's a perfect choice for more serious students who want to learn very practical magic, and don't want to fret about with theoretical magic like at the Strasmiara.", costBlurb: "Juathas Sigil: Costs 1 BP less.", imageSrc: '/images/0RLvt7Td-sch7.jpg' },
-  jipangu: { id: 'horikoshi_koko', title: 'HORIKOSHI KOKO', description: "Placed atop Mount Ishikawa, just above the clouds, a variety of charms and hexes make it impossible for all mundanes to ever access. Students tend to get there via portals built in their various shrines. It is steeped in ancient traditions, and constantly alive with fun festivals, parades, ceremonies, and other activities.", costBlurb: "Ruhai (Juathas) Sigil: Costs 1 BP less.", imageSrc: '/images/FkLW44SM-sch8.jpg' },
+  halidew: { 
+    id: 'kaliam_tech', 
+    title: 'KALIAM TECH', 
+    description: "The forefront of magitechnological innovation the world over, almost every modern luxury we take for granted has its roots in Kaliam researchers. Hard-working and ambitious students will fit in well, but lazier sorts may be put off by the often brutal workload. You'll be surrounded by brilliant minds.", 
+    costBlurb: "{j}Juathas Sigils{/j} cost two less {bp}Blessing Points{/bp} for {i}Blessings administered by {w}Margra{/w}{/i}.", 
+    imageSrc: '/images/W4bHtB7F-sch1.jpg' 
+  },
+  shinar: { 
+    id: 'sheol_academy', 
+    title: 'SHEOL ACADEMY', 
+    description: "The oldest school of magecraft, Sheol seems strange and impenetrable to new students, but if you apply yourself enough (or have good connections), you can slowly work your way into its ancient, exclusive sororities and discover there's a {i}lot{/i} more going on here meets the eye. There's long-buried secrets hidden around every corner, if you know where to look.", 
+    costBlurb: "{bp}Sinthru Sigils{/bp} cost two less {bp}Blessing Points{/bp}.", 
+    imageSrc: '/images/4wQRPD9B-sch2.jpg' 
+  },
+  unterseeisch: { 
+    id: 'st_lucindas', 
+    title: "ST. LUCINDA'S SCHOOL", 
+    description: "A small town in itself, St. Lucinda's is probably the most laid-back and fun school out there, with quite relaxed standards and lots of partying. While students here are often stereotyped as lazy, there's actually plenty of opportunities for more ambitious student to learn a lot from the school's wise Sea Saints.", 
+    costBlurb: "{j}Juathas Sigils{/j} cost two less {bp}Blessing Points{/bp} for {i}Blessings administered by {w}Fidelia{/w}{/i}.", 
+    imageSrc: '/images/FqLwSkw3-sch3.jpg' 
+  },
+  valsereth: { 
+    id: 'strasmara', 
+    title: 'STRASMIARA', 
+    description: "This Earth's equivalent of the Ivy League. This school boasts some of the smartest and most powerful mages in the world, but its students are stereotyped as snobbish and egotistical. It's the forefront of efforts to research ways to push the Blessings to their absolute limit, and is even the institution that hosts the Irrun Gauntlet. Can be stressful due to its high standards.", 
+    costBlurb: "{r}Xuth Sigils{/r} cost three less {bp}Blessing Points{/bp}.", 
+    imageSrc: '/images/tpKN3jCW-sch4.png' 
+  },
+  gohwood: { 
+    id: 'eglaesaria', 
+    title: 'THE EGLAESARIA', 
+    description: "Formed by a group of powerful dragons many millennia ago; only one of these dragons still lives, serving as the academy's massive, imposing headmaster. It prizes a more simple, combat-centered approach to magic, and many of the greatest warriors in history were taught here. Honor is paramount.", 
+    costBlurb: "{j}Juathas Sigils{/j} cost two less {bp}Blessing Points{/bp} for {i}Blessings administered by {w}Arabella{/w}{/i}.", 
+    imageSrc: '/images/TB1z4y1d-sch5.jpg' 
+  },
+  palisade: { 
+    id: 'triumph_towers', 
+    title: 'TRIUMPH TOWERS', 
+    description: "Tied for the tallest towers in New Palisade, so much so that they use portals instead of elevators. This is a private school known as the spot for rich kids, and life here is the pinnacle of opulence and luxury, although it can sometimes feel unnervingly corporate. Social influence is treasured here, so it's a good choice for those who want to establish some celebrity status.", 
+    costBlurb: "{y}Lekolu Sigils{/y} cost two less {bp}Blessing Points{/bp}.", 
+    imageSrc: '/images/Y4CG2h57-sch6.jpg' 
+  },
+  rovines: { 
+    id: 'droudnore', 
+    title: 'DROUDNORE INSTITUTE', 
+    description: "Known for its smokestacks, the Doudnore Institute is perhaps the most modest school, situated on its own spacious private island. Criticized by some for having a less exciting atmosphere than other schools, but it's a perfect choice for more serious students who want to learn very practical magic, and don't want to fret about with theoretical magic like at the Strasmiara.", 
+    costBlurb: "{j}Juathas Sigils{/j} cost one less {bp}Blessing Point{/bp}.", 
+    imageSrc: '/images/0RLvt7Td-sch7.jpg' 
+  },
+  jipangu: { 
+    id: 'horikoshi_koko', 
+    title: 'HORIKOSHI KOKO', 
+    description: "Placed atop Mount Ishikawa, just above the clouds, a variety of charms and hexes make it impossible for all mundanes to ever access. Students tend to get there via portals built in their various shrines. It is steeped in ancient traditions, and constantly alive with fun festivals, parades, ceremonies, and other activities.", 
+    costBlurb: "{i}Sigils{/i} cost one less {bp}Blessing Point{/bp} for {i}Blessings administered by {w}Drysdea{/w}{/i}.", 
+    imageSrc: '/images/FkLW44SM-sch8.jpg' 
+  },
+};
+
+export const SCHOOLS_DATA_KO: { [key: string]: School } = {
+  halidew: { 
+    id: 'kaliam_tech', 
+    title: '칼리암 공대', 
+    description: "칼리암 공대는 이 세계에서 마법공학의 선두주자 자리를 굳건히 지키고 있습니다. 이곳의 연구진은 일상 생활에서 우리가 당연하게 사용하는 수많은 문명의 이기들을 개발해 왔습니다. 근면하고 꿈이 큰 학생들은 이곳에 잘 맞겠지만, 약간 느슨한 학생들이라면 빡센 로드에 치일 수도 있습니다. 주변에는 정말 똑똑한 사람들이 많을 거에요.", 
+    costBlurb: "{i}{w}마그라{/w}에게 축복을 부여받을 때,{/i} {j}자타스 표식{/j}에 소모되는 {bp}축복 점수{/bp}가 2점 감소합니다.", 
+    imageSrc: '/images/W4bHtB7F-sch1.jpg' 
+  },
+  shinar: { 
+    id: 'sheol_academy', 
+    title: '황천의 학당', 
+    description: "황천의 학당은 가장 오래 된 마법학교로, 신입생들에게는 약간 배타적인 것 같습니다. 하지만 제대로 지원한다면 (또는 적당한 인맥이 있다면) 유서 깊은 학교 내 조직들의 일원으로 합류해, 이곳에서 실제로 무엇이 일어나는지 직접 확인해 볼 수 있을 겁니다. 이 학교에서는 구석구석 수많은 비밀들을 파헤칠 수 있습니다. 어떻게 찾는지 방법만 알아낸다면 말이죠.", 
+    costBlurb: "{bp}신스루 표식{/bp}에 소모되는 {bp}축복 점수{/bp}가 2점 감소합니다.", 
+    imageSrc: '/images/4wQRPD9B-sch2.jpg' 
+  },
+  unterseeisch: { 
+    id: 'st_lucindas', 
+    title: "성 루신다 학교", 
+    description: "작은 마을처럼 지어져 있는 이 학교는 아마 모든 마법학교를 통틀어 가장 자유분방하고 재미있는 학교일 겁니다. 여기서는 학칙도 꽤 널널하고 파티도 자주 열립니다. 학생들이 게으르다는 편견은 있지만, 열의 넘치는 학생들이라면 이 학교의 현명한 바다 성인들로부터 정말 많은 것들을 배울 수 있을 겁니다.", 
+    costBlurb: "{i}{w}피델리아{/w}에게 축복을 부여받을 때,{/i} {j}자타스 표식{/j}에 소모되는 {bp}축복 점수{/bp}가 2점 감소합니다.", 
+    imageSrc: '/images/FqLwSkw3-sch3.jpg' 
+  },
+  valsereth: { 
+    id: 'strasmara', 
+    title: '스트라스미아라', 
+    description: "이 세계의 아이비 리그입니다. 이곳은 전 세계에서 가장 강력하고 현명한 마녀들을 배출한 것으로 유명하지만, 학생들이 자존심 높고 고상한 척한다는 말이 많이 돌아다니기도 합니다. 이곳은 마법소녀들이 받은 축복의 한계에 도전하는 연구의 최전선이며, 그 일환으로 이룬의 건틀릿을 주최하기도 합니다. 높은 성취 기준 탓에 꽤 스트레스받을 수도 있어요.", 
+    costBlurb: "{r}주스 표식{/r}에 소모되는 {bp}축복 점수{/bp}가 3점 감소합니다.", 
+    imageSrc: '/images/tpKN3jCW-sch4.png' 
+  },
+  gohwood: { 
+    id: 'eglaesaria', 
+    title: '에그레사리아', 
+    description: "수천 년 전 강력한 고룡들이 이 학교를 세웠습니다. 그들 중 아직까지 살아 있는 마지막 용이 이 학교의 교장입니다. 이곳에서는 마법을 보다 단순하고 전투 중점적인 방식으로 가르칩니다. 유사 이래 가장 강력했던 전사들이 이곳을 졸업했었습니다. 이곳에서 명예는 제일의 가치입니다.", 
+    costBlurb: "{i}{w}아라벨라{/w}에게 축복을 부여받을 때,{/i} {j}자타스 표식{/j}에 소모되는 {bp}축복 점수{/bp}가 2점 감소합니다.", 
+    imageSrc: '/images/TB1z4y1d-sch5.jpg' 
+  },
+  palisade: { 
+    id: 'triumph_towers', 
+    title: '승리의 탑', 
+    description: "이 두 마천루는 뉴 팰리세이드에서 가장 높은 건물들입니다. 그 높이가 너무나 높은 탓에 승강기 대신 포탈을 이용해야 할 정도지요. 이곳은 부유한 집 자제들을 위한 사립 학교로 잘 알려져 있고 실제로 내부에서는 호사의 정점을 누릴 수 있습니다. 다만, 가끔은 불안할 정도로 살벌한 대기업 같은 분위기를 자아내기도 하죠. 이곳에서는 사회적 영향력이 아주 중요시되기 때문에, 혹시나 상류층과의 인맥을 좀 얻고 싶은 사람이 있다면 승리의 탑이 아주 적합할 겁니다.", 
+    costBlurb: "{y}레콜루 표식{/y}에 소모되는 {bp}축복 점수{/bp}가 2점 감소합니다.", 
+    imageSrc: '/images/Y4CG2h57-sch6.jpg' 
+  },
+  rovines: { 
+    id: 'droudnore', 
+    title: '드라우드노어 학원', 
+    description: "넓은 섬에 단독으로 위치하고, 연기나는 굴뚝으로 유명한 드라우드노어 학원은 아마 마법학교 중 가장 소박한 곳일 겁니다. 몇몇 이들은 이곳이 다른 마법학교에 비하면 좀 따분하다고 혹평을 하지만, 아주 실용적인 마법을 배우고 싶어하는 진지한 학생들이라면 여기보다 더 좋은 곳은 없을 겁니다. 특히 스트라스미아라처럼 이론적인 마법을 가지고 골머리를 앓을 필요도 없으니까요.", 
+    costBlurb: "{j}자타스 표식{/j}에 소모되는 {bp}축복 점수{/bp}가 1점 감소합니다.", 
+    imageSrc: '/images/0RLvt7Td-sch7.jpg' 
+  },
+  jipangu: { 
+    id: 'horikoshi_koko', 
+    title: '호리코시 코코', 
+    description: "구름 너머 이시카와 산 정상에 자리잡고 있는 이 학교에는 수많은 주문과 사술이 걸려 있어서 평범한 자들은 발을 들일 수조차 없습니다. 학생들은 여러 사당에 설치된 포탈을 통해 통학합니다. 이곳에는 오래된 전통이 깊게 스며들어 있고, 재미있는 축제와 퍼레이드, 예식, 그리고 여러 활동들이 수시로 개최됩니다.", 
+    costBlurb: "{i}{w}드리스데아{/w}에게 축복을 부여받을 때,{/i} 모든 {i}표식{/i}에 소모되는 {bp}축복 점수{/bp}가 1점 감소합니다.", 
+    imageSrc: '/images/FkLW44SM-sch8.jpg' 
+  },
 };
 
 export const HEADMASTERS_DATA: ChoiceItem[] = [
@@ -20,9 +127,17 @@ export const HEADMASTERS_DATA: ChoiceItem[] = [
     { id: 'venerable', title: 'VENERABLE', cost: 'Costs -6 FP', description: "A legendary scholar revered around the world, you are almost awed at their brilliance. Despite their prestige, they make a point to dedicate time to personally assisting and bonding with students.", imageSrc: '/images/TqN04nx1-head5.jpg' },
 ];
 
+export const HEADMASTERS_DATA_KO: ChoiceItem[] = [
+    { id: 'waning', title: '노쇠한', cost: 'Grants +6 FP', description: "수 세기 전에는 살아 있는 전설이셨습니다만, 역시 이분도 세월을 이길 수는 없었습니다. 사실 마법학교도 제대로 운영되지 못한 채 오랜 세월이 지난 상황이지만, 그 영향력과 교수들의 종신 재직권 탓에 어떻게 버티는 수준입니다.", imageSrc: '/images/W4ZzC7qL-head1.jpg' },
+    { id: 'stringent', title: '엄격한', cost: 'Grants +3 FP', description: "오래 된 금언이죠. '매를 아끼면 애를 망친다'에 충실한 분입니다. 물론 충분히 능력이 있는 분이지만, 불 같은 성격에다 아주 엄하시기 때문에 이분의 노여움을 사면 정말이지 큰일날 겁니다.", imageSrc: '/images/yrT9Y8b-head2.jpg' },
+    { id: 'competent', title: '유능한', cost: 'Costs 0 FP', description: "젊은이들의 감각과 친절함도 갖고 있지만, 이분이 이 큰 마법학교를 현명하게 이끌어가시는 모습을 보면 연륜이 느껴집니다. 보통 무대 뒤에서 조용히 일하고 직접 나서는 경우는 거의 없습니다.", imageSrc: '/images/YF9M4wcf-head3.jpg' },
+    { id: 'sagely', title: '박식한', cost: 'Costs -3 FP', description: "수백 년 동안 경험과 학식을 쌓아 오신 이분 밑에서 배우면 정말 많은 것을 얻어 갈 수 있습니다. 아주 가끔이지만 현자라 불리기 충분한 이분과 이야기를 나눌 기회가 있을 텐데, 벌써부터 기대되네요.", imageSrc: '/images/35bdq6kX-head4.jpg' },
+    { id: 'venerable', title: '존경받는', cost: 'Costs -6 FP', description: "이분은 전세계에서 두루 존경받는 학자입니다. 그 지식의 깊이만으로 당신이 놀랄 정도입니다. 이렇게나 귀하고 바쁜 분이신데도 틈만 나면 시간을 내서 학생들을 도와 주시는 분이기도 합니다.", imageSrc: '/images/TqN04nx1-head5.jpg' },
+];
+
 export const TEACHERS_DATA: ChoiceItem[] = [
     { id: 'mama_bear', title: 'THE MAMA BEAR', cost: 'Costs -3 FP', description: "Eminently motherly and protective, she seemingly has infinite free time to devote to personally bonding with each student, not only educating them but offering support and help with all of their problems.", imageSrc: '/images/3y9C7tRv-teacher1.jpg' },
-    { id: 'entertainer', title: 'THE ENTERTAINER', cost: 'Costs -2 FP', description: "Their classes feel less like lectures and more like uproacious comedy bits, yet you still learn a ton! Their teaching methods are brilliant and engaging, and they'll make sure you get through class stress-free.", imageSrc: '/images/5WBTBSrc-teacher2.jpg' },
+    { id: 'entertainer', title: 'THE ENTERTAINER', cost: 'Costs -2 FP', description: "Their classes feel less like lectures and more like uproacious comedy bits, yet you still learn a ton! Their teaching methods are brilliant and engaging, and you'll make sure you get through class stress-free.", imageSrc: '/images/5WBTBSrc-teacher2.jpg' },
     { id: 'sweetheart', title: 'THE SWEETHEART', cost: 'Costs -1 FP', description: "A walking bundle of pure wholesomeness, bringing fresh-baked cookies to class and acting like a mom more than a teacher. The problem is, they're so coddling it can feel like you aren't learning as much...", imageSrc: '/images/4wCqDfWd-teacher3.jpg' },
     { id: 'professional', title: 'THE PROFESSIONAL', cost: 'Costs -1 FP', description: "They're not your friend, they're your teacher. They will be strict, but fair, and if you're willing to put in the effort, you'll find you learned more in their class than any others. Just don't expect any coddling.", imageSrc: '/images/S4c2M2X3-teacher4.jpg' },
     { id: 'geek', title: 'THE GEEK', cost: 'Costs 0 FP', description: "They're super passionate about their chosen field, and their class is highly organized and optimized. However, they can sometimes have trouble expressing their knowledge, and may move too fast.", imageSrc: '/images/5hrs8qm5-teacher5.jpg' },
@@ -33,12 +148,33 @@ export const TEACHERS_DATA: ChoiceItem[] = [
     { id: 'curmudgeon', title: 'THE CURMUDGEON', cost: 'Grants +3 FP', description: "They've got a nasty temper and zero tolerance for any impropriety, slacking or childishness. They're fine at what they do, but the atmosphere in their class is tense to say the least. Everyone is afraid of them!", imageSrc: '/images/LzQcktGR-teachernew3.jpg' },
 ];
 
+export const TEACHERS_DATA_KO: ChoiceItem[] = [
+    { id: 'mama_bear', title: '엄마 같은', cost: 'Costs -3 FP', description: "모성애와 보호본능이 넘치는 이 교수님은 학생들 개개인과 깊이 교류하기 위해 시간을 아낌없이 투자할 겁니다. 공부를 가르치는 것 말고도 문제가 있다면 발벗고 나서서 도와 줄 거에요.", imageSrc: '/images/3y9C7tRv-teacher1.jpg' },
+    { id: 'entertainer', title: '1타강사', cost: 'Costs -2 FP', description: "이분의 수업은 강의라기보다는 스탠드업 코미디 같습니다. 물론 내용은 머릿속에 쏙쏙 들어오구요! 교수법이 참 기발하고 매력적이어서 스트레스받지 않고 공부할 수 있을 겁니다.", imageSrc: '/images/5WBTBSrc-teacher2.jpg' },
+    { id: 'sweetheart', title: '사랑스러운', cost: 'Costs -1 FP', description: "수업에 직접 구운 쿠키를 들고 오는, 순수한 매력이 넘치는 분입니다. 교수님이라기보다는 가족 같은데, 문제는 너무 당신을 애지중지해서 뭔가 많이 배운다는 느낌이 잘 안 들어요.", imageSrc: '/images/4wCqDfWd-teacher3.jpg' },
+    { id: 'professional', title: '전문가', cost: 'Costs -1 FP', description: "이분은 당신의 친구가 아니라 교수입니다. 엄하지만 공정하고, 충분한 노력을 하면 다른 교수님들보다 훨씬 많은 가르침을 받게 될 것입니다. 다만 오냐오냐하는 태도는 바라지 마세요.", imageSrc: '/images/S4c2M2X3-teacher4.jpg' },
+    { id: 'geek', title: '천재형', cost: 'Costs 0 FP', description: "이 교수님은 전공 분야에 관한 한 열정이 넘치고, 수업도 체계적이고 최적화가 잘 되어 있습니다. 다만 가르쳐야 하는 것을 잘 표현하지 못할 수도, 진도를 너무 빨리 나갈 수도 있습니다.", imageSrc: '/images/5hrs8qm5-teacher5.jpg' },
+    { id: 'free_spirit', title: '자유분방한', cost: 'Costs 0 FP', description: "지나칠 정도로 친절하고, 약간 널널하게 강의하는 교수님입니다. 때때로 여러 가지 교수법을 시험해 볼 텐데, 가끔은 아주 좋은 결과가 있지만 끔찍한 결과가 나올 때도 있죠.", imageSrc: '/images/nqrggCS0-teacher6.jpg' },
+    { id: 'oddity', title: '탈인간', cost: 'Costs 0 FP', description: "이 교수님은 사실 인간이 아니라 모종의 신비한 생명체입니다! 당연히 얼마나 잘 가르칠지는 논란의 여지가 있겠지만... 제 생각에는 그 특이함과 신선함만으로도 수업을 들을 가치가 있어요.", imageSrc: '/images/604RGN2T-teacher7.jpg' },
+    { id: 'inexperienced', title: '초임', cost: 'Grants +1 FP', description: "최선을 다하는 모습이 눈에 보이지만, 어쩔 수 없이 초임 교수인 게 티가 납니다. 학생들 앞에서 낯을 가리거나 긴장하고, 약간 서투를 때가 많습니다. 도움의 손길이 있다면 나아지겠죠?", imageSrc: '/images/4ZtTWGrp-teachernew1.jpg' },
+    { id: 'sleeper', title: '잠꾸러기', cost: 'Grants +2 FP', description: "최소한 호감은 가는 교수님이지만... 그렇게 피곤해 보일 수가 없습니다. 이유는 알 수 없지만 그 때문에 강의에 지장이 생길 정도입니다. 아마 교수님이 책상에 엎드려 자는 동안에 당신과 학생들이 알아서 자습할 일이 많을 거에요.", imageSrc: '/images/RkWHLXsT-teachernew2.jpg' },
+    { id: 'curmudgeon', title: '괴팍한', cost: 'Grants +3 FP', description: "성격도 더럽고, 태도 불량이나 유치한 모습은 참아 주지 않습니다. 강의력이야 의심할 여지가 없지만, 수업 분위기는 잘 쳐 줘야 '긴장감 넘치는' 수준입니다. 다들 이 교수님을 무서워하니까요!", imageSrc: '/images/LzQcktGR-teachernew3.jpg' },
+];
+
 export const DURATION_DATA: ChoiceItem[] = [
     { id: '2_years', title: '-2 YEARS', cost: 'Grants +15 FP, Grants +5 BP', description: "You want to get out the door as quick as possible so you can start getting some hands-on experience! You'll be missing out on a lot of educational opportunities, though.", imageSrc: '/images/GqCC6yq-year1.png' },
     { id: '6_years', title: '-6 YEARS', cost: 'Grants +15 BP', description: "The most common length of time by far. This is enough to get students a decent education in whatever will ensure their success in future careers. Considered the goldilocks zone.", imageSrc: '/images/R4yLPbnx-year2.png' },
     { id: '10_years', title: '-10 YEARS', cost: 'Grants +20 BP', description: "A more uncommon choice fit for more studious scholars. You will gain new appreciation for your Blessings, though your lack of job experience may be a boon for your competition.", imageSrc: '/images/HpBXpjrH-year3.png' },
     { id: '15_years', title: '-15 YEARS', cost: 'Grants +25 BP', description: "By now, you've been here for a majority of your life. It's a second home to you now, but you'll have to say painful goodbyes to the many friends who move on before you.", imageSrc: '/images/7xV8dvdq-year4.png' },
     { id: '20_years', title: '+20 YEARS', cost: 'Grants +30 BP', description: "You have officially been lost in the sauce of academia! You'll learn much, but wonder whether your time would've been better suited gaining practical experience out in the field.", imageSrc: '/images/d0h4CzY0-year5.png' },
+];
+
+export const DURATION_DATA_KO: ChoiceItem[] = [
+    { id: '2_years', title: '~2년', cost: 'Grants +15 FP, Grants +5 BP', description: "당신은 최대한 빨리 교문을 떠나 실전 경험을 쌓고 싶어합니다! 물론 그만큼 교육적인 기회가 없어지겠지만요.", imageSrc: '/images/GqCC6yq-year1.png' },
+    { id: '6_years', title: '~6년', cost: 'Grants +15 BP', description: "보통 학생들이 공부하는 기간입니다. 향후 진로가 뭐가 됐든 이 정도면 성공할 수 있을 만큼 충분히 교육을 받을 수 있어요.", imageSrc: '/images/R4yLPbnx-year2.png' },
+    { id: '10_years', title: '~10년', cost: 'Grants +20 BP', description: "학자 타입의 사람들에게 맞는, 약간은 비주류인 선택지입니다. 당신의 축복을 새롭게 받아들일 수 있게 되지만, 직업 경험이 없다는 것 때문에 경쟁자들에게 밀릴 수도 있죠.", imageSrc: '/images/HpBXpjrH-year3.png' },
+    { id: '15_years', title: '~15년', cost: 'Grants +25 BP', description: "이쯤 되면 인생의 대부분을 마법학교에서 보낸 셈입니다. 이곳이 또 하나의 집처럼 느껴지겠지만, 수많은 친구들이 먼저 학교를 떠나는 것을 맘아프게 배웅해 줘야 할 겁니다.", imageSrc: '/images/7xV8dvdq-year4.png' },
+    { id: '20_years', title: '20년 이상', cost: 'Grants +30 BP', description: "거의 학교에 뼈를 묻은 셈이네요. 배우는 것은 정말 많겠지만, 이 시간 동안 현장에서 직접 경험을 쌓는 게 낫지 않았을까 하는 생각을 하게 될 것입니다.", imageSrc: '/images/d0h4CzY0-year5.png' },
 ];
 
 export const CLUBS_DATA: ChoiceItem[] = [
@@ -59,11 +195,36 @@ export const CLUBS_DATA: ChoiceItem[] = [
     { id: 'sukeban_gang', title: 'SUKEBAN GANG', cost: 'Costs -3 FP', description: "A band of juvenile delinquents rebelling against social norms and generally getting into trouble. They're loyal to eachother like a family through thick and thin — there's no other group as close-knit!", imageSrc: '/images/cXVxsxdm-club15.jpg' },
 ];
 
+export const CLUBS_DATA_KO: ChoiceItem[] = [
+    { id: 'combat', title: '팀 전투 동아리 가입', cost: 'Costs -6 FP', description: "이 동아리에 가입하면 다른 마법소녀들과 팀을 맺고 투기장에서 팀 단위로 전투를 벌이게 됩니다. 대진을 헤치고 올라가며 토너먼트에서 우승해 보세요! 이 투기장들은 주머니 차원에 위치하고 있어서 참가자들이 영구적이나 치명적인 부상을 입을 일은 없습니다. 신스루 마법만 빼면 거의 모든 마법이 허용됩니다.", imageSrc: '/images/TMc2N31j-club1.jpg' },
+    { id: 'racer', title: '세갈라냐 경주자 되기', cost: 'Costs -6 FP', description: "어떤 여행 수단이 가장 빠른지 한 번 겨뤄 보세요. 작게는 1마일 경주도, 크게는 세계 일주도 가능합니다! 방식에 제한은 없습니다. 빗자루를 타고 날든 제트기로 하늘을 누비든 당신 마음입니다. 규칙은 딱 두 가지입니다. 다른 경주자들 방해하지 말기, 순간이동 하지 말기.", imageSrc: '/images/F4xDmkmp-club2.jpg' },
+    { id: 'mazball', title: '매즈볼 팀 입단', cost: 'Costs -6 FP', description: "농구랑 비슷하지만, '골대'가 800m 떨어져 있고, 양 팀이 초음속으로 날아다니고, 상대를 여러 가지 마법으로 방해합니다. 매즈볼을 직접 하는 게 정말 어렵다는 건 말할 필요도 없겠죠? 물론 보는 건 정말 재밌습니다.", imageSrc: '/images/0y9VLsGD-club3.jpg' },
+    { id: 'student_council', title: '학생회', cost: 'Costs -3 FP', description: "학생회장 정도면 학생으로서 당신이 가질 수 있는 권력의 최고점입니다. (교직원이 되는 게 아니라면요) 경쟁이 심한 건 명심하세요! 혹시 정계에 진출하고 싶다면 좋은 경험이 될 겁니다.", imageSrc: '/images/VWJ0Qw5k-club4.jpg' },
+    { id: 'study_hall', title: '공부 동아리', cost: 'Costs -3 FP', description: "솔직하게 말할게요. \"공부 동아리\"라 하지만 덕력 있는 마법소녀들이 모여서 보드게임 하고, 간식 먹고, 지팡구에서 나온 이상한 만화들 이야기 하는 곳입니다.", imageSrc: '/images/mF8hvrxS-club5.jpg' },
+    { id: 'community_watch', title: '자경단', cost: 'Costs -3 FP', description: "공식적으로는 나무 위에 올라간 고양이 구조하기 같은 것만 해야 하지만, 비공식적으로는 은행에 강도가 들면 출동해서 범인을 잡습니다! 정말 영웅적인 학생들이지만... 가끔 일이 틀어질 때도 있지요.", imageSrc: '/images/v6VngtPZ-club6.jpg' },
+    { id: 'school_band', title: '학교 밴드', cost: 'Costs -3 FP', description: "마법 걸린 악기들이 어떤 소리를 내는지는 말로 표현을 못하겠네요. 그냥 영혼을 울리는 소리라고 해 두죠. 이 밴드를 통해서 괜찮은 공연장에서 공연할 기회를 잡는다면 쉽게 유명해질 수 있을 겁니다.", imageSrc: '/images/bgGCZB75-club7.png' },
+    { id: 'art_club', title: '예술부', cost: 'Costs -3 FP', description: "시 짓기, 그림 그리기, 뜨개질... 뭐든 간에 당신에게 맞는 동아리가 있을 겁니다. 멋진 예술 작품들을 감상하고, 당신의 작품도 자랑해 보세요! 예술이 정서 함양에 좋다잖아요.", imageSrc: '/images/7dMgp7cN-club8.jpg' },
+    { id: 'beastmastery', title: '동물 조련 동아리', cost: 'Costs -3 FP', description: "패밀리어를 갖고 싶어하는 학생들을 위한 동아리입니다. 이곳에서는 여러 신비한 동물들과 소통하고 그들을 훈련시키는 방법을 배울 수 있어요. 동물들 쓰다듬고 싶으면 여기가 딱입니다.", imageSrc: '/images/VY2pwPdq-club9.jpg' },
+    { id: 'outdoorsmanship', title: '아웃도어 여행 동아리', cost: 'Costs -3 FP', description: "이 동아리 구성원들은 수가 많지는 않지만 모두 친절하고, 세계 구석구석을 탐험하는 것을 좋아합니다. 다른 국가들을 관광하는 여행으로 시작해서 야생 속에 작고 아늑한 캠프를 세우고 밤을 보내는 것까지 하게 되겠죠.", imageSrc: '/images/n8qQghpm-club10.jpg' },
+    { id: 'fitness_club', title: '헬스부', cost: 'Costs -3 FP', description: "당신의 잠재력을 개화하는 것은 학업에만 국한된 게 아닙니다! 반복된 연습과 훈련 역시 필요하죠. 이 동아리에서는 당신이 목표를 이룰 수 있을 때까지 계속해서 당신을 돕고 격려해 줄 겁니다.", imageSrc: '/images/9kSPpVqq-club11.jpg' },
+    { id: 'theatre_club', title: '연극부', cost: 'Costs -3 FP', description: "연극을 쓰거나 배역을 맡아 연기하거나, 이 창의적이고 자유로운 부원들 옆에서 자신을 표현해 보세요! 연기를 통해 다른 사람들을 설득하고, 또 능숙하게 다루는 방법을 배울 수 있습니다.", imageSrc: '/images/wNWVLkDD-club12.jpg' },
+    { id: 'school_nurse', title: '양호실 보조', cost: 'Costs -3 FP', description: "마법학교에서 가장 성실한 학생들이 치료, 강화의 축복, 상담, PT 등등을 통해 동기들을 돕고 있습니다. 치유사나 관련 직종에 종사하고 싶다면 여기에서 경험을 쌓을 수 있어요.", imageSrc: '/images/rG0DFHQS-club13.jpg' },
+    { id: 'night_school', title: '야학', cost: 'Costs -3 FP', description: "뱀파이어, 늑대인간, 그리고 가장 무서운, 고스족들이 있습니다! 야학에 다니는 마법소녀들은 겉으로 보기에는 무섭지만, 보기보다 착한 친구들입니다. 다들 크고 작게 따돌림을 받는 처지라서, 서로 긴밀하게 뭉치기도 하구요.", imageSrc: '/images/jkd1yvsX-club14.jpg' },
+    { id: 'sukeban_gang', title: '일진', cost: 'Costs -3 FP', description: "사회의 미풍양속과 사사건건 부딪치며 문제를 일으키고 다니는 무리들입니다. 서로에게 충실한 건 마치 가족 같습니다 - 이보다 끈끈한 사이는 찾을 수 없을걸요!", imageSrc: '/images/cXVxsxdm-club15.jpg' },
+];
+
 export const MISC_ACTIVITIES_DATA: ChoiceItem[] = [
     { id: 'mentor', title: 'MENTOR', cost: 'Costs varies, Grants varies', description: "Very lucky and promising mages sometimes get assigned a mentor! These are skilled and experienced mages who will manage your education. Choose a {w}Colleague{/w} from page 5, or create your own, although their {fpx}FP{/fpx} price is doubled. However, you gain {bpx}BP{/bpx} equal to half of the amount of {fpx}FP{/fpx} you had to spend.", imageSrc: '/images/jPVVjzph-mis1.png' },
     { id: 'puppy_love', title: 'PUPPY LOVE', cost: 'Costs -1 FP', description: "{i}♬ And they called it puppy looove...{/i} Choose from your {w}Classmates{/w}. What starts as an schoolyard crush can blossom into a relationship that lasts you centuries! You can always try romance, but this option guarantees it will work. How quickly, though, depends on the effort you put in.", imageSrc: '/images/hF2LN38F-mis2.png' },
     { id: 'teachers_assistant', title: 'TEACHERS ASSISTANT', cost: 'Costs -5 FP, Grants +2 BP', description: "{i}Requires {w}>10 Years{/w} or greater.{/i} They say the best way to internalize something is to teach it to somebody else. For this reason, as you reach a high level in your discipline, it is a great idea to help a teacher instruct a class! You won't usually be lecturing, but you will be helping the students learn.", imageSrc: '/images/rfMp6D38-mis3.png' },
     { id: 'adjunct_professor', title: 'ADJUNCT PROFESSOR', cost: 'Costs -5 FP, Grants +3 BP', description: "{i}Requires {w}>15 Years{/w} or greater, and {w}Teachers Assistant{/w}.{/i} You're basically faculty now! Well, not really. But you're still participating in academic research at the institution, and you're even teaching your very own classes! This is the perfect opportunity to teach and inspire a whole generation of mages.", imageSrc: '/images/mVQpXNnm-mis4.png' },
+];
+
+export const MISC_ACTIVITIES_DATA_KO: ChoiceItem[] = [
+    { id: 'mentor', title: '멘토', cost: 'Costs varies, Grants varies', description: "유망하고 운 좋은 마법소녀들은 가끔씩 멘토를 지정받기도 합니다! 이 능력있고 경험 많은 마녀들이 당신의 학업을 도와 줄 거에요. 5페이지에서 {w}동료{/w}를 선택하거나, 직접 만들 수 있습니다. 다만 선택에 필요한 {fpx}행운 점수{/fpx}가 두 배가 됩니다. 대신, 소모한 {fpx}행운 점수{/fpx}의 절반에 해당하는 {bpx}축복 점수{/bpx}를 얻습니다.", imageSrc: '/images/jPVVjzph-mis1.png' },
+    { id: 'puppy_love', title: '풋사랑', cost: 'Costs -1 FP', description: "{i}♬ 사람들은 그걸 풋사랑이라고 했죠...{/i} {w}클래스메이트{/w}를 하나 선택하세요. 학교 운동장에서 그녀를 보고 반한 것이 수백 년 동안 이어지는 관계의 시작이 될 수도 있습니다! 물론 항상 연애는 할 수 있지만, 이 선택지가 있으면 무조건 성공할 거에요. 얼마나 빨리 진도가 나가는지는 당신의 노력에 달려 있지만요.", imageSrc: '/images/hF2LN38F-mis2.png' },
+    { id: 'teachers_assistant', title: '조교', cost: 'Costs -5 FP, Grants +2 BP', description: "{i}최소 {w}10년{/w}의 기간이 필요합니다.{/i} 뭔가를 체화시키는 가장 좋은 방법은 남들에게 가르치는 것이라는 말이 있죠. 그렇기에 당신 정도 경험을 쌓은 학생이라면 교수님의 수업을 도와 보는 것도 좋을 거에요! 물론 직접 강의할 일은 많지 않겠지만, 학생들이 공부하는 걸 도와 주는 거죠.", imageSrc: '/images/rfMp6D38-mis3.png' },
+    { id: 'adjunct_professor', title: '조교수', cost: 'Costs -5 FP, Grants +3 BP', description: "{i}최소 {w}15년{/w}의 기간이 필요하고, {w}조교{/w}를 선택해야 합니다.{/i} 이제 당신은 학교의 교직원입니다! 아, 공식적으로는 아니지만요. 하지만 어찌됐든 마법학교에서 연구를 하고 있고, 직접 강의에도 나가잖아요! 한 세대의 마법소녀들을 가르치고 영감을 불어넣어 주기에는 딱 좋은 기회입니다.", imageSrc: '/images/mVQpXNnm-mis4.png' },
 ];
 
 export const CLASSMATES_DATA: Classmate[] = [
@@ -93,8 +254,41 @@ export const CLASSMATES_DATA: Classmate[] = [
     { id: 'licenda', name: 'LICENDA', cost: 'Costs -3 FP', birthplace: 'Jipangu', signature: 'Flowers of Blood', otherPowers: 'Life Drain, Spirit Medium, Spectral Form', imageSrc: '/images/LDQjngdm-c24.png', description: "I must strongly caution you on this one. Poor Licenda here is as broken as a person can be, a complete shell of her former self, barely ever even speaking. Years ago, she emerged the only surviving kidnapping victim of a deranged sexual cult of sadists and hedonists, egging each other on to be ever more \"creative\" in their tortures. The things they {i}did{/i} to her were expunged from all records, and most who've heard the details opted for a memory wipe rather than live with that terrible knowledge. She still isn't allowed to die, even. Outside of the Sinthru covens, these sorts of things have {i}never{/i} happened since the Forsaken Age, thousands of years ago! Perhaps our reality really is devolving...\n\nIt seems she's still followed by the ghost of her past - literally. Most spirits are easily dispatched, but this one is completely unprecedented in its power and violent nature. There's technically no evidence of any connection, but... I feel I must warn you a few people who've hung around Licenda have disappeared under mysterious circumstances. Some rumor that the spirit is her own sister, whose life she was forced to snuff out for the viewing pleasure of their captors. I don't even remember what her name was." }
 ];
 
+export const CLASSMATES_DATA_KO: Classmate[] = [
+    { id: 'keeling', name: '킬링', cost: 'Costs -4 FP', birthplace: '할리듀 스테이션', signature: '분자세계 조작', otherPowers: '역장, 염동력 II', imageSrc: '/images/8LQbDZH8-c1.jpg', description: "하반신이 거대한 모래빛깔의 뱀 형상인 기이한 마법소녀입니다. 그녀의 힘은 상당히 강력해서 평범한 물체를 얼마 동안 집중해서 쳐다보는 것으로 모래로 바꿔 버릴 수도 있고, 마녀들의 감각을 흐트러뜨리고 부상을 입힐 수 있는 강력한 모래폭풍을 만들어 낼 수도 있습니다. 이 때문인지 그녀는 콩코르디아 미로의 수호자로 내정되었습니다. 그 미로 속에 있는 학교의 기록 속에는 이 세계의 모든 지식이 담겨 있지요.\n\n킬링은 게으른 편이라 낮 시간은 대부분 잠을 자면서 보냅니다. 누군가에게 꽉 똬리를 틀고 자는 걸 좋아하는데, 사람들이 따뜻하고 폭신해서 그런답니다. 신발에 모래가 좀 들어가도 그러려니 하는 게 좋겠죠. 그녀는 약간 집고양이 같아서, 당신이 너무 밑어붙이면 당신을 싫어하겠지만 어느 정도 거리를 두면 그녀만의 애정과 충실함을 보여 줄 겁니다. 킬링은 독서를 좋아하고 온갖 잡다한 정보들을 다 기억하고 있습니다. 하지만 화가 나면 그녀의 귀여움이 무시무시함으로 바뀔 테니까 조심하세요!" },
+    { id: 'starla', name: '스탈라', cost: 'Costs -4 FP', birthplace: '할리듀 스테이션', signature: '약속된 모렐리의 빛', otherPowers: '수호의 결속, 황홀한 치유, 수호천사, 생명혈 물약, 생명수, 강화 작용제, 지능+', imageSrc: '/images/yFsnGy9s-c2.jpg', description: "이 세계의 사법부에서도 사형은 꺼리며 가능하면 교정과 갱생으로 대체하려 합니다만, 고위 리치 엘비라의 사악함은 위대하신 어머니마저도 몰아 낼 수 없었습니다. 하여 환생을 통해 모든 것을 새롭게 시작하는 수밖에 없었는데, 그럼에도 스탈라가 가끔씩 악몽을 꿀 때 전생에 지은 죄의 기억이 떠오릅니다. 그녀는 아직도 죄책감을 느끼며, 새로운 삶을 다른 이들의 목숨을 빼앗는 대신 구하는 데에 쓰려고 하고 있습니다.\n\n지금 그녀는 도시 박물관의 큐레이터를 맡고 있는데, 과거를 기억하지 못하는 자들은 과거의 실수를 반복하게 된다고 믿기 때문입니다. 스탈라는 항상 정장을 갖춰 입으며, 조악한 것들은 그냥 넘어가지 못하는 요조숙녀입니다. 그녀는 또한 밝고 열정이 넘치며, 배움의 즐거움을 다른 이들과 나누고 싶어합니다. 당신이 수업을 통과하거나 새로운 마법을 연습하는 데에도 엄청난 도움이 되어 줄 겁니다. 사람들은 다들 그녀를 나이든 사람 취급하고, 그녀도 실제로 몇백 년 된 음악을 좋아합니다. 또한 그녀는 당신에게 기꺼이 자신이 자랑스럽게 여기는 박물관 전시품들을 보여 줄 겁니다." },
+    { id: 'nyla', name: '닐라', cost: 'Costs -3 FP', birthplace: '할리듀 스테이션', signature: '로봇술사 II', otherPowers: '공간 균열, 위장, 천리안, 비전 물질, 지능+, 물질 연금술', imageSrc: '/images/1Fc6hXg-c3.jpg', description: "흠... 비극의 소녀입니다. 할리듀의 초등학생들은 졸업할 때 전통적으로 '증기새'라고 불리는 오토마톤을 하나 만들어서 방생합니다. 닐라와 그녀의 친구 렉시는 그녀들의 오토마톤에 열변환 발전기를 장착하면 모두들 감탄할 것이라고 생각했습니다. 하지만 슬프게도 치명적인 기기 오작동이 일어나는 바람에 렉시가 폭발에 휘말려 죽고 말았죠.\n\n렉시는 닐라보다 훨씬 더 인기가 많았기 때문에, 그 후로 사람들은 닐라를 자신의 무능력으로 사랑스러운 마법소녀를 죽여 버린 아이로 낙인찍어 버렸습니다. 그게 맞는 평가인지는 상관하지도 않았죠. 닐라는 그 후로 지금까지 다른 모든 사람들을 피한 채 로봇만 만지는 삶을 살고 있습니다. 제가 듣기로는 사람들이 하는 말을 진심으로 받아들여 자기 자신을 탓하고 있다고 합니다. 안타까운 일이죠. 예전에는 정말 활기찬 아이였는데! 친구들의 잔심부름 하나하나까지 로봇을 만들어서 도와 주고, 로봇으로 파티와 공연을 열어서 마을 사람들을 웃게 하고, 자기도 헤실헤실 웃으면서 폴짝폴짝 뛰어다니던 소녀였는데 말입니다. 당신이 그 모습을 되찾아 줄 수만 있다면 그녀는 정말 좋은 친구가 돼 줄 겁니다." },
+    { id: 'araminta', name: '아라민타', cost: 'Costs -4 FP', birthplace: '시나르', signature: '마수 소환', otherPowers: '가토스의 퍼즐, 고급 가상 우주 패키지, 기상 확산, 자연적 환경, 기상이변, 인공적 환경, 뒤틀린 공간, 뒤틀린 시간', imageSrc: '/images/1tjhYst1-c4.jpg', description: "그녀가 당신에게 사이비 종교 가입 권유라도 하던가요? 우린 아라민타에게 경고했습니다. 사이비 종교는 이제 그만이라고요! \"잊혀진 자 바르크라\"가 누군지 알 게 뭡니까. 맹세코 시나르 외곽에 사는 은둔자 가문들은 정말 해괴한 것들을 믿는다니까요. 그래도 그것만 빼면 사랑스러운 아이입니다. 공평하게 말하자면, 그녀가 그런 것들에 빠지는 건 불쌍하고 사랑하는 할아버지를 부양하기 위해서라고 생각합니다. 수천 년 전, 그녀의 할아버지가 신스루의 지옥 같은 차원에 갇힌 이후로 예전 같지가 않으시거든요...\n\n그런 맥락에서 보자면, 그녀는 자신만의 차원을 가지고 있습니다. 그곳에서 천 개의 눈을 가진 끔찍한 촉수 괴물들을 끌고 나오는 걸 보면 썩 유쾌한 장소는 아닐 겁니다. 하지만 용기가 있다면 그녀의 차 한 잔 하자는 제안을 받아들이셔도 좋습니다. 으스스한 분위기를 풍기지만, 내면 깊은 곳에서는 그저 이해받고 싶어 하는 착한 소녀일 뿐이라고 생각합니다. 그녀와 대화하다 보면 가끔 그녀가 뭔가 중요한 사실을 알고 있을지도 모른다는 느낌이 들기도 하죠..." },
+    { id: 'orenda', name: '오렌다', cost: 'Costs -4 FP', birthplace: '시나르', signature: '언데드 야수', otherPowers: '생명력 흡수, 사자의 손아귀, 무덤에서 일어나라, 망자와의 대화, 환영의 저주', imageSrc: '/images/BVBtCKJk-c5.jpg', description: "그녀는 정말 훌륭한 마법사가 되고 싶어 합니다! 최선을 다하고 있어요! 하지만 불안감이 그녀를 압도해서, 마법을 시도할 때마다 서툴게 실패하고 가장 창피한 모습을 보이곤 하죠. 그래도 그녀의 현명한 언데드 수호자이자 아버지 같은 존재인 존난이 항상 곁에서 그녀를 일으켜 세워줍니다. 비록 그가 좀 과보호하고 (아마 그녀보다 마법 실력이 더 좋겠지만) 말이죠. 그녀는 역사상 최고의 강령술사 중 한 명인 어머니의 기대에 부응하기 위해, 언젠가 어머니를 자랑스럽게 해드리기 위해 최선을 다합니다. 불쌍한 소녀는 어머니가 자신에게 전혀 관심이 없다는 사실을 아직도 부정하고 있는 것 같아요...\n\n하지만 그 점만 제외하면, 그녀는 함께 어울리기에 꽤 재미있는 친구입니다. 상당히 오타쿠 기질이 있어서, 좋아하는 신화와 전설에 대해 아주 자세하게 떠들 수 있게 해주면 귀엽게 흥분하곤 하죠. 당신이 모험 중에 발견하는 모든 보물이나 유적의 전설을 다 알고 있을 겁니다 — 물론 과보호하는 수호자를 설득해서 그녀를 밖으로 내보낼 수 있다면 말이죠." },
+    { id: 'thalia', name: '탈리아', cost: 'Costs -3 FP', birthplace: '시나르', signature: '흡혈', otherPowers: '최면술사, 정신 흡수자, 염동력 I, 힘+, 속도+', imageSrc: '/images/n86LWZMX-c6.jpg', description: "오래된 저주로 인해 뱀파이어의 피가 흐르는 신비로운 노코미스 가문에서 태어났습니다. 그녀는 뱀파이어라는 이유로 괴롭힘을 당했던 것 같은데, 아마 세상에 복수하는 방식으로 스스로 일진이 된 것 같습니다. 이제 그녀는 뱀파이어가 우월한 존재라고 거만하게 주장하며, 다른 학생들에게 장난을 치고 겁을 주는 데서 즐거움을 찾습니다. 학생들은 미신적인 두려움 때문에 그녀를 무서워하죠. 그녀는 당신에게 특별한 관심을 보이는 것 같으니, 당신에게 골칫거리가 될 수도 있습니다.\n\n그래도 그녀가 티 내는 것보다 당신을 더 좋아한다는 힌트를 얻을 수 있습니다. 당신이 다른 사람과 너무 많이 어울리는 것을 보면 조용히 질투심에 불타오르고, 그들을 쫓아내려는 듯 더 심한 장난을 치기도 합니다. 그리고 그녀를 판단하기보다 친절하게 대하면, 거만한 태도가 사라지고 당황해서 말을 더듬기도 하죠. 그녀의 부드러운 내면을 끌어낼 방법이 있을까요?" },
+    { id: 'valorie', name: '발로리', cost: 'Costs -5 FP', birthplace: '운터시쉬', signature: '수류의 힘', otherPowers: '염동력 I, 역장, 소닉붐, 플라즈마 타격, 에너지 집중', imageSrc: '/images/xK7kwN0G-c7.jpg', description: "허풍쟁이가 자신의 말을 증명하는 건 드문 일이지만, 발로리는 리바이어던을 단신으로 처치하며 멋지게 증명했습니다. 이번 천년 들어 그림세이어 급 올밀러를 혼자서 잡은 최연소 마법사가 되었죠! 그녀는 꽤 자존심이 세고 장난스럽게 거만 떨기를 좋아하지만, 남을 깎아내리는 흔한 방식이 아닙니다. 대신 친구들을 치켜세우려 노력하고, 친구들이 자신의 업적에 도달하거나 능가하면 가장 먼저 칭찬을 아끼지 않습니다. 그녀의 자신감과 끊임없는 칭찬은 자존감이 낮은 친구들에게 좋은 영향을 주어 기분을 훨씬 좋게 만듭니다.\n\n그녀는 패션, 화장, 쇼핑, 그리고 흔한 소녀 취향에 푹 빠진 전형적인 소녀입니다. 당신을 멋지게 꾸며줄 패션리더가 필요하다면 그녀가 기꺼이 도와줄 겁니다. 다만 트렌드를 쫓는 데 {i}너무{/i} 집착할 수도 있다는 점만 유의하세요. 평소에는 매우 느긋하지만, 친구를 모욕하면 그녀의 분노를 사게 될 겁니다!" },
+    { id: 'stella', name: '스텔라', cost: 'Costs -4 FP', birthplace: '운터시쉬', signature: '지능+', otherPowers: '한기 II, 수류의 힘, 에너지 집중, 벤처 자본가, 땜장이, 무기 제작자', imageSrc: '/images/Nb2jwhF-c8.jpg', description: "스텔라의 어머니는 솔직히 잔소리꾼이라고 부를 수도 있겠지만, 좋게 말하면 완벽주의자였습니다. 그리고 그녀를 완벽하게 키워냈죠. 평균 점수 98점, 5살 때 여러 악기와 3가지 스포츠를 섭렵하고, 8살 때 자신의 작은 회사를 운영했습니다... 평범한 어린 시절을 희생한 대가로 말이죠. 긍정적인 면은 그녀가 보통 일을 완벽하게 처리하고, 그래서 아주 행복해한다는 점입니다. 부정적인 면은 그녀가 하는 일이 아주 조금이라도 {i}불완전{/i}하면 불안감에 압도된다는 점이죠!\n\n그녀는 여전히 거의 24시간 내내 일합니다 — 여가란 그녀에게 낯선 개념입니다 — 하지만 어떻게든 짬을 내어 친구들의 삶을 편하게 해주기 위해 친절을 베풉니다. 그녀는 단정하고 예의 바른 분위기를 풍기며, 꼼꼼하게 정리정돈을 하고, 매 순간을 자기 계발에 쏟습니다. 완벽한 공부 파트너나 동료가 될 수 있지만, 바쁘지 않을 때는 스트레스를 받기 때문에 관심 없는 친구처럼 보일 수도 있습니다! 그녀가 그냥 편하게 쉴 수 있게 하려면 시간이 좀 걸릴 겁니다." },
+    { id: 'bianca', name: '비앙카', cost: 'Costs -3 FP', birthplace: '운터시쉬', signature: '초월자의 정신', otherPowers: '감각 극대화, 에너지 집중', imageSrc: '/images/tpSc7n6b-c9.jpg', description: "그녀는 지금까지 아버지와 함께 등대지기로 자랐습니다... 솔직히 말해서 그녀의 아버지처럼 따분한 사람이 되었죠. 텅 빈 섬에 앉아 10년 동안 바다만 바라보는 걸 상상해 보세요? 전 미쳐버릴 겁니다! 하지만 그 덕분에 아주 느리고 조용한 생활 방식에 익숙해져서, 학교의 분주한 생활을 따라가는 데 정말 힘들어합니다. 그래도 머리는 비상합니다. 그 관찰력 있고 분석적인 마음은 아무도 알아채지 못하는 것들을 알아채고... 말수는 적지만, 입을 열면 나이에 맞지 않는 지혜가 담겨 있습니다.\n\n그녀는 친구들과 시간 보내는 것을 정말 좋아하지만, 대화는 별로 하지 않습니다. 같이 책을 읽거나, 새를 구경하거나... 어떤 사람들은 그런 걸 좋은 시간이라고 생각하나 봅니다. 하지만 잠재력 낭비죠! 저 머리라면 세계 최고의 전술가가 될 수 있을 텐데요. 그녀에게 영감을 주어 평온한 삶을 버리고 멋진 액션 걸이 되게 하시겠습니까? 아니면 조용한 삶에도 장점이 있을까요?" },
+    { id: 'estrella', name: '에스트렐라', cost: 'Costs -4 FP', birthplace: '발세레스', signature: '속도+', otherPowers: '염동력 I, 재빠른 반사신경, 에너지 집중, 소닉붐', imageSrc: '/images/8LYbXgBM-c10.jpg', description: "그녀의 유일한 꿈은 프로 세갈라냐 레이서가 되는 것이었고, 큰 진전을 이루었습니다... 업계 거물 앞에서 실력을 보여주다가 끔찍하게 망신을 당하기 전까지는요. 아무리 물어봐도 실제로 무슨 일이 있었는지 자세한 내용은 알 수 없습니다 — 사람들은 그저 '그리폰 사건'이라고 모호하게 언급하며 서로 낄낄거릴 뿐이죠. 무슨 일이 있었든 간에, 그녀는 꿈이 영원히 산산조각 났다고 확신하고, 사춘기 특유의 우울함과 과장된 비극에 빠져 있습니다.\n\n지극히 실용적인 그녀는 이상적인 이성의 목소리입니다 — 다른 반 친구들이 얼마나 '별난지' 생각하면 유용하죠 — 하지만 현실주의와 노골적인 냉소주의 사이를 오갈 때가 많습니다. 그래도 당신에게 기꺼이 어깨를 빌려주어 울게 해주고, 무모한 아이디어에 대해 경고해 줄 것입니다. 다른 사람들의 문제는 도와주지만, 정작 자신의 고민은 가장 친한 친구에게조차 털어놓지 않고 속에 담아두는 편입니다." },
+    { id: 'siouxsie', name: '수지', cost: 'Costs -5 FP', birthplace: '발세레스', signature: '방화광 III', otherPowers: '열 병기, 플라즈마 타격, 힘+, 위상 변화, 고무고무 신체', imageSrc: '/images/hF3vVsCN-c11.jpg', description: "베어스마크 산 지하의 신비로운 \"제9영토\"에서 온 선교사라고 자칭하는 수지는, 자신의 불의 신 오비움의 완벽함을 전파하고 싶어 안달이 나 있습니다. 그녀는 꽤 낙천적인 소녀인데, 그게 매우 부적절한 상황일 때도 그렇습니다 — 적들의 살을 태우면서 해맑게 뛰어다니는 모습을 보면 꽤 섬뜩하죠. 그녀는 불꽃을 축복으로 여기지 두려워할 대상으로 보지 않기 때문에, 모든 것에 불을 지르면 안 된다고 가르쳐야 했습니다.\n\n그녀는 파괴를 사랑하고 항상 혼란을 일으킬 기회를 엿보며, 특히 친구들에게 해를 끼치는 자들에게는 더욱 그렇습니다. 지상 세계에서는 자신이 물 밖의 물고기라는 걸 알고 있어서, 당신 곁에 딱 붙어서 당신을 전문가라고 생각하고 모든 조언을 고분고분 따를 것입니다. 꽤 잘 믿고 속기 쉬워서, 마음만 먹으면 엉뚱한 것들을 믿게 만들 수도 있습니다. 한 번 그녀의 충성심을 얻으면, 절대 흔들리지 않을 것입니다." },
+    { id: 'chandra', name: '찬드라', cost: 'Costs -5 FP', birthplace: '발세레스', signature: '자가 복제', otherPowers: '위상 변화, 체내 조작, 거대화, 감각 극대화, 에너지 집중, 개성화', imageSrc: '/images/zVp39dGt-c12.jpg', description: "유명한 보물 사냥꾼 가문에서 자라 그 뒤를 잇고 있으며, 어린 나이에도 불구하고 엄청난 양의 귀중한 마법 유물을 획득한 것으로 잘 알려져 있습니다. 머리가 좋고 재능이 있어서 거의 노력하지 않고도 적당한 성적으로 통과합니다. 그녀는 직접 경험하는 것이 최고의 배움이라고 믿고, 보물과 퀘스트를 찾아 수업을 빼먹는 것을 좋아합니다 — 그중 절반은 영광으로 이어지지만, 나머지 절반은 또 문제를 일으켜 교장 선생님에게 호되게 혼나는 결말을 맞이하죠.\n\n자신의 안전에는 믿을 수 없을 정도로 무모하고 태평하지만, 당신의 안전에 대해서는 이상할 정도로 신중합니다. 당신이 다친 것 같으면 이성을 잃고, 괜찮다는 걸 알게 되면 눈물을 글썽이며 꽉 안아줄 것입니다. 친구들이 '발견'하도록 몰래 보물을 숨겨두고 그들의 미소를 보는 것을 즐기는 타입입니다. 라이벌에게는 매우 경쟁적입니다." },
+    { id: 'illuse', name: '일루즈', cost: 'Costs -4 FP', birthplace: '고흐우드', signature: '영체화', otherPowers: '생명력 흡수, 정신 흡수자, 망자와의 대화, 환영의 저주, 생각을 읽는 자, 꿈의 방문자, 기억의 길', imageSrc: '/images/sv6z0RJZ-c13.jpg', description: "대부분의 학생들에게는 그저 도시전설로 치부되지만, 일루즈는 살해당한 마법사의 영혼이 잔혹한 강령술사의 하렘에 추가되기 위해 육신으로 되살아난 것 같습니다 — 정작 그 강령술사는 매우 의문스러운 상황에서 사망했지만요. 일루즈는 낯선 사람에게 모습을 드러내기 싫어하는 신비로운 소녀로, 주로 보이지 않는 폴터가이스트로 행동하거나 가끔 사람들의 꿈에 나타납니다. 장난기 많고 짓궂어서, 캠퍼스의 거만한 학생들이나 괴롭히는 아이들은 존재를 거의 믿지 않는 보이지 않는 힘에 의해 장난의 대상이 되곤 합니다.\n\n그녀가 당신을 좋아한다면, 집착하지만 꽤 수줍음이 많아서 당신을 따라다니며 보이지 않게 당신의 삶을 편하게 만들어 줄 것입니다. 외출했다 돌아오면 집안일이 다 되어 있거나, 침대에서 아침 식사를 맞이하거나, 영리한 장난꾸러기에게 괴롭힘 당하는 적들의 소식을 듣게 될 것입니다. 하지만 그녀가 실제로 당신에게 모습을 드러내게 하려면 점진적인 격려와 회유가 필요할 것입니다." },
+    { id: 'xena', name: '제나', cost: 'Costs -4 FP', birthplace: '고흐우드', signature: '열 병기', otherPowers: '한기 III, 속도+, 수류의 힘, 에너지 집중', imageSrc: '/images/pvB1B3wY-c14.png', description: "이 친구는 정말 스토아학파 같습니다. 휘두르는 검만큼이나 항상 차가우니까요. 이알레도 사람들은 다 그랬습니다 — 소박하고 정직한 사람들이었죠. 그녀는 스노우홀름의 기사로 키워져 지역 전체를 보호하는 데 헌신했습니다... 하지만 세 명의 그림세이어가 나타났을 때는 아무것도 할 수 없었죠. 고향이 쓸려나가는 것을 지켜본 후, 마음 깊은 곳에서는 화가 나 있을 거라고 생각합니다.\n\n그녀는 무표정하고 직설적이어서 많은 사람들이 건조한 유머 감각을 가졌다고 생각합니다. 그래서 자신이 진지하게 한 말에 사람들이 웃으면 혼란스러워하죠. 또한 모든 것을 꽤 문자 그대로 받아들이기 때문에, 은유나 과장법을 이해할 거라 기대하지 마세요. 그래도 어떤 상황에서도 완벽한 침착함은 주변 사람들을 진정시키는 경향이 있고, 친구들이 감정이나 공황으로 판단력이 흐려질 때 이성의 목소리가 되어 줄 수 있습니다. 그리고 그녀가 당신에게 마음을 연다면, 겉보기에만 감정이 없는 것은 아니라는 것을 알게 될 것입니다." },
+    { id: 'rosalind', name: '로잘린드', cost: 'Costs -3 FP', birthplace: '고흐우드', signature: '정신 파괴자', otherPowers: '군중 제어, 물질 연금술', imageSrc: '/images/CpWrfqRq-c15.png', description: "고흐우드의 왕족 마법사 혈통은 일반 마법사들과 같은 위탁 프로그램에 참여하지 않아서, 어떤 가정에 들어가는지 검증할 수 없습니다. 이로 인해... 의문스러운 양육이 이루어질 수 있습니다. 불쌍한 로잘린드는 하인 군단을 거느리는 것에 익숙한 타입의 소녀로, 현실 세계가 메이리프 궁전에서의 삶과 같지 않다는 사실을 받아들이는 데 어려움을 겪고 있습니다. 어쨌든 그녀는 고대의 고흐우드 왕정 전체를 상속받게 될 테니까요! 그래서 약간 거만하고 까다로워 보일 수 있다는 점은 인정해야겠습니다.\n\n그녀의 자존심을 좀 꺾어놓아야 한다고 말하고 싶지만... 솔직히 좀 더 부드러운 접근 방식이 효과적일 것 같아요. 그녀가 받고 있을 압박감을 상상조차 할 수 없고... 그녀가 인사 한번 잘못했다고 부모님이 소리 지르는 걸 들어보셨나요? 그녀를 땅으로 내려와 삶의 더 많은 것을 보여줄 친구가 필요합니다. 그녀의 마음을 얻는다면, 미래의 여왕을 당신 편으로 만들 수 있을 겁니다!" },
+    { id: 'ruby', name: '루비', cost: 'Costs -4 FP', birthplace: '뉴 팰리세이드', signature: '중무장', otherPowers: '나나이트 갑옷 II, 수동 제어, CH402.MP5, 연결망 지배자 I, 무기 사보타주, 금속 피부, 회색 점액질, 힘+, 초인적인 의지', imageSrc: '/images/j9qYhKLQ-c16.jpg', description: "스포츠를 좋아하고 승부욕이 강한 루비는 하는 모든 일에서 최고가 되기를 바랍니다. 그녀는 자기 실력을 과시하고 과대평가하다가 자주 문제에 휘말리기도 하지만, 동나이대 최고의 매즈볼 선수 중 한 명입니다. 그녀가 만들어내는 거대한 주먹은 적들을 경기장 저편으로 날려버릴 수 있죠!\n\n공통된 관심사를 찾는다면, 그녀는 완벽한 선의의 라이벌이 되어 서로를 더 열심히 노력하고 발전하게 만들 것입니다. 하지만 다른 사람들과는 다혈질적인 면을 보일 수 있는데, 특히 더 실력 있는 상대에게 계속 지면 더욱 그렇습니다. 상대를 추월하기 위해 몇 달 동안 쉬지 않고 훈련할 수도 있습니다! 꽤... 집착적이죠. 게으름을 경멸하며 당신이 안전지대에서 벗어나 목표를 추구하도록 항상 도울 것입니다. 다만 생각하기 전에 말하는 경향이 있어서, 본의 아니게 무례해 보일 수도 있습니다." },
+    { id: 'cordelia', name: '코델리아', cost: 'Costs -3 FP', birthplace: '뉴 팰리세이드', signature: '초능력 수술', otherPowers: '역행, 카리스마+, 황홀한 치유, 방어의 원, 수호천사, 치유의 화살', imageSrc: '/images/mPQg27B-c17.jpg', description: "이 아이는 저를 조금 무서게 합니다! 반사회적 인격 장애 검사 결과가 높게 나왔거든요... 다시 말해 소시오패스로, 타인에게 공감하지 못한다는 뜻입니다. 그렇다고 그녀가 {i}악하다는{/i} 뜻은 아닙니다! 그저 좀... 문제가 있을 뿐이죠. 그래도 그녀는 뛰어난 외과의사입니다. 특히 어린 나이를 감안하면요. 당신이 다치면, 당신을 절개해서 잘못된 부분을 고치는 데 매우 열정적입니다. 어쩌면 너무 열정적일지도 모르죠.\n\n대부분의 사람들 앞에서는 매우 예의 바르고 얌전한 성격을 연기합니다. 소름 끼칠 정도로 설득력 있죠. 진짜 그녀는 꽤 냉소적이고, 건조한 위트와 칠흑 같은 유머 감각을 가지고 있습니다. 남들이 신성시하는 것을 비꼬고 솔직하게 말하는 것을 두려워하지 않아서, 아주 솔직한 비판을 해줄 친구를 원한다면 유용할지도 모릅니다. 멍청하다면 그녀를 짜증 나게만 하겠지만, 그녀의 존경을 얻을 만큼 똑똑하다면 믿을 수 없을 정도로 충성스럽습니다. 그녀는, 음, 바른길을 가려고 노력 중입니다... 하지만 긍정적인 영향이 분명히 필요합니다!" },
+    { id: 'anna', name: '안나', cost: 'Costs -3 FP', birthplace: '뉴 팰리세이드', signature: '?????', otherPowers: '역장, 에너지 집중, 소닉붐', imageSrc: '/images/SDpwhdbK-c18.png', description: "안나는 전형적인 마법사가 아니라, 왜곡체입니다 — 그녀의 힘은 어머니가 아니라 현실의 오류에서 비롯됩니다. 즉, 그녀가 진심으로 믿는 것은 무엇이든 현실이 됩니다. 이용해 먹기 쉬워 보일지 모르지만, 그녀는 정신 조작에 면역이고, 특이한 심리 상태 때문에 의도적으로 속이는 것이 불가능합니다. 믿으세요, 다소 부도덕한 과학자 팀이 최선을 다해봤지만, 그들이 얻은 보상이라곤 안나의 다소 불안한 \"상상 속 친구\"인 미스터 머긴스에게 학살당하는 것뿐이었습니다.\n\n이제 국가의 보호를 받는 안나는 학교의 '이상한 아이'로, 보통 자신만의 작은 세계에 빠져 있습니다. 대화를 나누면 매우 흥분하고 쾌활하며 애정이 넘치지만, 무슨 말을 하는지 이해하기가 거의 불가능합니다. 그녀는 그림을 그리거나 포옹과 선물을 주는 것으로 자신을 표현하는 것을 선호합니다 — 만국 공통어죠. 친구가 없어서 당신이 친절하게 대해준다면 날아갈 듯 기뻐할 것입니다! 그리고 그녀의 힘은 예측할 수 없는 방식으로 유용할 수 있습니다." },
+    { id: 'stacy', name: '스테이시', cost: 'Costs -4 FP', birthplace: '로바인', signature: '무기 제작자', otherPowers: '전문 기계공 I, 땜장이, 콰광!, 최고 보안 등급, 나나이트 갑옷 I', imageSrc: '/images/6RtQ9kFQ-c19.png', description: "푸하하, 세상에. 자기 몸만한 20mm 소총을 들고 다니는 게 너무 귀엽지 않나요. 분명 금방 자랄 겁니다. 그녀의 엄마는 100년 안에 현실이 붕괴할 거라고 믿는 골수 프레퍼여서, 스테이시는 걸음마를 떼자마자 가혹한 군사 훈련을 받아왔습니다. 학교는 마침내 그녀에게 탈출할 기회를 주었지만, 적응하는 데 어려움을 겪고 있습니다. 급조폭발물이나 무기 구경에 대해서는 {i}모든 것{/i}을 말해줄 수 있지만, 옷을 사거나 숙제를 하거나 동료 마법사들과 교류하는 방법은 전혀 모릅니다.\n\n수줍음 많고 어색해하며, 엄격하게 통제된 삶에 익숙해서 스스로 결정하는 것을 어려워합니다. 마음 한구석에는 좀 더 전형적인 소녀가 되어 귀여운 드레스를 입는 것이 어떤 것일지 상상하곤 합니다. 당신이 그녀가 안전지대를 벗어나도록 도와준다면 엄청나게 고마워할 것입니다. 그리고 총을 좋아하신다면, 몇 시간이고 신나서 이야기할 겁니다." },
+    { id: 'meryll', name: '메릴', cost: 'Costs -4 FP', birthplace: '로바인', signature: '동물 조련사', otherPowers: "마녀의 패밀리어 III, 수호의 결속, 황홀한 치유, 치유의 화살, 방어의 원", imageSrc: '/images/BKf1nC3h-c20.jpg', description: "학교에 그녀의 기숙사 방에 대한 소음 불만이 계속 접수되고 있습니다 — 그 안은 완전 동물원이에요! 펄럭이는 작은 요정부터 머리 셋 달린 뱀, 심지어 갓파까지 온갖 것들이 다 있는데, 잔디라는 이름의 독 뱉는 만티코어를 가장 아끼는 것 같습니다. 보스로우 성의 수석 조련사로서 사방을 탐험하며 거의 모든 종류의 짐승을 만났지만, 아직 찾고 있는 희귀종이 몇 마리 더 있습니다.\n\n그녀는 애완동물들의 수의사 역할을 하고 친구들도 돕기 위해 치유 마법을 광범위하게 연구했습니다. 꽤 진지한 성격으로 애완동물들(과 당신)만이 그녀를 미소 짓게 하며, 명예, 도움이 필요한 이 돕기, 동물 존중 등 자신의 신념에 대해 좀 완고한 편입니다. 그릇된 일을 하는 자들이 정의의 심판을 받는 것을 보고 싶어 하는 의로운 분노를 가지고 있습니다. 하지만 잔인하지는 않아서, 싸우기보다는 사람들이 자신의 방식을 바꾸는 것을 선호합니다." },
+    { id: 'zorreth', name: '조레스', cost: 'Costs -3 FP', birthplace: '로바인', signature: '괴수화 II', otherPowers: '방화광 II, 플라즈마 타격, 소닉붐, 힘+, 속도+', imageSrc: '/images/SD8Kj6sm-c21.jpg', description: "그녀는 오래전 실종되어 죽은 것으로 추정되었습니다. 나중에 밝혀지기로는 부모님이 용 두 마리에게 싸움을 걸었다가 끔찍하게 잡아먹혔고, 그 용들이 \"조레스\"를 입양했다고 합니다. 학교는 용들과 협상하여 그녀를 이곳에 오게 했지만, 다루기가 좀 벅찹니다. 그녀는 자신을 용이라고 생각하며 인간보다 훨씬 우월하다고 여깁니다. 쉽게 화를 내며 3층 높이의 용 형태로 변신해 난장판을 만들기도 합니다. '둥지'에 추가할 반짝이는 물건들로 달랠 수 있는데, 구슬이나 단추처럼 간단한 것도 괜찮습니다.\n\n그녀가 당신을 좋아한다면, 당신을 \"착한 인간 중 하나\"로 정하고 소중한 애완동물처럼 대할 것입니다. 당신을 해치려는 자들로부터 맹렬하게 지켜주겠지만, 꽤 소유욕이 강할 수 있습니다. 그녀가 더 잘 적응하도록 도울 수 있을까요? 다만, 무엇을 하든, 그녀를 {i}다치게 하지 마세요{/i}. 그녀의 엄마는 {i}진짜{/i} 용이고, 조레스의 용 형태가 작아 보일 정도로 거대하니까요." },
+    { id: 'ayuzawa', name: '아유자와', cost: 'Costs -5 FP', birthplace: '지팡구', signature: "오니의 축복", otherPowers: '힘+, 카리스마+, 재빠른 반사신경, 무기 제작자, 에너지 집중, 방어의 원, 위상 변화', imageSrc: '/images/gbcpH1vn-c22.jpg', description: "오니는 극히 드물고 자비로운 요괴로, 운 좋은 갓난 마법사를 선택해 융합하여 막강한 힘을 주는 대신 오니들과 다른 요괴들 간의 영원한 전쟁에 참전하게 합니다. 물론 아유자와 같은 모범적인 영웅 타입은 굳이 설득하지 않아도 사랑하는 학교를 영적 침략자들로부터 지키는 데 헌신했겠지만요. 학생회장이자 여러 동아리의 회장, 그리고 차기 수석 졸업생 유력 후보인 그녀만큼 학교를 사랑하는 사람은 없을 겁니다!\n\n그녀의 행적을 보면 아마 든든한 언니처럼 조언도 해주고, 안전을 챙겨주고, 도시락까지 싸줄지도 모릅니다. 그녀가 당신을 어린애 취급하는 게 싫다면 선을 그어야 할 겁니다. 책임감이 투철하다 못해 지나칠 정도라, 예정된 회의에 늦느니 차라리 죽음을 택할 겁니다. 이상주의적이라 모든 사람의 장점을 보려고 하는 경향이 있어서, 이용당하기 쉬울 위험도 있습니다." },
+    { id: 'momoi', name: '모모이', cost: 'Costs -5 FP', birthplace: '지팡구', signature: '텔레파시 달인', otherPowers: "저주술사의 고서, 괴수화 I, 염동력 I, 식물술사, 생각을 읽는 자, 꿈의 방문자", imageSrc: '/images/GQj3z2cS-c23.jpg', description: "그녀는 지팡구의 마법사 숭배 문화를 십분 활용하여, 숲속의 거대한 신사에 살며 자신을 하치모리의 여신이라 칭합니다 — 빈백 의자에 앉아 충실한 신도들이 먹여주는 간식을 받아먹는 등 온갖 호사를 누리죠. 거만하고 장난기 많은 그녀는 당신을 '여신의 수호자'라는 칭호의 후계자로 정한 것 같으며, 당신이 그녀의 '오른팔 마법사'가 될 자격이 있는지 시험하기 위해 짓궂은 작은 도전들을 낼 것입니다.\n\n유서 깊은 구미호 가문 출신으로, 자연 보호를 항상 최우선으로 여기며, 숲을 더럽히는 것은 그녀의 분노를 사는 지름길입니다. 침입자를 물리칠 때는 크고 하얀 털을 가진 구미호로 변신합니다. 추종자들은 매일 30분씩 그녀의 꼬리를 빗질해줘야 합니다. 누군가 자신의 신성을 부정하면 매우 심통을 부립니다. 안개 낀 조용한 아침에 숲에서 센차를 마시며 함께 시간 보내는 것을 좋아합니다." },
+    { id: 'licenda', name: '리센다', cost: 'Costs -3 FP', birthplace: '지팡구', signature: '혈화', otherPowers: '생명력 흡수, 망자와의 대화, 영체화', imageSrc: '/images/LDQjngdm-c24.png', description: "이 아이에 대해서는 강력하게 주의를 줘야겠군요. 불쌍한 리센다는 완전히 망가져서 예전 모습의 껍데기만 남았고, 말도 거의 하지 않습니다. 몇 년 전, 가학증과 쾌락주의에 빠진 미치광이 성적 광신도들이 서로 더 \"창의적인\" 고문을 하도록 부추기던 납치 사건에서 유일하게 살아남은 피해자입니다. 그들이 그녀에게 {i}했던{/i} 짓은 모든 기록에서 삭제되었고, 세부 내용을 들은 대부분의 사람들은 그 끔찍한 지식을 안고 사느니 기억을 지우는 쪽을 택했습니다. 그녀는 심지어 죽는 것조차 허락되지 않았죠. 신스루 마녀단을 제외하면, 이런 일은 수천 년 전 버림받은 시대 이후로 {i}한 번도{/i} 일어난 적이 없습니다! 어쩌면 우리 현실이 정말로 퇴보하고 있는지도 모르죠...\n\n그녀는 여전히 과거의 망령에게 쫓기고 있는 것 같습니다 - 말 그대로요. 대부분의 영혼은 쉽게 처리되지만, 이 영혼은 그 힘과 폭력성이 전례가 없습니다. 기술적으로 어떤 연관성도 입증되지 않았지만... 리센다 주변에 있던 몇몇 사람들이 의문의 상황에서 실종되었다는 점을 경고해야 할 것 같습니다. 어떤 소문에 따르면 그 영혼은 납치범들의 눈요기를 위해 리센다가 강제로 목숨을 끊어야 했던 그녀의 여동생이라고 합니다. 전 그녀의 이름조차 기억나지 않네요." }
+];
+
 export const CUSTOM_CLASSMATE_CHOICES_DATA: CustomClassmateOption[] = [
     { id: 'custom_classmate_25', cost: 'Costs -4 FP', description: 'Create a companion with 25 Companion Points.' },
     { id: 'custom_classmate_35', cost: 'Costs -6 FP', description: 'Create a companion with 35 Companion Points.' },
     { id: 'custom_classmate_50', cost: 'Costs -8 FP', description: 'Create a companion with 50 Companion Points.' },
+];
+
+export const CUSTOM_CLASSMATE_CHOICES_DATA_KO: CustomClassmateOption[] = [
+    { id: 'custom_classmate_25', cost: '행운 점수 -4', description: '동료 점수 25점으로 클래스메이트를 만듭니다.' },
+    { id: 'custom_classmate_35', cost: '행운 점수 -6', description: '동료 점수 35점으로 클래스메이트를 만듭니다.' },
+    { id: 'custom_classmate_50', cost: '행운 점수 -8', description: '동료 점수 50점으로 클래스메이트를 만듭니다.' },
 ];

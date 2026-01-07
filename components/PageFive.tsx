@@ -2,19 +2,35 @@
 import React, { useState, useMemo } from 'react';
 import { useCharacterContext } from '../context/CharacterContext';
 import { 
-    CAREER_GOALS_DATA, COLLEAGUES_DATA, CUSTOM_COLLEAGUE_CHOICES_DATA, DOMINIONS,
-    UNIFORMS_DATA, ALLMILLOR_CHOICES_DATA, ALLMILLOR_INTRO_DATA, CAREER_INTRO_DATA,
+    CAREER_GOALS_DATA, CAREER_GOALS_DATA_KO, 
+    COLLEAGUES_DATA, COLLEAGUES_DATA_KO, 
+    CUSTOM_COLLEAGUE_CHOICES_DATA, CUSTOM_COLLEAGUE_CHOICES_DATA_KO, 
+    DOMINIONS, DOMINIONS_KO,
+    UNIFORMS_DATA, UNIFORMS_DATA_KO, 
+    ALLMILLOR_CHOICES_DATA, ALLMILLOR_CHOICES_DATA_KO, 
+    ALLMILLOR_INTRO_DATA, ALLMILLOR_INTRO_DATA_KO, 
+    CAREER_INTRO_DATA, CAREER_INTRO_DATA_KO,
     ESSENTIAL_BOONS_DATA, MINOR_BOONS_DATA, MAJOR_BOONS_DATA,
+    ESSENTIAL_BOONS_DATA_KO, MINOR_BOONS_DATA_KO, MAJOR_BOONS_DATA_KO,
     TELEKINETICS_DATA, METATHERMICS_DATA,
+    TELEKINETICS_DATA_KO, METATHERMICS_DATA_KO,
     ELEANORS_TECHNIQUES_DATA, GENEVIEVES_TECHNIQUES_DATA,
+    ELEANORS_TECHNIQUES_DATA_KO, GENEVIEVES_TECHNIQUES_DATA_KO,
     BREWING_DATA, SOUL_ALCHEMY_DATA, TRANSFORMATION_DATA,
+    BREWING_DATA_KO, SOUL_ALCHEMY_DATA_KO, TRANSFORMATION_DATA_KO,
     CHANNELLING_DATA, NECROMANCY_DATA, BLACK_MAGIC_DATA,
+    CHANNELLING_DATA_KO, NECROMANCY_DATA_KO, BLACK_MAGIC_DATA_KO,
     TELEPATHY_DATA, MENTAL_MANIPULATION_DATA,
+    TELEPATHY_DATA_KO, MENTAL_MANIPULATION_DATA_KO,
     ENTRANCE_DATA, FEATURES_DATA, INFLUENCE_DATA,
+    ENTRANCE_DATA_KO, FEATURES_DATA_KO, INFLUENCE_DATA_KO,
     NET_AVATAR_DATA, TECHNOMANCY_DATA, NANITE_CONTROL_DATA,
+    NET_AVATAR_DATA_KO, TECHNOMANCY_DATA_KO, NANITE_CONTROL_DATA_KO,
     RIGHTEOUS_CREATION_SPECIALTIES_DATA, RIGHTEOUS_CREATION_MAGITECH_DATA, 
     RIGHTEOUS_CREATION_ARCANE_CONSTRUCTS_DATA, RIGHTEOUS_CREATION_METAMAGIC_DATA,
-    STAR_CROSSED_LOVE_PACTS_DATA
+    RIGHTEOUS_CREATION_SPECIALTIES_DATA_KO, RIGHTEOUS_CREATION_MAGITECH_DATA_KO,
+    RIGHTEOUS_CREATION_ARCANE_CONSTRUCTS_DATA_KO, RIGHTEOUS_CREATION_METAMAGIC_DATA_KO,
+    STAR_CROSSED_LOVE_PACTS_DATA, STAR_CROSSED_LOVE_PACTS_DATA_KO
 } from '../constants';
 import { SectionHeader, SectionSubHeader, CompanionIcon, HouseIcon, renderFormattedText } from './ui';
 import type { ChoiceItem, Colleague, CustomColleagueInstance, Mentor, Mentee, MovingOutHome } from '../types';
@@ -25,7 +41,7 @@ import { StudentSelectionModal } from './StudentSelectionModal';
 
 // --- SHARED UTILITIES (Mirrored from ClassmateCard) ---
 
-const ALL_POWERS = [
+const ALL_POWERS_EN = [
     ...ESSENTIAL_BOONS_DATA, ...MINOR_BOONS_DATA, ...MAJOR_BOONS_DATA,
     ...TELEKINETICS_DATA, ...METATHERMICS_DATA,
     ...ELEANORS_TECHNIQUES_DATA, ...GENEVIEVES_TECHNIQUES_DATA,
@@ -37,6 +53,20 @@ const ALL_POWERS = [
     ...RIGHTEOUS_CREATION_SPECIALTIES_DATA, ...RIGHTEOUS_CREATION_MAGITECH_DATA, 
     ...RIGHTEOUS_CREATION_ARCANE_CONSTRUCTS_DATA, ...RIGHTEOUS_CREATION_METAMAGIC_DATA,
     ...STAR_CROSSED_LOVE_PACTS_DATA
+];
+
+const ALL_POWERS_KO = [
+    ...ESSENTIAL_BOONS_DATA_KO, ...MINOR_BOONS_DATA_KO, ...MAJOR_BOONS_DATA_KO,
+    ...TELEKINETICS_DATA_KO, ...METATHERMICS_DATA_KO,
+    ...ELEANORS_TECHNIQUES_DATA_KO, ...GENEVIEVES_TECHNIQUES_DATA_KO,
+    ...BREWING_DATA_KO, ...SOUL_ALCHEMY_DATA_KO, ...TRANSFORMATION_DATA_KO,
+    ...CHANNELLING_DATA_KO, ...NECROMANCY_DATA_KO, ...BLACK_MAGIC_DATA_KO,
+    ...TELEPATHY_DATA_KO, ...MENTAL_MANIPULATION_DATA_KO,
+    ...ENTRANCE_DATA_KO, ...FEATURES_DATA_KO, ...INFLUENCE_DATA_KO,
+    ...NET_AVATAR_DATA_KO, ...TECHNOMANCY_DATA_KO, ...NANITE_CONTROL_DATA_KO,
+    ...RIGHTEOUS_CREATION_SPECIALTIES_DATA_KO, ...RIGHTEOUS_CREATION_MAGITECH_DATA_KO,
+    ...RIGHTEOUS_CREATION_ARCANE_CONSTRUCTS_DATA_KO, ...RIGHTEOUS_CREATION_METAMAGIC_DATA_KO,
+    ...STAR_CROSSED_LOVE_PACTS_DATA_KO
 ];
 
 const getGradeColorClass = (grade?: string, isBold: boolean = true) => {
@@ -51,37 +81,52 @@ const getGradeColorClass = (grade?: string, isBold: boolean = true) => {
     }
 };
 
-const resolvePowerData = (text: string): ChoiceItem | undefined => {
+const getPowerIdFromAlias = (text: string): string | null => {
     const normalized = text.toLowerCase().trim();
     
-    // 1. Manual Aliases & Corrections
-    if (normalized.includes('subatomic')) return TELEKINETICS_DATA.find(p => p.id === 'subatomic_manipulation');
-    if (normalized.includes('vampirism')) return BLACK_MAGIC_DATA.find(p => p.id === 'vampirism');
-    if (normalized.includes('undead thrall')) return BLACK_MAGIC_DATA.find(p => p.id === 'undead_thrall');
-    if (normalized.includes('flower') && normalized.includes('blood')) return BLACK_MAGIC_DATA.find(p => p.id === 'flowers_of_blood');
-    if (normalized.includes('manual override')) return TECHNOMANCY_DATA.find(p => p.id === 'manual_override');
-    if (normalized.includes('hypnos')) return MENTAL_MANIPULATION_DATA.find(p => p.id === 'hypnotist');
-    if (normalized.includes('human marionettes')) return SOUL_ALCHEMY_DATA.find(p => p.id === 'human_marionettes');
+    // Manual Aliases & Correction logic
+    if (normalized.includes('subatomic') || normalized === '분자세계 조작') return 'subatomic_manipulation';
+    if (normalized.includes('vampirism') || normalized === '흡혈') return 'vampirism';
+    if (normalized.includes('undead thrall') || normalized === '언데드 노예') return 'undead_thrall';
+    if ((normalized.includes('flower') && normalized.includes('blood')) || normalized === '혈화') return 'flowers_of_blood';
+    if (normalized.includes('manual override') || normalized === '수동 제어') return 'manual_override';
+    if (normalized.includes('hypnos') || normalized === '최면술사') return 'hypnotist';
+    if (normalized.includes('human marionettes') || normalized === '인간 마리오네트') return 'human_marionettes';
+    if (normalized.includes('forsake humanity') || normalized === '괴수화 i') return 'shed_humanity_i';
+    if (normalized.includes('subatomic destruction')) return 'subatomic_manipulation';
+    if (normalized.includes('guardian angel') || normalized === '수호천사') return 'guardian_angels';
+    if (normalized.includes('speed run')) return 'speed_plus';
+    if (normalized.includes('i am not a weapon')) return 'masquerade';
+    if (normalized.includes('hokuto senjukai ken') || normalized === '북두천수괴권') return 'hokuto_senjukai_ken';
+    if (normalized.includes('psychic force ii') || normalized === '염동력 ii') return 'psychic_force_ii';
+    if (normalized.includes('summon creature') || normalized === '마수 소환') return 'summon_creature';
+    if (normalized === 'c r a z y') return 'summon_weather';
     
-    // Additional Fixes for Power unique names and User reported misalignments
-    if (normalized.includes('forsake humanity')) return TRANSFORMATION_DATA.find(p => p.id === 'shed_humanity_i');
-    if (normalized.includes('subatomic destruction')) return TELEKINETICS_DATA.find(p => p.id === 'subatomic_manipulation');
-    if (normalized.includes('guardian angel')) return ELEANORS_TECHNIQUES_DATA.find(p => p.id === 'guardian_angels');
-    if (normalized.includes('speed run')) return MINOR_BOONS_DATA.find(p => p.id === 'speed_plus');
-    if (normalized.includes('i am not a weapon')) return MENTAL_MANIPULATION_DATA.find(p => p.id === 'masquerade');
-    if (normalized.includes('hokuto senjukai ken')) return MAJOR_BOONS_DATA.find(p => p.id === 'hokuto_senjukai_ken');
-    if (normalized.includes('psychic_force_ii')) return TELEKINETICS_DATA.find(p => p.id === 'psychic_force_ii');
-    if (normalized.includes('summon creature')) return INFLUENCE_DATA.find(p => p.id === 'summon_creature');
-    if (normalized === 'c r a z y') return INFLUENCE_DATA.find(p => p.id === 'summon_weather') || ALL_POWERS.find(p => p.id === 'summon_weather');
+    return null;
+};
 
-    // 2. Standard matching
-    const exact = ALL_POWERS.find(p => p.title.toLowerCase() === normalized);
-    if (exact) return exact;
-    const container = ALL_POWERS.find(p => p.title.toLowerCase().includes(normalized));
-    if (container) return container;
-    const contained = ALL_POWERS.find(p => normalized.includes(p.title.toLowerCase()));
-    if (contained) return contained;
+const resolvePowerData = (text: string, powerList: ChoiceItem[]): ChoiceItem | undefined => {
+    const normalized = text.toLowerCase().trim();
     
+    // 1. Map Alias to ID
+    const aliasId = getPowerIdFromAlias(text);
+    if (aliasId) {
+        const found = powerList.find(p => p.id === aliasId);
+        if (found) return found;
+    }
+
+    // 2. Exact Title Match
+    const exact = powerList.find(p => p.title.toLowerCase() === normalized);
+    if (exact) return exact;
+
+    // 3. Contains Match
+    const container = powerList.find(p => p.title.toLowerCase().includes(normalized));
+    if (container) return container;
+    
+    // 4. Reverse Contains
+    const contained = powerList.find(p => normalized.includes(p.title.toLowerCase()));
+    if (contained) return contained;
+
     return undefined;
 };
 
@@ -98,7 +143,7 @@ const InfoTooltip: React.FC<{ title: string; description: string; imageSrc: stri
             </div>
             <div className="p-3">
                 <div className="text-[10px] text-gray-300 leading-normal font-normal whitespace-normal line-clamp-6 text-justify">
-                    {description}
+                    {renderFormattedText(description)}
                 </div>
             </div>
             <div className="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-[#0a0a0a]"></div>
@@ -107,11 +152,14 @@ const InfoTooltip: React.FC<{ title: string; description: string; imageSrc: stri
 );
 
 const ColoredPowerText: React.FC<{ text: string; isBold?: boolean }> = ({ text, isBold = true }) => {
+    const { language } = useCharacterContext();
     const parts = useMemo(() => text.split(',').map(p => p.trim()), [text]);
+    const activePowerList = language === 'ko' ? ALL_POWERS_KO : ALL_POWERS_EN;
+
     return (
         <span>
             {parts.map((part, i) => {
-                const powerData = resolvePowerData(part);
+                const powerData = resolvePowerData(part, activePowerList);
                 const colorClass = getGradeColorClass(powerData?.grade, isBold);
                 const content = <span className={colorClass}>{part}</span>;
                 return (
@@ -146,12 +194,40 @@ const UNIFORM_SQUARE_IMAGES: Record<string, string> = {
 };
 const UNIDENTIFIED_IMAGE = '/images/HfL17Fvn-uniquestionsquare.jpg';
 
-const formatCost = (cost: string | undefined) => {
+const formatCost = (cost: string | undefined, language: 'en' | 'ko') => {
     if (!cost) return '';
-    return cost.replace(/Costs\s+\+?0\s+(FP|BP)/i, 'Costs -0 $1');
+    const processed = cost.replace(/Costs\s+\+?0\s+(FP|BP)/i, 'Costs -0 $1');
+
+    if (language === 'ko') {
+         // Basic localized replacement for clean display, mainly for "Costs -0 FP"
+         return processed.replace(/Costs\s+-0\s+FP/i, '행운 점수 -0');
+    }
+    return processed;
 };
 
-const renderPersonCost = (costStr: string) => {
+const renderPersonCost = (costStr: string, language: 'en' | 'ko') => {
+    if (language === 'ko') {
+         const parts = costStr.split(/((?:Costs|Grants)\s*[+-]?\d+\s*(?:FP|BP))/i);
+         return (
+             <>
+                {parts.map((part, i) => {
+                    const trimmed = part.trim();
+                    if (!trimmed) return null;
+                    
+                    const fpMatch = trimmed.match(/(?:Costs|Grants)\s*([+-]?\d+)\s*FP/i);
+                    if (fpMatch) {
+                         return <span key={i} className="text-green-400 font-bold">행운 점수 {fpMatch[1]}</span>;
+                    }
+                    const bpMatch = trimmed.match(/(?:Costs|Grants)\s*([+-]?\d+)\s*BP/i);
+                    if (bpMatch) {
+                         return <span key={i} className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-300 to-purple-400 drop-shadow-[0_0_2px_rgba(192,38,211,0.5)]">축복 점수 {bpMatch[1]}</span>;
+                    }
+                    return <span key={i} className="text-white">{part}</span>;
+                })}
+             </>
+         )
+    }
+
     const regex = /(Costs|Grants|[-+]?\d+\s*FP|[-+]?\d+\s*BP)/gi;
     const parts = costStr.split(regex).filter(p => p !== undefined && p !== "");
     return (
@@ -178,7 +254,8 @@ const CyberChoiceCard: React.FC<{
     iconButton?: React.ReactNode;
     onIconButtonClick?: () => void;
     imageAspectRatio?: string;
-}> = ({ item, isSelected, onSelect, disabled = false, children, iconButton, onIconButtonClick, imageAspectRatio = "h-48" }) => {
+    language: 'en' | 'ko';
+}> = ({ item, isSelected, onSelect, disabled = false, children, iconButton, onIconButtonClick, imageAspectRatio = "h-48", language }) => {
     const { id, title, cost, description, imageSrc } = item;
     const handleSelect = () => { if (!disabled) onSelect(id); };
 
@@ -193,7 +270,9 @@ const CyberChoiceCard: React.FC<{
             <div className={`relative w-full overflow-hidden border-b border-green-900/30 ${imageAspectRatio}`}>
                 <div className={`absolute inset-0 bg-green-500/10 z-10 transition-opacity duration-300 ${isSelected ? 'opacity-0' : 'group-hover:opacity-0 opacity-20'}`}></div>
                 <img src={imageSrc} alt={title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"/>
-                <div className="absolute bottom-0 right-0 bg-black/80 px-3 py-1 border-t-2 border-l-2 border-green-500/50 text-xs font-mono text-green-300 z-20">{formatCost(cost)}</div>
+                <div className="absolute bottom-0 right-0 bg-black/80 px-3 py-1 border-t-2 border-l-2 border-green-500/50 text-xs font-mono text-green-300 z-20">
+                     {renderPersonCost(cost || '', language)}
+                </div>
             </div>
             <div className="p-4 flex-grow flex flex-col relative">
                 <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-5 pointer-events-none"></div>
@@ -216,7 +295,8 @@ const SmallRoundChoiceCard: React.FC<{
     children?: React.ReactNode;
     iconButton?: React.ReactNode;
     onIconButtonClick?: () => void;
-}> = ({ item, isSelected, onSelect, disabled = false, children, iconButton, onIconButtonClick }) => {
+    language: 'en' | 'ko';
+}> = ({ item, isSelected, onSelect, disabled = false, children, iconButton, onIconButtonClick, language }) => {
     return (
         <div onClick={() => !disabled && onSelect(item.id)} className={`flex flex-col items-center p-6 rounded-xl transition-all duration-300 relative group h-full ${disabled ? 'opacity-50 grayscale cursor-not-allowed' : 'cursor-pointer'} ${isSelected ? 'bg-green-950/30 border border-green-500/50 shadow-[0_0_20px_rgba(34,197,94,0.3)]' : 'bg-black/40 border border-green-900/20 hover:bg-green-900/10 hover:border-green-800/50'}`}>
             <div className={`relative w-40 h-40 mb-4 rounded-full p-1.5 transition-all flex-shrink-0 ${isSelected ? 'bg-gradient-to-tr from-green-400 to-green-600 shadow-[0_0_30px_rgba(34,197,94,0.5)]' : 'bg-gray-800 group-hover:bg-green-800/50'}`}>
@@ -226,7 +306,9 @@ const SmallRoundChoiceCard: React.FC<{
                 )}
             </div>
             <h4 className={`font-cinzel font-bold text-center text-lg tracking-wide ${isSelected ? 'text-green-300 text-shadow-neon' : 'text-gray-300 group-hover:text-green-200'}`}>{item.title}</h4>
-            <p className={`text-xs font-mono mt-1 ${isSelected ? 'text-green-400' : 'text-gray-500'}`}>{formatCost(item.cost)}</p>
+            <p className={`text-xs font-mono mt-1 ${isSelected ? 'text-green-400' : 'text-gray-500'}`}>
+                {renderPersonCost(item.cost || '', language)}
+            </p>
             <p className="text-xs text-gray-400 text-center mt-3 leading-relaxed border-t border-green-900/30 pt-2 w-full flex-grow min-h-[4rem]">{renderFormattedText(item.description)}</p>
             {children && <div className="mt-3 w-full">{children}</div>}
         </div>
@@ -243,24 +325,43 @@ interface ColleagueCardProps {
   onUniformButtonClick: (id: string, name: string) => void;
   isMentor: boolean;
   refundText?: string;
+  language: 'en' | 'ko';
 }
 
-const ColleagueCard: React.FC<ColleagueCardProps> = ({ colleague, isSelected, onSelect, disabled = false, uniformId, uniformName, onUniformButtonClick, isMentor, refundText }) => {
+const ColleagueCard: React.FC<ColleagueCardProps> = ({ colleague, isSelected, onSelect, disabled = false, uniformId, uniformName, onUniformButtonClick, isMentor, refundText, language }) => {
   const { id, name, cost, description, imageSrc, birthplace, signature, otherPowers } = colleague;
 
   const dominionInfo = useMemo(() => {
       const normalizedBirthplace = birthplace.toLowerCase().trim();
-      return DOMINIONS.find(d => d.title.toLowerCase() === normalizedBirthplace || d.id.toLowerCase() === normalizedBirthplace);
-  }, [birthplace]);
+      const activeDominions = language === 'ko' ? DOMINIONS_KO : DOMINIONS;
+      
+      // Try to find in active list first
+      let found = activeDominions.find(d => 
+          d.title.toLowerCase() === normalizedBirthplace || 
+          d.id.toLowerCase() === normalizedBirthplace
+      );
+      
+      // Fallback
+      if (!found) {
+           found = DOMINIONS.find(d => 
+              d.title.toLowerCase() === normalizedBirthplace || 
+              d.id.toLowerCase() === normalizedBirthplace
+          );
+           if (found && language === 'ko') {
+              const koFound = DOMINIONS_KO.find(d => d.id === found!.id);
+              if (koFound) found = koFound;
+          }
+      }
+      return found;
+  }, [birthplace, language]);
 
   const renderDescriptionText = (text: string) => {
-    // Basic formatting first
     return renderFormattedText(text);
   };
 
   const renderDescription = () => {
     if (id === 'lilith') {
-        const target = "uthveqojtx7dhzacsm6";
+        const target = language === 'ko' ? "ㅈ솦ㄷ배ㅓㅅㅌ7옼ㅁㅊ6" : "uthveqojtx7dhzacsm6";
         const parts = description.split(target);
         return (
             <p className="mb-4 last:mb-0">
@@ -287,25 +388,27 @@ const ColleagueCard: React.FC<ColleagueCardProps> = ({ colleague, isSelected, on
                 <div className="text-center mt-3">
                     <h4 className={`font-bold font-cinzel text-2xl tracking-widest ${isSelected ? 'text-green-300 text-shadow-neon' : 'text-gray-200'}`}>{name}</h4>
                     <div className="flex flex-col items-center gap-1 mt-1">
-                        <span className={`text-xs font-mono border border-white/10 px-2 py-0.5 bg-black/40`}>{renderPersonCost(cost)}</span>
-                        {isMentor && <span className="px-2 py-0.5 bg-amber-900/40 text-amber-300 text-[10px] border border-amber-500/50 uppercase font-bold tracking-wider">Mentor</span>}
+                        <span className={`text-xs font-mono border border-white/10 px-2 py-0.5 bg-black/40`}>{renderPersonCost(cost, language)}</span>
+                        {isMentor && <span className="px-2 py-0.5 bg-amber-900/40 text-amber-300 text-[10px] border border-amber-500/50 uppercase font-bold tracking-wider">
+                            {language === 'ko' ? "멘토" : "Mentor"}
+                        </span>}
                         {refundText && <span className="text-xs font-mono text-green-400 font-bold border border-green-500/30 px-2 py-0.5 bg-green-900/20">{refundText}</span>}
                     </div>
                 </div>
                 <div className="mt-4 p-3 bg-black/40 rounded border border-green-900/30 text-xs text-gray-300 space-y-2">
-                    <p><strong className="text-green-700 uppercase mr-1 text-[10px]">Origin:</strong> 
+                    <p><strong className="text-green-700 uppercase mr-1 text-[10px]">{language === 'ko' ? "출신지:" : "Origin:"}</strong> 
                         {dominionInfo ? (
                             <InfoTooltip title={dominionInfo.title} description={dominionInfo.description} imageSrc={dominionInfo.imageSrc}>
                                 <span className="text-green-100">{birthplace}</span>
                             </InfoTooltip>
                         ) : <span className="text-green-100">{birthplace}</span>}
                     </p>
-                    <p><strong className="text-green-700 uppercase mr-1 text-[10px]">Signature:</strong> <ColoredPowerText text={signature} isBold={true} /></p>
-                    <p><strong className="text-green-700 uppercase mr-1 text-[10px]">Other Powers:</strong> <ColoredPowerText text={otherPowers} isBold={false} /></p>
+                    <p><strong className="text-green-700 uppercase mr-1 text-[10px]">{language === 'ko' ? "주력기:" : "Signature:"}</strong> <ColoredPowerText text={signature} isBold={true} /></p>
+                    <p><strong className="text-green-700 uppercase mr-1 text-[10px]">{language === 'ko' ? "기타 능력:" : "Other Powers:"}</strong> <ColoredPowerText text={otherPowers} isBold={false} /></p>
                     <div className="pt-2 border-t border-green-900/30 flex items-center justify-between">
-                        <strong className="text-green-700 uppercase text-[10px]">Costume:</strong>
+                        <strong className="text-green-700 uppercase text-[10px]">{language === 'ko' ? "의복:" : "Costume:"}</strong>
                         <div className="relative group/col-uniform flex items-center">
-                            <span className="text-green-300 cursor-help hover:text-green-100 transition-colors">{uniformName || 'UNIDENTIFIED'}</span>
+                            <span className="text-green-300 cursor-help hover:text-green-100 transition-colors">{uniformName || (language === 'ko' ? '미정' : 'UNIDENTIFIED')}</span>
                             <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-20 h-20 opacity-0 group-hover/col-uniform:opacity-100 transition-opacity pointer-events-none z-50 rounded border border-green-500/30 shadow-xl overflow-hidden bg-black">
                                 <img src={uniformId ? UNIFORM_SQUARE_IMAGES[uniformId] : UNIDENTIFIED_IMAGE} alt="" className="w-full h-full object-cover" />
                             </span>
@@ -316,7 +419,7 @@ const ColleagueCard: React.FC<ColleagueCardProps> = ({ colleague, isSelected, on
           <div className="flex flex-grow border-l-0 md:border-l border-green-900/30 md:pl-6 flex flex-col justify-center">
             <div className="text-[0.9375rem] text-gray-300 leading-relaxed text-justify">{renderDescription()}</div>
           </div>
-          <button onClick={(e) => { e.stopPropagation(); onUniformButtonClick(id, name); }} className="absolute top-2 right-2 p-2 rounded-full bg-black/50 text-green-300/70 hover:bg-green-900/50 hover:text-green-100 transition-colors z-10" title="Change Costume" disabled={disabled}><UniformIcon /></button>
+          <button onClick={(e) => { e.stopPropagation(); onUniformButtonClick(id, name); }} className="absolute top-2 right-2 p-2 rounded-full bg-black/50 text-green-300/70 hover:bg-green-900/50 hover:text-green-100 transition-colors z-10" title={language === 'ko' ? "의복 변경" : "Change Costume"} disabled={disabled}><UniformIcon /></button>
       </div>
     </div>
   );
@@ -350,8 +453,18 @@ export const PageFive: React.FC = () => {
         movingOutHomes,
         mentee,
         handleMenteeSelect,
-        selectedClassmateIds
+        selectedClassmateIds,
+        language
     } = useCharacterContext();
+
+    const activeCareerIntro = language === 'ko' ? CAREER_INTRO_DATA_KO : CAREER_INTRO_DATA;
+    const activeAllmillorIntro = language === 'ko' ? ALLMILLOR_INTRO_DATA_KO : ALLMILLOR_INTRO_DATA;
+    const activeAllmillorChoices = language === 'ko' ? ALLMILLOR_CHOICES_DATA_KO : ALLMILLOR_CHOICES_DATA;
+    const activeCareerGoals = language === 'ko' ? CAREER_GOALS_DATA_KO : CAREER_GOALS_DATA;
+    const activeColleagues = language === 'ko' ? COLLEAGUES_DATA_KO : COLLEAGUES_DATA;
+    const activeCustomColleagues = language === 'ko' ? CUSTOM_COLLEAGUE_CHOICES_DATA_KO : CUSTOM_COLLEAGUE_CHOICES_DATA;
+    const activeUniforms = language === 'ko' ? UNIFORMS_DATA_KO : UNIFORMS_DATA;
+    const dominionList = language === 'ko' ? DOMINIONS_KO : DOMINIONS;
 
     const [isJoysOfParentingModalOpen, setIsJoysOfParentingModalOpen] = useState(false);
     const [isMovingOutModalOpen, setIsMovingOutModalOpen] = useState(false);
@@ -384,13 +497,15 @@ export const PageFive: React.FC = () => {
                 <div className="absolute inset-0 bg-green-900/5 blur-3xl -z-10"></div>
                 <div className="flex-shrink-0 relative">
                     <div className="absolute inset-0 border-2 border-green-500/30 rounded-lg translate-x-2 translate-y-2"></div>
-                    <img src={CAREER_INTRO_DATA.imageSrc} alt="Your Career Intro" className="w-full max-w-xl rounded-lg relative z-10 border border-green-500/50 shadow-[0_0_30px_rgba(34,197,94,0.2)]" />
+                    <img src={activeCareerIntro.imageSrc} alt="Your Career Intro" className="w-full max-w-xl rounded-lg relative z-10 border border-green-500/50 shadow-[0_0_30px_rgba(34,197,94,0.2)]" />
                 </div>
                 <div className="max-w-2xl text-center lg:text-left">
-                    <h2 className="text-xl font-mono text-green-500/70 mb-2 tracking-tighter">/// STAGE_III_INIT</h2>
-                    <h1 className="text-5xl font-bold font-cinzel my-2 text-white drop-shadow-[0_0_10px_rgba(34,197,94,0.5)]">{CAREER_INTRO_DATA.title}</h1>
+                    <h2 className="text-2xl font-cinzel tracking-widest text-green-500/70 mb-2">
+                        {language === 'ko' ? "스테이지 3" : "STAGE III"}
+                    </h2>
+                    <h1 className="text-5xl font-bold font-cinzel my-2 text-white drop-shadow-[0_0_10px_rgba(34,197,94,0.5)]">{activeCareerIntro.title}</h1>
                     <div className="h-px w-full bg-gradient-to-r from-transparent via-green-500/50 to-transparent my-6"></div>
-                    <p className="text-gray-300 leading-relaxed whitespace-pre-wrap font-sans text-sm md:text-base">{renderFormattedText(CAREER_INTRO_DATA.description)}</p>
+                    <p className="text-gray-300 leading-relaxed whitespace-pre-wrap font-sans text-sm md:text-base">{renderFormattedText(activeCareerIntro.description)}</p>
                     <img src="/images/99KvcyT0-main3.jpg" alt="Career Path" className="mt-6 rounded-lg shadow-lg shadow-green-900/20 w-64 mx-auto lg:mx-0 border border-green-500/30 opacity-90 hover:opacity-100 transition-opacity" />
                 </div>
             </section>
@@ -398,47 +513,51 @@ export const PageFive: React.FC = () => {
             <section className="my-24">
                  <div className="flex flex-col md:flex-row gap-8 max-w-7xl mx-auto items-center bg-black/80 p-8 rounded-lg border border-green-500/30 shadow-[0_0_30px_rgba(34,197,94,0.1)] relative overflow-hidden">
                     <div className="absolute inset-0 bg-[linear-gradient(rgba(34,197,94,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(34,197,94,0.05)_1px,transparent_1px)] bg-[size:20px_20px]"></div>
-                    <div className="md:w-1/3 relative z-10"><img src={ALLMILLOR_INTRO_DATA.imageSrc} alt={ALLMILLOR_INTRO_DATA.title} className="rounded-lg shadow-lg w-full" /></div>
+                    <div className="md:w-1/3 relative z-10"><img src={activeAllmillorIntro.imageSrc} alt={activeAllmillorIntro.title} className="rounded-lg shadow-lg w-full" /></div>
                     <div className="md:w-2/3 text-gray-300 text-sm space-y-4 relative z-10">
-                        <h3 className="font-cinzel text-3xl text-center text-green-100 mb-4 drop-shadow-[0_0_8px_rgba(74,222,128,0.3)]">{ALLMILLOR_INTRO_DATA.title}</h3>
-                        <p className="whitespace-pre-wrap leading-relaxed">{renderFormattedText(ALLMILLOR_INTRO_DATA.description)}</p>
+                        <h3 className="font-cinzel text-3xl text-center text-green-100 mb-4 drop-shadow-[0_0_8px_rgba(74,222,128,0.3)]">{activeAllmillorIntro.title}</h3>
+                        <p className="whitespace-pre-wrap leading-relaxed">{renderFormattedText(activeAllmillorIntro.description)}</p>
                     </div>
                 </div>
             </section>
 
             <section className="my-16">
                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {ALLMILLOR_CHOICES_DATA.map(choice => (
-                        <CyberChoiceCard key={choice.id} item={choice} isSelected={selectedAllmillorIds.has(choice.id)} onSelect={handleAllmillorSelect} disabled={!selectedAllmillorIds.has(choice.id) && selectedAllmillorIds.size >= 3} imageAspectRatio="aspect-[2/1]" />
+                    {activeAllmillorChoices.map(choice => (
+                        <CyberChoiceCard key={choice.id} item={choice} isSelected={selectedAllmillorIds.has(choice.id)} onSelect={handleAllmillorSelect} disabled={!selectedAllmillorIds.has(choice.id) && selectedAllmillorIds.size >= 3} imageAspectRatio="aspect-[2/1]" language={language} />
                     ))}
                 </div>
             </section>
 
              <section className="my-16">
-                <SectionHeader className="text-green-400 drop-shadow-[0_0_10px_rgba(74,222,128,0.6)]">CAREER GOALS</SectionHeader>
-                <SectionSubHeader><span className="text-green-200/70 font-mono text-xs">First off, if you played sports in school, you might just be able to go pro!</span></SectionSubHeader>
+                <SectionHeader className="text-green-400 drop-shadow-[0_0_10px_rgba(74,222,128,0.6)]">
+                    {language === 'ko' ? "인생의 진로" : "CAREER GOALS"}
+                </SectionHeader>
+                <SectionSubHeader><span className="text-green-200/70 font-mono text-xs">
+                    {language === 'ko' ? "일단, 학창 시절에 스포츠를 하셨다면 바로 프로 선수가 되는 길도 있어요!" : "First off, if you played sports in school, you might just be able to go pro!"}
+                </span></SectionSubHeader>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-                    {CAREER_GOALS_DATA.proSports.map(goal => (
-                        <CyberChoiceCard key={goal.id} item={goal} isSelected={selectedCareerGoalIds.has(goal.id)} onSelect={handleCareerGoalSelect} disabled={isGoalDisabled(goal)} imageAspectRatio="aspect-[2/1]" />
+                    {activeCareerGoals.proSports.map(goal => (
+                        <CyberChoiceCard key={goal.id} item={goal} isSelected={selectedCareerGoalIds.has(goal.id)} onSelect={handleCareerGoalSelect} disabled={isGoalDisabled(goal)} imageAspectRatio="aspect-[2/1]" language={language} />
                     ))}
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-12">
-                    {CAREER_GOALS_DATA.general.map(goal => (
-                        <CyberChoiceCard key={goal.id} item={goal} isSelected={selectedCareerGoalIds.has(goal.id)} onSelect={handleCareerGoalSelect} disabled={isGoalDisabled(goal)} imageAspectRatio="aspect-[4/3]" />
+                    {activeCareerGoals.general.map(goal => (
+                        <CyberChoiceCard key={goal.id} item={goal} isSelected={selectedCareerGoalIds.has(goal.id)} onSelect={handleCareerGoalSelect} disabled={isGoalDisabled(goal)} imageAspectRatio="aspect-[4/3]" language={language} />
                     ))}
                 </div>
                 <div className="mt-40 pt-12 border-t border-green-900/30">
                     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8 max-w-7xl mx-auto">
-                        {CAREER_GOALS_DATA.finishingTouches.map(goal => {
+                        {activeCareerGoals.finishingTouches.map(goal => {
                             const isJoysOfParenting = goal.id === 'joys_of_parenting';
                             const isMovingOut = goal.id === 'moving_out';
                             const isMentorCareer = goal.id === 'mentor_career';
                             const isSelected = selectedCareerGoalIds.has(goal.id);
                             return (
-                                <SmallRoundChoiceCard key={goal.id} item={goal} isSelected={isSelected} onSelect={handleCareerGoalSelect} disabled={isGoalDisabled(goal)} iconButton={(isJoysOfParenting && isSelected) ? <CompanionIcon /> : (isMovingOut && isSelected) ? <HouseIcon /> : (isMentorCareer && isSelected) ? <CompanionIcon /> : undefined} onIconButtonClick={(isJoysOfParenting && isSelected) ? () => setIsJoysOfParentingModalOpen(true) : (isMovingOut && isSelected) ? () => setIsMovingOutModalOpen(true) : (isMentorCareer && isSelected) ? () => setIsStudentSelectionModalOpen(true) : undefined}>
-                                    {isJoysOfParenting && isSelected && joysOfParentingCompanionName && <div className="text-center"><p className="text-[10px] text-gray-500 uppercase tracking-widest mt-1">Successor</p><p className="text-xs font-bold text-green-300 font-mono truncate">{joysOfParentingCompanionName}</p></div>}
-                                    {isMovingOut && isSelected && movingOutHomes.length > 0 && <div className="text-center"><p className="text-[10px] text-gray-400 uppercase tracking-widest mt-1">Assigned</p><p className="text-xs font-bold text-green-300 font-mono truncate">{movingOutHomes.length} Home{movingOutHomes.length > 1 ? 's' : ''}</p></div>}
-                                    {isMentorCareer && isSelected && mentee && <div className="text-center"><p className="text-[10px] text-gray-500 uppercase tracking-widest mt-1">Student</p><p className="text-xs font-bold text-green-300 font-mono truncate">{mentee.name}</p></div>}
+                                <SmallRoundChoiceCard key={goal.id} item={goal} isSelected={isSelected} onSelect={handleCareerGoalSelect} disabled={isGoalDisabled(goal)} iconButton={(isJoysOfParenting && isSelected) ? <CompanionIcon /> : (isMovingOut && isSelected) ? <HouseIcon /> : (isMentorCareer && isSelected) ? <CompanionIcon /> : undefined} onIconButtonClick={(isJoysOfParenting && isSelected) ? () => setIsJoysOfParentingModalOpen(true) : (isMovingOut && isSelected) ? () => setIsMovingOutModalOpen(true) : (isMentorCareer && isSelected) ? () => setIsStudentSelectionModalOpen(true) : undefined} language={language}>
+                                    {isJoysOfParenting && isSelected && joysOfParentingCompanionName && <div className="text-center"><p className="text-[10px] text-gray-500 uppercase tracking-widest mt-1">{language === 'ko' ? "후계자" : "Successor"}</p><p className="text-xs font-bold text-green-300 font-mono truncate">{joysOfParentingCompanionName}</p></div>}
+                                    {isMovingOut && isSelected && movingOutHomes.length > 0 && <div className="text-center"><p className="text-[10px] text-gray-400 uppercase tracking-widest mt-1">{language === 'ko' ? "배정됨" : "Assigned"}</p><p className="text-xs font-bold text-green-300 font-mono truncate">{movingOutHomes.length} {language === 'ko' ? "채" : "Home"}{movingOutHomes.length > 1 ? (language === 'ko' ? '' : 's') : ''}</p></div>}
+                                    {isMentorCareer && isSelected && mentee && <div className="text-center"><p className="text-[10px] text-gray-500 uppercase tracking-widest mt-1">{language === 'ko' ? "제자" : "Student"}</p><p className="text-xs font-bold text-green-300 font-mono truncate">{mentee.name}</p></div>}
                                 </SmallRoundChoiceCard>
                             );
                         })}
@@ -447,17 +566,29 @@ export const PageFive: React.FC = () => {
             </section>
 
             <section className="my-16">
-                <SectionHeader className="text-green-400 drop-shadow-[0_0_10px_rgba(74,222,128,0.6)]">SELECT YOUR COLLEAGUES</SectionHeader>
-                <SectionSubHeader className="!max-w-6xl"><span className="text-green-200/70 font-mono text-xs">You know the drill by this point. Same rules apply as for Classmates. With these, you have a lot more leeway in figuring out how you two met and what kind of relationship you have, since you haven't merely been stuck in the same school together.</span></SectionSubHeader>
-                {isEvoghosVowActive && <div className="bg-red-950/30 border border-red-500/50 p-4 rounded text-center max-w-3xl mx-auto mb-10"><p className="text-red-400 font-bold text-lg font-mono">/// ERROR: EVOGHOS_PROTOCOL_ACTIVE ///</p><p className="text-red-300/70 text-sm mt-1">Colleague selection disabled.</p></div>}
+                <SectionHeader className="text-green-400 drop-shadow-[0_0_10px_rgba(74,222,128,0.6)]">
+                    {language === 'ko' ? "동료 선택" : "SELECT YOUR COLLEAGUES"}
+                </SectionHeader>
+                <SectionSubHeader className="!max-w-6xl"><span className="text-green-200/70 font-mono text-xs">
+                    {language === 'ko' 
+                        ? "규칙은 클래스메이트들을 고를 때와 같습니다. 대신 만나게 된 계기나 당신과의 관계 같은 것은 보다 자유롭게 설정할 수 있습니다. '같은 학교 친구'로 끝나지 않으니까요."
+                        : "You know the drill by this point. Same rules apply as for Classmates. With these, you have a lot more leeway in figuring out how you two met and what kind of relationship you have, since you haven't merely been stuck in the same school together."
+                    }
+                </span></SectionSubHeader>
+                {isEvoghosVowActive && <div className="bg-red-950/30 border border-red-500/50 p-4 rounded text-center max-w-3xl mx-auto mb-10"><p className="text-red-400 font-bold text-lg font-mono">/// ERROR: EVOGHOS_PROTOCOL_ACTIVE ///</p><p className="text-red-300/70 text-sm mt-1">{language === 'ko' ? "동료 선택 비활성화됨." : "Colleague selection disabled."}</p></div>}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    {COLLEAGUES_DATA.map(colleague => {
+                    {activeColleagues.map(colleague => {
                         const selectedUniformId = colleagueUniforms.get(colleague.id);
-                        const uniform = UNIFORMS_DATA.find(u => u.id === selectedUniformId);
+                        const uniform = activeUniforms.find(u => u.id === selectedUniformId);
                         const isMentor = selectedMentors.some(m => m.id === colleague.id && m.type === 'premade');
-                        const dominion = DOMINIONS.find(d => d.id === selectedDominionId);
-                        const hasRefund = dominion && colleague.birthplace.toUpperCase() === dominion.title.toUpperCase();
-                        const refundText = hasRefund ? 'GRANTS +2 FP' : undefined;
+                        const dominion = dominionList.find(d => d.id === selectedDominionId);
+                        
+                        // Localization logic for refund text
+                        // Colleague birthplace is localized in _KO data. Dominion title is localized in _KO data.
+                        // Comparison works.
+                        const hasRefund = dominion && colleague.birthplace.toUpperCase().trim() === dominion.title.toUpperCase().trim();
+                        const refundText = hasRefund ? (language === 'ko' ? '행운 점수 +2 제공' : 'GRANTS +2 FP') : undefined;
+                        
                         return (
                             <ColleagueCard 
                                 key={colleague.id} 
@@ -470,6 +601,7 @@ export const PageFive: React.FC = () => {
                                 onUniformButtonClick={handleOpenUniformModal}
                                 isMentor={isMentor}
                                 refundText={refundText}
+                                language={language}
                             />
                         );
                     })}
@@ -480,10 +612,13 @@ export const PageFive: React.FC = () => {
                         <img src="/images/wNfdjNJ0-c25.png" alt="Create your own companion" className="w-2/5 sm:w-1/3 aspect-[4/3] object-cover object-left rounded-sm flex-shrink-0" />
                         <div className="flex flex-col flex-grow relative z-10">
                             <p className="text-gray-300 text-sm leading-relaxed mb-4">
-                                {renderFormattedText("Same as last time, if none of the options above suffice (or you're playing Multiplayer), you can create your own colleague! If you spend {fp}-4 FP{/fp}, you can create a companion with 25 Companion Points on the {i}Reference page{/i}; if you spend {fp}-6 FP{/fp}, you are given 35 Companion Points instead; and if you spend {fp}-8 FP{/fp}, you are given 50 Companion Points.")}
+                                {renderFormattedText(language === 'ko' 
+                                    ? "전과 마찬가지로, 딱히 마음에 드는 동료가 없거나 멀티플레이어 중이라면 직접 동료를 만들 수 있습니다. {fp}행운 점수 4점{/fp}을 소모하면 {i}참고 페이지{/i}에서 동료 점수 25점으로 동료를 만들 수 있습니다. {fp}행운 점수 6점{/fp}을 소모하면 동료 점수 35점이, {fp}행운 점수 8점{/fp}을 소모하면 동료 점수 50점이 주어집니다."
+                                    : "Same as last time, if none of the options above suffice (or you're playing Multiplayer), you can create your own colleague! If you spend {fp}-4 FP{/fp}, you can create a companion with 25 Companion Points on the {i}Reference page{/i}; if you spend {fp}-6 FP{/fp}, you are given 35 Companion Points instead; and if you spend {fp}-8 FP{/fp}, you are given 50 Companion Points."
+                                )}
                             </p>
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                                {CUSTOM_COLLEAGUE_CHOICES_DATA.map(option => (
+                                {activeCustomColleagues.map(option => (
                                     <div key={option.id} onClick={!isEvoghosVowActive ? () => handleAddCustomColleague(option.id) : undefined} className={`relative p-4 bg-gray-900/80 border border-green-800 rounded-sm transition-all text-center group ${isEvoghosVowActive ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:border-green-400 hover:bg-green-900/20'}`} role="button" tabIndex={0}><div className="absolute top-1 right-1 p-1 text-green-500/30 group-hover:text-green-400"><CompanionIcon /></div><p className="font-bold text-xs text-green-400 font-mono group-hover:text-green-300">{option.cost.toUpperCase()}</p><p className="text-xs text-gray-400 mt-1 group-hover:text-gray-200">{renderFormattedText(option.description)}</p></div>
                                 ))}
                             </div>
@@ -491,11 +626,11 @@ export const PageFive: React.FC = () => {
                                 <div className="mt-4 pt-4 border-t border-green-800/30 space-y-2">
                                     <h4 className="font-mono text-xs text-green-500/70 uppercase tracking-widest mb-2">/// Active Fabrications</h4>
                                     {customColleagues.map(c => {
-                                        const optionData = CUSTOM_COLLEAGUE_CHOICES_DATA.find(opt => opt.id === c.optionId);
+                                        const optionData = activeCustomColleagues.find(opt => opt.id === c.optionId);
                                         const isMentor = selectedMentors.some(m => m.id === c.id.toString() && m.type === 'custom');
                                         return (
                                             <div key={c.id} className="bg-black/60 border border-green-900/30 p-2 rounded flex justify-between items-center hover:border-green-700/50 transition-colors">
-                                                <div className="flex items-center gap-3">{!isMentor && <button onClick={() => handleRemoveCustomColleague(c.id)} className="text-red-500 hover:text-red-400 text-lg font-bold px-2" title="Terminate">&times;</button>}<div><p className="text-xs font-semibold text-green-100">{renderFormattedText(optionData?.description || '')} {isMentor && <span className="ml-2 text-amber-300 text-[10px] uppercase font-bold border border-amber-500/50 px-1 rounded">[MENTOR]</span>}</p><p className="text-[10px] text-gray-500 font-mono">ASSIGNMENT: <span className="text-green-300">{c.companionName || 'UNASSIGNED'}</span></p></div></div>
+                                                <div className="flex items-center gap-3">{!isMentor && <button onClick={() => handleRemoveCustomColleague(c.id)} className="text-red-500 hover:text-red-400 text-lg font-bold px-2" title="Terminate">&times;</button>}<div><p className="text-xs font-semibold text-green-100">{renderFormattedText(optionData?.description || '')} {isMentor && <span className="ml-2 text-amber-300 text-[10px] uppercase font-bold border border-amber-500/50 px-1 rounded">[MENTOR]</span>}</p><p className="text-[10px] text-gray-500 font-mono">{language === 'ko' ? "할당됨: " : "ASSIGNMENT: "}<span className="text-green-300">{c.companionName || (language === 'ko' ? '없음' : 'UNASSIGNED')}</span></p></div></div>
                                                 <button onClick={() => handleOpenAssignColleagueModal(c)} className="p-1.5 rounded bg-green-900/20 text-green-400 hover:bg-green-500/20 hover:text-green-200 transition-colors border border-green-800/50" title="Configure"><CompanionIcon /></button>
                                             </div>
                                         );
@@ -507,10 +642,10 @@ export const PageFive: React.FC = () => {
                 </div>
             </section>
 
-            {isJoysOfParentingModalOpen && <CompanionSelectionModal currentCompanionName={joysOfParentingCompanionName} onClose={() => setIsJoysOfParentingModalOpen(false)} onSelect={(name) => { handleJoysOfParentingCompanionAssign(name); setIsJoysOfParentingModalOpen(false); }} pointLimit={50} title="Assign Your Mage Child" categoryFilter="mage" colorTheme="green" />}
+            {isJoysOfParentingModalOpen && <CompanionSelectionModal currentCompanionName={joysOfParentingCompanionName} onClose={() => setIsJoysOfParentingModalOpen(false)} onSelect={(name) => { handleJoysOfParentingCompanionAssign(name); setIsJoysOfParentingModalOpen(false); }} pointLimit={50} title={language === 'ko' ? "마법소녀 자녀 할당" : "Assign Your Mage Child"} categoryFilter="mage" colorTheme="green" />}
             {isMovingOutModalOpen && <MovingOutModal onClose={() => setIsMovingOutModalOpen(false)} />}
             {uniformModalState.isOpen && uniformModalState.colleagueId && uniformModalState.colleagueName && <UniformSelectionModal classmateName={uniformModalState.colleagueName} currentUniformId={colleagueUniforms.get(uniformModalState.colleagueId)} onClose={handleCloseUniformModal} onSelect={handleSelectUniformInModal} mode="costume" theme="green" />}
-            {assigningColleague && <CompanionSelectionModal currentCompanionName={assigningColleague.companionName} onClose={handleCloseAssignColleagueModal} onSelect={(name) => { handleAssignCustomColleagueName(assigningColleague.id, name); handleCloseAssignColleagueModal(); }} pointLimit={pointLimit} title={`Assign Custom Colleague (${pointLimit} CP)`} categoryFilter="mage" colorTheme="green" />}
+            {assigningColleague && <CompanionSelectionModal currentCompanionName={assigningColleague.companionName} onClose={handleCloseAssignColleagueModal} onSelect={(name) => { handleAssignCustomColleagueName(assigningColleague.id, name); handleCloseAssignColleagueModal(); }} pointLimit={pointLimit} title={language === 'ko' ? `커스텀 동료 할당 (${pointLimit}점)` : `Assign Custom Colleague (${pointLimit} CP)`} categoryFilter="mage" colorTheme="green" />}
             {isStudentSelectionModalOpen && <StudentSelectionModal onClose={() => setIsStudentSelectionModalOpen(false)} onSelect={(mentee) => { handleMenteeSelect(mentee); setIsStudentSelectionModalOpen(false); }} currentMenteeId={mentee?.id || null} selectedClassmateIds={selectedClassmateIds} />}
         </>
     );

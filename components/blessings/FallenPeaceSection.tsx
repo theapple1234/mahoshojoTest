@@ -1,12 +1,18 @@
 
+
 import React, { useState, useEffect } from 'react';
 import { useCharacterContext } from '../../context/CharacterContext';
-import { FALLEN_PEACE_DATA, FALLEN_PEACE_SIGIL_TREE_DATA, TELEPATHY_DATA, MENTAL_MANIPULATION_DATA, BLESSING_ENGRAVINGS } from '../../constants';
+import { 
+    FALLEN_PEACE_DATA, FALLEN_PEACE_DATA_KO, 
+    FALLEN_PEACE_SIGIL_TREE_DATA, FALLEN_PEACE_SIGIL_TREE_DATA_KO, 
+    TELEPATHY_DATA, TELEPATHY_DATA_KO, 
+    MENTAL_MANIPULATION_DATA, MENTAL_MANIPULATION_DATA_KO, 
+    BLESSING_ENGRAVINGS, BLESSING_ENGRAVINGS_KO
+} from '../../constants';
 import type { FallenPeacePower, FallenPeaceSigil, ChoiceItem, MagicGrade } from '../../types';
 import { BlessingIntro, SectionHeader, SectionSubHeader, WeaponIcon, BoostedEffectBox, renderFormattedText } from '../ui';
 import { CompellingWillSigilCard, SigilColor } from '../CompellingWillSigilCard';
 import { WeaponSelectionModal } from '../WeaponSelectionModal';
-
 
 const sigilImageMap: {[key: string]: string} = { 'kaarn.png': 'kaarn', 'purth.png': 'purth', 'juathas.png': 'juathas', 'xuth.png': 'xuth', 'sinthru.png': 'sinthru', 'lekolu.png': 'lekolu' };
 const getSigilTypeFromImage = (imageSrc: string): string | null => {
@@ -21,7 +27,8 @@ const PowerCard: React.FC<{
     onToggle: (id: string) => void;
     children?: React.ReactNode;
     fontSize?: 'regular' | 'large';
-}> = ({ power, isSelected, isDisabled, onToggle, children, fontSize = 'regular' }) => {
+    className?: string;
+}> = ({ power, isSelected, isDisabled, onToggle, children, fontSize = 'regular', className = '' }) => {
     const gradeStyles: Record<string, string> = {
         kaarn: 'border-white ring-white/50',
         purth: 'border-green-400 ring-green-400/50',
@@ -38,9 +45,6 @@ const PowerCard: React.FC<{
             ? 'opacity-50 cursor-not-allowed border-gray-800'
             : 'border-white/10 hover:border-white/40 cursor-pointer'
     }`;
-    
-    // Robust check for children to avoid empty borders
-    const hasChildren = React.Children.toArray(children).some(child => child);
 
     const shadowMap: Record<string, string> = {
         purth: '#C7DE95',
@@ -51,16 +55,20 @@ const PowerCard: React.FC<{
     const shadowColor = power.grade ? shadowMap[power.grade] : undefined;
     const textShadow = shadowColor ? `0 0 2px ${shadowColor}` : 'none';
     const titleColor = shadowColor || 'white';
-
+    
     const descriptionClass = fontSize === 'large' ? 'text-sm' : 'text-xs';
 
     return (
-        <div className={`${wrapperClass} relative`} onClick={() => !isDisabled && onToggle(power.id)}>
+        <div className={`${wrapperClass} relative ${className}`} onClick={() => !isDisabled && onToggle(power.id)}>
             <img src={power.imageSrc} alt={power.title} className="w-full aspect-[3/2] rounded-md mb-4 object-cover" />
             <h4 className="font-cinzel font-bold tracking-wider text-xl" style={{ textShadow, color: titleColor }}>{power.title}</h4>
             {power.cost && <p className="text-xs text-yellow-300/70 italic mt-1">{power.cost}</p>}
+            
+            {/* Separator Line */}
+            <div className="w-16 h-px bg-white/10 mx-auto my-2"></div>
+            
             <p className={`${descriptionClass} text-gray-400 font-medium leading-relaxed flex-grow text-left whitespace-pre-wrap`} style={{ textShadow }}>{renderFormattedText(power.description)}</p>
-            {hasChildren && (
+            {children && (
                  <div className="mt-4 pt-4 border-t border-gray-700/50 w-full">
                     {children}
                  </div>
@@ -70,9 +78,9 @@ const PowerCard: React.FC<{
 };
 
 export const FallenPeaceSection: React.FC = () => {
-    // ... existing component code ...
     const ctx = useCharacterContext();
     const [isWeaponModalOpen, setIsWeaponModalOpen] = useState(false);
+
     const {
         selectedBlessingEngraving,
         fallenPeaceEngraving,
@@ -85,8 +93,15 @@ export const FallenPeaceSection: React.FC = () => {
         disableFallenPeaceMagician,
         fallenPeaceSigilTreeCost,
         kpPaidNodes, toggleKpNode,
-        fontSize
+        fontSize,
+        language
     } = useCharacterContext();
+
+    const activeData = language === 'ko' ? FALLEN_PEACE_DATA_KO : FALLEN_PEACE_DATA;
+    const activeTree = language === 'ko' ? FALLEN_PEACE_SIGIL_TREE_DATA_KO : FALLEN_PEACE_SIGIL_TREE_DATA;
+    const activeTelepathy = language === 'ko' ? TELEPATHY_DATA_KO : TELEPATHY_DATA;
+    const activeMentalManipulation = language === 'ko' ? MENTAL_MANIPULATION_DATA_KO : MENTAL_MANIPULATION_DATA;
+    const activeEngravings = language === 'ko' ? BLESSING_ENGRAVINGS_KO : BLESSING_ENGRAVINGS;
 
     const finalEngraving = fallenPeaceEngraving ?? selectedBlessingEngraving;
     const isSkinEngraved = finalEngraving === 'skin';
@@ -97,43 +112,51 @@ export const FallenPeaceSection: React.FC = () => {
         }
     }, [isSkinEngraved, isFallenPeaceMagicianApplied, disableFallenPeaceMagician]);
 
-    const isFallenPeacePowerDisabled = (power: FallenPeacePower, type: 'telepathy' | 'mental_manipulation'): boolean => {
+    const isFallenPeacePowerDisabled = (power: FallenPeacePower, type: 'telepathy' | 'mentalManipulation'): boolean => {
         const selectedSet = type === 'telepathy' ? ctx.selectedTelepathy : ctx.selectedMentalManipulation;
         const availablePicks = type === 'telepathy' ? ctx.availableTelepathyPicks : ctx.availableMentalManipulationPicks;
 
         if (!selectedSet.has(power.id) && selectedSet.size >= availablePicks) return true;
         if (power.requires) {
-            const allSelectedPowersAndSigils = new Set([...ctx.selectedTelepathy, ...ctx.selectedMentalManipulation, ...ctx.selectedFallenPeaceSigils]);
-            if (!power.requires.every(req => allSelectedPowersAndSigils.has(req))) return true;
+            const allSelected = new Set([...ctx.selectedTelepathy, ...ctx.selectedMentalManipulation, ...ctx.selectedFallenPeaceSigils]);
+            if (!power.requires.every(req => allSelected.has(req))) return true;
         }
         return false;
     };
 
     const isFallenPeaceSigilDisabled = (sigil: FallenPeaceSigil): boolean => {
-        if (ctx.selectedFallenPeaceSigils.has(sigil.id)) return false; // Can always deselect
+        if (ctx.selectedFallenPeaceSigils.has(sigil.id)) return false; 
         if (!sigil.prerequisites.every(p => ctx.selectedFallenPeaceSigils.has(p))) return true;
-
+        
         // KP check
         if (kpPaidNodes.has(String(sigil.id))) return false;
-        
+
         const sigilType = getSigilTypeFromImage(sigil.imageSrc);
         const sigilCost = sigilType ? 1 : 0;
-        if (sigilType && ctx.availableSigilCounts[sigilType] < sigilCost) return true;
+        if (sigilType && ctx.availableSigilCounts[sigilType as keyof typeof ctx.availableSigilCounts] < sigilCost) return true;
 
         return false;
     };
 
-    const getFallenPeaceSigil = (id: string) => FALLEN_PEACE_SIGIL_TREE_DATA.find(s => s.id === id)!;
+    const getFallenPeaceSigil = (id: string) => activeTree.find(s => s.id === id)!;
     
     const getSigilDisplayInfo = (sigil: FallenPeaceSigil): { color: SigilColor, benefits: React.ReactNode } => {
-        const colorMap: Record<string, SigilColor> = {
-            'Left Brained': 'orange', 'Lobe': 'gray', 'Frontal Lobe': 'lime', 'Right Brained': 'red',
-        };
-        const color = colorMap[sigil.type] || 'gray';
+        const sigilType = getSigilTypeFromImage(sigil.imageSrc);
+        let color: SigilColor = 'gray';
+        
+        switch (sigilType) {
+            case 'kaarn': color = 'gray'; break;
+            case 'purth': color = 'green'; break;
+            case 'juathas': color = 'orange'; break;
+            case 'xuth': color = 'red'; break;
+            case 'sinthru': color = 'purple'; break;
+            case 'lekolu': color = 'yellow'; break;
+        }
+
         const benefits = (
             <>
-                {sigil.benefits.telepathy ? <p className="text-blue-300">+ {sigil.benefits.telepathy} Telepathy</p> : null}
-                {sigil.benefits.mentalManipulation ? <p className="text-purple-300">+ {sigil.benefits.mentalManipulation} Mental Manipulation</p> : null}
+                {sigil.benefits.telepathy ? <p className="text-orange-300">+ {sigil.benefits.telepathy} {language === 'ko' ? "텔레파시" : "Telepathy"}</p> : null}
+                {sigil.benefits.mentalManipulation ? <p className="text-green-300">+ {sigil.benefits.mentalManipulation} {language === 'ko' ? "정신 조작" : "Mental Manipulation"}</p> : null}
             </>
         );
         return { color, benefits };
@@ -164,18 +187,34 @@ export const FallenPeaceSection: React.FC = () => {
         );
     };
 
-    const boostDescriptions: { [key: string]: string } = {
-        thoughtseer: "Can simultaneously sense thoughts and feelings of entire crowds. Manipulation ability boosted.",
-        lucid_dreamer: "Can invade dreams spiritually even while you’re still awake. Time seems to slow down within dreams, and emotions are more intense.",
-        memory_lane: "Can see memories from much farther back. Better at breaking mental blocks.",
-        mental_block: "Doubled either intensity of protection, or amount of memories that can be blocked.",
-        perfect_stranger: "Halves the time to forget you.",
-        masquerade: "Your disguise cant be seen through regardless of anyone’s level of willpower or psychic resistance.",
-        psychic_vampire: "Always passively absorbing emotions within a miles radius.",
-        master_telepath: "Significantly boosts intensity of illusions and difficulty of resistance.",
-        crowd_control: "Doubles range and number of civilians that can be possessed.",
-        hypnotist: "Significantly boosts length and intensity of control.",
-        breaker_of_minds: "Max 20 agents."
+    const telepathyBoostDescriptions: { [key: string]: string } = language === 'ko' ? {
+        thoughtseer: "수많은 군중의 생각과 감정을 동시에 파악할 수 있습니다. 사람들을 조종하는 능력도 강화됩니다.",
+        lucid_dreamer: "깨어 있는 동안에도 타인의 꿈에 침투할 수 있습니다. 꿈 속에서는 시간의 흐름이 느려지고, 감정이 더 격렬해집니다.",
+        memory_lane: "훨씬 더 먼 과거의 기억도 읽을 수 있습니다. 정신 차단벽을 보다 더 잘 뚫을 수 있습니다.",
+        mental_block: "차단의 방어력, 또는 지킬 수 있는 기억의 개수가 두 배 증가합니다."
+    } : {
+        thoughtseer: "Can read the minds of dozens of people in a crowd at once. Manipulation ability is increased.",
+        lucid_dreamer: "Can invade dreams while awake, and time moves slower and feelings are more intense in the dreams.",
+        memory_lane: "Can see much further back with more clarity. Better at breaking through mental blocks.",
+        mental_block: "Blocks are twice as strong, or twice as many memories can be blocked."
+    };
+
+    const mentalManipulationBoostDescriptions: { [key: string]: string } = language === 'ko' ? {
+        perfect_stranger: "당신을 잊는 데 걸리는 시간이 반감됩니다.",
+        masquerade: "누구도 당신의 위장을 간파할 수 없습니다.",
+        psychic_vampire: "반경 1.6km 내에 있는 사람들의 감정을 지속적으로 흡수하게 됩니다.",
+        master_telepath: "환상이 더욱 생생해지고, 동시에 저항하기도 아주 어려워집니다.",
+        crowd_control: "능력의 범위와, 대상으로 할 수 있는 일반인의 수가 두 배 증가합니다.",
+        hypnotist: "조종 강도와 지속 시간이 상당히 강화됩니다.",
+        breaker_of_minds: "최대 20명의 요원을 부릴 수 있습니다."
+    } : {
+        perfect_stranger: "Time taken to forget is halved.",
+        masquerade: "Disguise is impenetrable.",
+        psychic_vampire: "Passively drains emotions from everyone in a mile radius.",
+        master_telepath: "Hallucinations are more vivid and much harder to resist.",
+        crowd_control: "Range and capacity of crowd control doubled.",
+        hypnotist: "Commands are stronger and last longer.",
+        breaker_of_minds: "Can have up to 20 agents."
     };
 
     const isTelepathyBoostDisabled = !ctx.isTelepathyBoosted && ctx.availableSigilCounts.kaarn <= 0;
@@ -184,19 +223,24 @@ export const FallenPeaceSection: React.FC = () => {
     const isMagicianSelected = selectedTrueSelfTraits.has('magician');
     const additionalCost = Math.floor(fallenPeaceSigilTreeCost * 0.25);
 
+    // Fallen Peace has no Lekolu sigils, so additionalFpCost is 0.
+    const costText = language === 'ko'
+        ? `(축복 점수 -${additionalCost})`
+        : `(-${additionalCost} BP)`;
+
     // Style to counteract global zoom for specific sections
     // Global Large is 120%. 1 / 1.2 = 0.83333
     const staticScaleStyle: React.CSSProperties = fontSize === 'large' ? { zoom: 0.83333 } : {};
 
     return (
         <section>
-            <BlessingIntro {...FALLEN_PEACE_DATA} />
+            <BlessingIntro {...activeData} />
             <div className="mt-8 mb-16 max-w-3xl mx-auto">
                 <h4 className="font-cinzel text-xl text-center tracking-widest my-6 text-purple-300 uppercase">
-                    Engrave this Blessing
+                    {language === 'ko' ? "축복 각인" : "Engrave this Blessing"}
                 </h4>
                 <div className="grid grid-cols-3 gap-4">
-                    {BLESSING_ENGRAVINGS.map(engraving => {
+                    {activeEngravings.map(engraving => {
                         const isSelected = finalEngraving === engraving.id;
                         const isOverridden = fallenPeaceEngraving !== null;
                         const isWeapon = engraving.id === 'weapon';
@@ -241,8 +285,8 @@ export const FallenPeaceSection: React.FC = () => {
                             }`}
                         >
                             {isFallenPeaceMagicianApplied
-                                ? `The 'Magician' trait is applied. Click to remove. (+${additionalCost} BP)`
-                                : `Click to apply the 'Magician' trait from your True Self. This allows you to use the Blessing without transforming for an additional ${additionalCost} BP.`}
+                                ? (language === 'ko' ? `'마법사' 특성이 적용되었습니다. ${costText}` : `The Magician trait is applied. ${costText}`)
+                                : (language === 'ko' ? `'마법사' 특성을 적용할 수 있습니다. 변신 없이 축복을 사용할 수 있게 됩니다. ${costText}` : `Click to enable the Magician trait from your True Self, allowing you to use the Blessing without transforming. ${costText}`)}
                         </button>
                     </div>
                 )}
@@ -258,8 +302,9 @@ export const FallenPeaceSection: React.FC = () => {
                     currentWeaponName={fallenPeaceWeaponName}
                 />
             )}
+
             <div className="my-16 bg-black/20 p-8 rounded-lg border border-gray-800 overflow-x-auto">
-                <SectionHeader>SIGIL TREE</SectionHeader>
+                <SectionHeader>{language === 'ko' ? "표식 트리" : "SIGIL TREE"}</SectionHeader>
                 <div className="flex items-center min-w-max pb-8 px-4 justify-center">
                     
                     {/* Column 1: Root */}
@@ -267,14 +312,14 @@ export const FallenPeaceSection: React.FC = () => {
                         {renderSigilNode('left_brained')}
                     </div>
 
-                    {/* Connector 1: Split */}
+                    {/* SVG Connector 1 (Split) */}
                     <svg className="w-16 h-[28rem] flex-shrink-0 text-gray-600" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M 0 224 H 20" /> {/* Center Out */}
-                        <path d="M 20 224 V 100 H 64" /> {/* Up to Top */}
-                        <path d="M 20 224 V 348 H 64" /> {/* Down to Bottom */}
+                        <path d="M 20 224 V 100 H 64" /> {/* Branch Top (Parietal) */}
+                        <path d="M 20 224 V 348 H 64" /> {/* Branch Bottom (Broca) */}
                     </svg>
 
-                    {/* Column 2: Lobes 1 */}
+                    {/* Column 2 */}
                     <div className="flex flex-col justify-between h-[28rem]">
                         <div className="h-44 flex items-center justify-center">
                             {renderSigilNode('parietal_lobe')}
@@ -284,10 +329,10 @@ export const FallenPeaceSection: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* Connector 2: Merge */}
+                    {/* SVG Connector 2 (Converge to Frontal) */}
                     <svg className="w-16 h-[28rem] flex-shrink-0 text-gray-600" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M 0 100 H 44 V 224 H 64" /> {/* From Top to Center */}
-                        <path d="M 0 348 H 44 V 224" />      {/* From Bottom to Center */}
+                        <path d="M 0 100 H 20 V 224 H 64" /> {/* Top In */}
+                        <path d="M 0 348 H 20 V 224" /> {/* Bottom In */}
                     </svg>
 
                     {/* Column 3: Frontal Lobe */}
@@ -295,14 +340,14 @@ export const FallenPeaceSection: React.FC = () => {
                         {renderSigilNode('frontal_lobe')}
                     </div>
 
-                    {/* Connector 3: Split */}
+                    {/* SVG Connector 3 (Split) */}
                     <svg className="w-16 h-[28rem] flex-shrink-0 text-gray-600" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M 0 224 H 20" /> {/* Center Out */}
-                        <path d="M 20 224 V 100 H 64" /> {/* Up to Top */}
-                        <path d="M 20 224 V 348 H 64" /> {/* Down to Bottom */}
+                        <path d="M 20 224 V 100 H 64" /> {/* Branch Top (Cerebellum) */}
+                        <path d="M 20 224 V 348 H 64" /> {/* Branch Bottom (Temporal) */}
                     </svg>
 
-                    {/* Column 4: Lobes 2 */}
+                    {/* Column 4 */}
                     <div className="flex flex-col justify-between h-[28rem]">
                         <div className="h-44 flex items-center justify-center">
                             {renderSigilNode('cerebellum')}
@@ -312,34 +357,40 @@ export const FallenPeaceSection: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* Connector 4: Merge */}
+                     {/* SVG Connector 4 (Converge to Right) */}
                     <svg className="w-16 h-[28rem] flex-shrink-0 text-gray-600" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M 0 100 H 44 V 224 H 64" /> {/* From Top to Center */}
-                        <path d="M 0 348 H 44 V 224" />      {/* From Bottom to Center */}
+                        <path d="M 0 100 H 20 V 224 H 64" /> {/* Top In */}
+                        <path d="M 0 348 H 20 V 224" /> {/* Bottom In */}
                     </svg>
 
-                    {/* Column 5: Right Brained */}
+                    {/* Column 5 */}
                     <div className="flex flex-col justify-center h-[28rem]">
                         {renderSigilNode('right_brained')}
                     </div>
 
                 </div>
             </div>
-            <div className="mt-16">
-                <SectionHeader>Telepathy</SectionHeader>
+
+            <div className="mt-16 px-4 lg:px-8">
+                <SectionHeader>{language === 'ko' ? "텔레파시" : "Telepathy"}</SectionHeader>
                 <div className={`my-4 max-w-sm mx-auto p-4 border rounded-lg transition-all bg-black/20 ${ ctx.isTelepathyBoosted ? 'border-amber-400 ring-2 ring-amber-400/50 cursor-pointer hover:border-amber-300' : isTelepathyBoostDisabled ? 'border-gray-700 opacity-50 cursor-not-allowed' : 'border-gray-700 hover:border-amber-400/50 cursor-pointer'}`} onClick={!isTelepathyBoostDisabled ? () => ctx.handleFallenPeaceBoostToggle('telepathy') : undefined}>
                     <div className="flex items-center justify-center gap-4">
                         <img src="/images/zTm8fcLb-kaarn.png" alt="Kaarn Sigil" className="w-16 h-16"/>
                         <div className="text-left">
                             <h4 className="font-cinzel text-lg font-bold text-amber-300 tracking-widest">{ctx.isTelepathyBoosted ? 'BOOSTED' : 'BOOST'}</h4>
-                            {!ctx.isTelepathyBoosted && <p className="text-xs text-gray-400 mt-1">Activating this will consume one Kaarn sigil.</p>}
+                            {!ctx.isTelepathyBoosted && <p className="text-xs text-gray-400 mt-1">
+                                {language === 'ko' ? "활성화 시 카른 표식 1개 소모" : "Activating this will consume one Kaarn sigil."}
+                            </p>}
                         </div>
                     </div>
                 </div>
-                <SectionSubHeader>Picks Available: {ctx.availableTelepathyPicks - ctx.selectedTelepathy.size} / {ctx.availableTelepathyPicks}</SectionSubHeader>
+                <SectionSubHeader>
+                    {language === 'ko' ? `선택 가능: ${ctx.availableTelepathyPicks - ctx.selectedTelepathy.size} / ${ctx.availableTelepathyPicks}` : `Picks Available: ${ctx.availableTelepathyPicks - ctx.selectedTelepathy.size} / ${ctx.availableTelepathyPicks}`}
+                </SectionSubHeader>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" style={staticScaleStyle}>
-                    {TELEPATHY_DATA.map(power => {
-                        const boostedText = ctx.isTelepathyBoosted && boostDescriptions[power.id];
+                    {activeTelepathy.map(power => {
+                        const boostedText = ctx.isTelepathyBoosted && telepathyBoostDescriptions[power.id];
+                        
                         return (
                             <PowerCard 
                                 key={power.id} 
@@ -355,52 +406,42 @@ export const FallenPeaceSection: React.FC = () => {
                     })}
                 </div>
             </div>
-            <div className="mt-16">
-                <SectionHeader>Mental Manipulation</SectionHeader>
+
+            <div className="mt-16 px-4 lg:px-8">
+                <SectionHeader>{language === 'ko' ? "정신 조작" : "Mental Manipulation"}</SectionHeader>
                 <div className={`my-4 max-w-sm mx-auto p-4 border rounded-lg transition-all bg-black/20 ${ ctx.isMentalManipulationBoosted ? 'border-amber-400 ring-2 ring-amber-400/50 cursor-pointer hover:border-amber-300' : isMentalManipulationBoostDisabled ? 'border-gray-700 opacity-50 cursor-not-allowed' : 'border-gray-700 hover:border-amber-400/50 cursor-pointer'}`} onClick={!isMentalManipulationBoostDisabled ? () => ctx.handleFallenPeaceBoostToggle('mentalManipulation') : undefined}>
                     <div className="flex items-center justify-center gap-4">
                         <img src="/images/Dg6nz0R1-purth.png" alt="Purth Sigil" className="w-16 h-16"/>
                         <div className="text-left">
                             <h4 className="font-cinzel text-lg font-bold text-amber-300 tracking-widest">{ctx.isMentalManipulationBoosted ? 'BOOSTED' : 'BOOST'}</h4>
-                            {!ctx.isMentalManipulationBoosted && <p className="text-xs text-gray-400 mt-1">Activating this will consume one Purth sigil.</p>}
+                            {!ctx.isMentalManipulationBoosted && <p className="text-xs text-gray-400 mt-1">
+                                {language === 'ko' ? "활성화 시 퍼르스 표식 1개 소모" : "Activating this will consume one Purth sigil."}
+                            </p>}
                         </div>
                     </div>
                 </div>
-                <SectionSubHeader>Picks Available: {ctx.availableMentalManipulationPicks - ctx.selectedMentalManipulation.size} / {ctx.availableMentalManipulationPicks}</SectionSubHeader>
+                <SectionSubHeader>
+                    {language === 'ko' ? `선택 가능: ${ctx.availableMentalManipulationPicks - ctx.selectedMentalManipulation.size} / ${ctx.availableMentalManipulationPicks}` : `Picks Available: ${ctx.availableMentalManipulationPicks - ctx.selectedMentalManipulation.size} / ${ctx.availableMentalManipulationPicks}`}
+                </SectionSubHeader>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" style={staticScaleStyle}>
-                    {(() => {
-                        const specialPower = MENTAL_MANIPULATION_DATA.find(p => p.id === 'breaker_of_minds');
-                        const otherPowers = MENTAL_MANIPULATION_DATA.filter(p => p.id !== 'breaker_of_minds');
-                        
-                        const firstHalf = otherPowers.slice(0, 3);
-                        const secondHalf = otherPowers.slice(3);
+                    {activeMentalManipulation.map(power => {
+                        const boostedText = ctx.isMentalManipulationBoosted && mentalManipulationBoostDescriptions[power.id];
+                        const isBreakerOfMinds = power.id === 'breaker_of_minds';
 
-                        const renderPower = (power: FallenPeacePower) => {
-                            const boostedText = ctx.isMentalManipulationBoosted && boostDescriptions[power.id];
-                            return <PowerCard 
+                        return (
+                            <PowerCard 
                                 key={power.id} 
                                 power={{...power, cost: ''}} 
                                 isSelected={ctx.selectedMentalManipulation.has(power.id)} 
                                 onToggle={ctx.handleMentalManipulationSelect} 
-                                isDisabled={isFallenPeacePowerDisabled(power, 'mental_manipulation')} 
+                                isDisabled={isFallenPeacePowerDisabled(power, 'mentalManipulation')}
                                 fontSize={fontSize}
+                                className={isBreakerOfMinds ? "lg:row-span-2" : ""}
                             >
                                 {boostedText && <BoostedEffectBox text={boostedText} />}
                             </PowerCard>
-                        };
-
-                        return (
-                            <>
-                                {firstHalf.map(renderPower)}
-                                {specialPower && (
-                                    <div key={specialPower.id} className="lg:row-span-2">
-                                        {renderPower(specialPower)}
-                                    </div>
-                                )}
-                                {secondHalf.map(renderPower)}
-                            </>
-                        );
-                    })()}
+                        )
+                    })}
                 </div>
             </div>
         </section>

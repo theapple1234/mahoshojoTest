@@ -89,6 +89,88 @@ const CURSE_DATA = [
     }
 ];
 
+const CURSE_DATA_KO = [
+    {
+        blessing: "길조의 축복",
+        curses: [
+            { id: "quick_twitch", name: "재빠른 반사신경", effect: "반응 속도가 극도로 느려집니다." },
+            { id: "incredible_will", name: "초인적인 의지", effect: "통각이 두 배가 됩니다." },
+            { id: "sensory_master", name: "감각 극대화", effect: "감각의 범위와 예민함이 반감됩니다." },
+            { id: "cowards_boon", name: "겁쟁이의 선물", effect: "도망칠 때의 속도가 소폭 감소합니다." },
+            { id: "charisma_plus", name: "카리스마+", effect: "카리스마가 대폭 줄어듭니다." },
+            { id: "strength_plus", name: "힘+", effect: "힘이 대폭 줄어듭니다." },
+            { id: "speed_plus", name: "속도+", effect: "속도가 대폭 줄어듭니다." },
+            { id: "smarts_plus", name: "지능+", effect: "지능이 대폭 줄어듭니다." },
+            { id: "hokuto_senjukai_ken", name: "북두천수괴권", effect: "힘이 일반인 수준으로 하락합니다." },
+            { id: "dont_blink", name: "눈 깜짝할 사이", effect: "속도가 일반인 수준으로 하락합니다." },
+            { id: "superpowered_mind", name: "초월자의 정신", effect: "지능이 일반인 수준으로 하락합니다." },
+        ]
+    },
+    {
+        blessing: "강렬한 의지의 축복",
+        curses: [
+            { id: "psychic_force_i", name: "염동력", effect: "어떤 힘에 짓눌리는 느낌을 지속적으로 받게 됩니다." },
+            { id: "pyromaniac_i", name: "방화광", effect: "화상의 고통을 지속적으로 느끼게 됩니다." },
+            { id: "ice_cold_i", name: "한기", effect: "동상의 고통을 지속적으로 느끼게 됩니다." },
+            { id: "plasma_strike", name: "플라즈마 타격", effect: "정전기로 인한 고통을 지속적으로 느끼게 됩니다." },
+        ]
+    },
+    {
+        blessing: "경험과 지혜의 축복",
+        curses: [
+            { id: "healing_bliss", name: "황홀한 치유", effect: "치유 주문이 상처를 치유하지 않고 오히려 악화시킵니다." },
+            { id: "chloromancy", name: "식물술사", effect: "대상 주위의 식물이 변이하여 대상을 공격합니다." },
+            { id: "the_reinmans_curse", name: "마부의 저주", effect: "대상의 노화 속도가 두 배가 됩니다." },
+        ]
+    },
+    {
+        blessing: "씁쓸한 불만족의 축복",
+        curses: [
+            { id: "mages_familiar_i", name: "마녀의 패밀리어", effect: "모든 신화생물이 대상을 적대합니다." },
+            { id: "self_duplication", name: "자기 복제", effect: "\"사악한 쌍둥이\" 도플갱어들에게 고통받게 됩니다." },
+            { id: "personification", name: "개성화", effect: "대상 주변의 물체들이 살아 움직이며 대상을 공격합니다." },
+            { id: "material_transmutation", name: "물질 연금술", effect: "대상의 손에 닿는 일반적인 무기체가 쓰레기로 변합니다." },
+            { id: "internal_manipulation", name: "체내 조작", effect: "깊은 병증과 엄청난 통증에 시달리게 됩니다." },
+            { id: "supersize_me", name: "거대화", effect: "두 배 작아집니다." },
+        ]
+    },
+    {
+        blessing: "잃어버린 희망의 축복",
+        curses: [
+            { id: "spirit_medium", name: "망자와의 대화", effect: "대상은 때때로 망자의 혼들에게 시달리게 됩니다." },
+            { id: "spectral_form", name: "영체화", effect: "무언가를 만지려고 하면 손이 그것을 통과해 버립니다." },
+            { id: "life_drain", name: "생명력 흡수", effect: "생명력을 서서히 잃습니다." },
+            { id: "rise_from_your_graves", name: "무덤에서 일어나라", effect: "주위 일정한 반경 내에 있는 모든 시체가 좀비로 되살아나 대상을 공격합니다." },
+            { id: "vampirism", name: "흡혈", effect: "흡혈귀가 되지만, 모든 이점을 잃습니다." },
+        ]
+    },
+    {
+        blessing: "무너진 평화의 축복",
+        curses: [
+            { id: "thoughtseer", name: "생각을 읽는 자", effect: "자신의 생각과 감정을 주변인들에게 텔레파시로 전달하게 됩니다." },
+            { id: "lucid_dreamer", name: "꿈의 방문자", effect: "악몽에 시달립니다." },
+            { id: "memory_lane", name: "기억의 길", effect: "건망증이 극도로 심해집니다." },
+            { id: "perfect_stranger", name: "완벽한 타인", effect: "누군가 위장하는 것을 거의 알아차리지 못합니다." },
+            { id: "masquerade", name: "가면 무도회", effect: "사람을 알아보는 능력을 잃어버립니다." },
+            { id: "psychic_vampire", name: "정신 흡수자", effect: "주변인의 부정적인 감정을 같이 경험하게 됩니다." },
+            { id: "master_telepath", name: "텔레파시 달인", effect: "조현병성 환각에 시달립니다." },
+            { id: "crowd_control", name: "군중 제어", effect: "주변 일반인들이 공격적으로 변해 대상을 공격할 수 있습니다." },
+            { id: "hypnotist", name: "최면술사", effect: "암시에 훨씬 취약해집니다." },
+        ]
+    },
+    {
+        blessing: "폐쇄회로의 축복",
+        curses: [
+            { id: "weapon_sabotage", name: "무기 사보타주", effect: "무기가 파손이나 해킹에 취약해집니다." },
+            { id: "vehicle_sabotage", name: "탈것 사보타주", effect: "탈것이 파손이나 해킹에 취약해집니다." },
+            { id: "digital_infiltrator", name: "디지털 침투자", effect: "전자 장비가 파손이나 해킹에 취약해집니다." },
+            { id: "counter_hacker", name: "카운터 해커", effect: "다른 아바타를 상대하는 것이 두 배 힘들어집니다." },
+            { id: "verse_hijack", name: "가상 우주 하이재킹", effect: "대상이 방문하는 소우주가 피해를 입고 불안정해집니다." },
+            { id: "grey_goo", name: "회색 점액질", effect: "나나이트의 분해 과정으로 인한 고통을 지속적으로 느낍니다." },
+        ]
+    }
+];
+
 const ALL_POWERS = [
     ...Constants.ESSENTIAL_BOONS_DATA, ...Constants.MINOR_BOONS_DATA, ...Constants.MAJOR_BOONS_DATA,
     ...Constants.TELEKINETICS_DATA, ...Constants.METATHERMICS_DATA,
@@ -102,6 +184,8 @@ const ALL_POWERS = [
 export const CurseEncyclopediaModal: React.FC<CurseEncyclopediaModalProps> = ({ onClose }) => {
     const ctx = useCharacterContext();
     const rightPanelRef = useRef<HTMLDivElement>(null);
+    
+    const activeCurseData = ctx.language === 'ko' ? CURSE_DATA_KO : CURSE_DATA;
 
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
@@ -152,13 +236,13 @@ export const CurseEncyclopediaModal: React.FC<CurseEncyclopediaModalProps> = ({ 
 
                 <header className="flex items-center justify-between p-6 border-b border-purple-900/50 bg-[#0a050e]">
                     <div className="flex items-center gap-3">
-                        <span className="text-3xl">📖</span>
+                        <span className="text-3xl">👁‍🗨</span>
                         <div>
                             <h2 className="font-cinzel text-3xl text-purple-200 tracking-widest text-shadow-purple">
-                                CURSE ENCYCLOPEDIA
+                                {ctx.language === 'ko' ? "저주 백과사전" : "CURSE ENCYCLOPEDIA"}
                             </h2>
                             <p className="text-xs text-purple-400/60 font-mono tracking-wider mt-1">
-                                /// FORBIDDEN KNOWLEDGE ARCHIVE ///
+                                {ctx.language === 'ko' ? "주의: 눈으로 보기만 하시오" : "/// VIEW ONLY ///"}
                             </p>
                         </div>
                     </div>
@@ -173,7 +257,7 @@ export const CurseEncyclopediaModal: React.FC<CurseEncyclopediaModalProps> = ({ 
                 <div className="flex flex-grow overflow-hidden">
                     {/* Left Sidebar (Map/Grid) */}
                     <div className="w-1/3 md:w-1/4 bg-[#0a050e]/80 border-r border-purple-900/30 overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-purple-900 hidden md:block">
-                        {CURSE_DATA.map((group) => (
+                        {activeCurseData.map((group) => (
                             <div key={group.blessing} className="mb-6">
                                 <h4 className="font-cinzel text-[10px] text-purple-400/70 mb-2 uppercase tracking-wider text-center">{group.blessing.replace("The Blessing of ", "")}</h4>
                                 <div className="grid grid-cols-3 gap-2">
@@ -213,12 +297,12 @@ export const CurseEncyclopediaModal: React.FC<CurseEncyclopediaModalProps> = ({ 
                         <div className="max-w-4xl mx-auto">
                             <div className="bg-purple-900/10 border border-purple-500/30 p-3 rounded mb-8 text-center">
                                 <p className="text-sm text-purple-200/80 italic font-serif">
-                                    * Any spells not listed are not applicable.
+                                    {ctx.language === 'ko' ? "* 목록에 없는 주문은 적용되지 않습니다." : "* Any spells not listed are not applicable."}
                                 </p>
                             </div>
 
                             <div className="space-y-8 pb-8">
-                                {CURSE_DATA.map((group) => (
+                                {activeCurseData.map((group) => (
                                     <div 
                                         key={group.blessing} 
                                         className="bg-black/40 border border-purple-800/30 rounded-lg overflow-hidden flex flex-col"

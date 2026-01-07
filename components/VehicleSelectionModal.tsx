@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { VEHICLE_CATEGORIES, VEHICLE_PERKS } from '../constants';
 import type { AllBuilds, VehicleSelections } from '../types';
+import { useCharacterContext } from '../context/CharacterContext';
 
 const STORAGE_KEY = 'seinaru_magecraft_builds';
 
@@ -53,6 +54,7 @@ export const VehicleSelectionModal: React.FC<VehicleSelectionModalProps> = ({
     title = 'Assign Signature Vehicle',
     colorTheme = 'cyan'
 }) => {
+    const { language } = useCharacterContext();
     const [vehicleBuilds, setVehicleBuilds] = useState<Record<string, { points: number }>>({});
 
     useEffect(() => {
@@ -125,6 +127,14 @@ export const VehicleSelectionModal: React.FC<VehicleSelectionModalProps> = ({
     };
 
     const currentTheme = themeClasses[colorTheme] || themeClasses.cyan;
+    
+    const msgSelect = language === 'ko' 
+        ? `${pointLimit} 탈것 점수 이하인 탈것 빌드를 선택하세요.`
+        : `Select a vehicle build that costs ${pointLimit} Vehicle Points or less.`;
+    
+    const msgNoBuilds = language === 'ko'
+        ? "탈것 빌드가 없습니다. 참고 페이지에서 만들어 보세요!"
+        : "No vehicle builds found. Go to the Reference Page to create one!";
 
     return (
         <div
@@ -152,7 +162,7 @@ export const VehicleSelectionModal: React.FC<VehicleSelectionModalProps> = ({
                 </header>
                 <main className="p-6 overflow-y-auto">
                      <p className={`text-center text-sm ${currentTheme.infoText} mb-4 italic`}>
-                        Select a vehicle build that costs {pointLimit} Vehicle Points or less.
+                        {msgSelect}
                     </p>
                     <div className="space-y-3">
                         {Object.keys(vehicleBuilds).length > 0 ? (
@@ -180,7 +190,9 @@ export const VehicleSelectionModal: React.FC<VehicleSelectionModalProps> = ({
                                         <div>
                                             <h3 className="font-semibold text-white">{name}</h3>
                                             <p className="text-xs text-gray-400">
-                                                {isDisabled ? `Cost exceeds ${pointLimit} points` : 'Click to assign this vehicle'}
+                                                {isDisabled 
+                                                    ? (language === 'ko' ? `비용이 ${pointLimit}점을 초과합니다` : `Cost exceeds ${pointLimit} points`) 
+                                                    : (language === 'ko' ? '클릭하여 할당' : 'Click to assign this vehicle')}
                                             </p>
                                         </div>
                                         <span className={`font-bold text-lg ${costColor}`}>
@@ -191,7 +203,7 @@ export const VehicleSelectionModal: React.FC<VehicleSelectionModalProps> = ({
                             })
                         ) : (
                             <p className="text-center text-gray-500 italic py-8">
-                                No vehicle builds found. Go to the Reference Page to create one!
+                                {msgNoBuilds}
                             </p>
                         )}
                     </div>
@@ -201,7 +213,7 @@ export const VehicleSelectionModal: React.FC<VehicleSelectionModalProps> = ({
                         onClick={() => onSelect(null)}
                         className="px-4 py-2 text-sm font-cinzel bg-gray-800/50 border border-gray-700 rounded-md hover:bg-gray-700 transition-colors"
                     >
-                        Clear Assignment
+                        {language === 'ko' ? "할당 해제" : "Clear Assignment"}
                     </button>
                 </footer>
             </div>

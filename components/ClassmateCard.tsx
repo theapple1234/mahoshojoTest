@@ -2,19 +2,30 @@
 import React, { Fragment, useMemo } from 'react';
 import type { Classmate, ChoiceItem, Dominion } from '../types';
 import { renderFormattedText } from './ui';
+import { useCharacterContext } from '../context/CharacterContext';
 import {
-  DOMINIONS,
+  DOMINIONS, DOMINIONS_KO,
   ESSENTIAL_BOONS_DATA, MINOR_BOONS_DATA, MAJOR_BOONS_DATA,
+  ESSENTIAL_BOONS_DATA_KO, MINOR_BOONS_DATA_KO, MAJOR_BOONS_DATA_KO,
   TELEKINETICS_DATA, METATHERMICS_DATA,
+  TELEKINETICS_DATA_KO, METATHERMICS_DATA_KO,
   ELEANORS_TECHNIQUES_DATA, GENEVIEVES_TECHNIQUES_DATA,
+  ELEANORS_TECHNIQUES_DATA_KO, GENEVIEVES_TECHNIQUES_DATA_KO,
   BREWING_DATA, SOUL_ALCHEMY_DATA, TRANSFORMATION_DATA,
+  BREWING_DATA_KO, SOUL_ALCHEMY_DATA_KO, TRANSFORMATION_DATA_KO,
   CHANNELLING_DATA, NECROMANCY_DATA, BLACK_MAGIC_DATA,
+  CHANNELLING_DATA_KO, NECROMANCY_DATA_KO, BLACK_MAGIC_DATA_KO,
   TELEPATHY_DATA, MENTAL_MANIPULATION_DATA,
+  TELEPATHY_DATA_KO, MENTAL_MANIPULATION_DATA_KO,
   ENTRANCE_DATA, FEATURES_DATA, INFLUENCE_DATA,
+  ENTRANCE_DATA_KO, FEATURES_DATA_KO, INFLUENCE_DATA_KO,
   NET_AVATAR_DATA, TECHNOMANCY_DATA, NANITE_CONTROL_DATA,
+  NET_AVATAR_DATA_KO, TECHNOMANCY_DATA_KO, NANITE_CONTROL_DATA_KO,
   RIGHTEOUS_CREATION_SPECIALTIES_DATA, RIGHTEOUS_CREATION_MAGITECH_DATA, 
   RIGHTEOUS_CREATION_ARCANE_CONSTRUCTS_DATA, RIGHTEOUS_CREATION_METAMAGIC_DATA,
-  STAR_CROSSED_LOVE_PACTS_DATA
+  RIGHTEOUS_CREATION_SPECIALTIES_DATA_KO, RIGHTEOUS_CREATION_MAGITECH_DATA_KO,
+  RIGHTEOUS_CREATION_ARCANE_CONSTRUCTS_DATA_KO, RIGHTEOUS_CREATION_METAMAGIC_DATA_KO,
+  STAR_CROSSED_LOVE_PACTS_DATA, STAR_CROSSED_LOVE_PACTS_DATA_KO
 } from '../constants';
 
 interface ClassmateCardProps {
@@ -48,8 +59,8 @@ const UNIFORM_SQUARE_IMAGES: Record<string, string> = {
 };
 const UNIDENTIFIED_IMAGE = '/images/HfL17Fvn-uniquestionsquare.jpg';
 
-// Collect all power data for grade lookup
-const ALL_POWERS = [
+// Separate Data Sets
+const ALL_POWERS_EN = [
     ...ESSENTIAL_BOONS_DATA, ...MINOR_BOONS_DATA, ...MAJOR_BOONS_DATA,
     ...TELEKINETICS_DATA, ...METATHERMICS_DATA,
     ...ELEANORS_TECHNIQUES_DATA, ...GENEVIEVES_TECHNIQUES_DATA,
@@ -58,9 +69,23 @@ const ALL_POWERS = [
     ...TELEPATHY_DATA, ...MENTAL_MANIPULATION_DATA,
     ...ENTRANCE_DATA, ...FEATURES_DATA, ...INFLUENCE_DATA,
     ...NET_AVATAR_DATA, ...TECHNOMANCY_DATA, ...NANITE_CONTROL_DATA,
-    ...RIGHTEOUS_CREATION_SPECIALTIES_DATA, ...RIGHTEOUS_CREATION_MAGITECH_DATA,
+    ...RIGHTEOUS_CREATION_SPECIALTIES_DATA, ...RIGHTEOUS_CREATION_MAGITECH_DATA, 
     ...RIGHTEOUS_CREATION_ARCANE_CONSTRUCTS_DATA, ...RIGHTEOUS_CREATION_METAMAGIC_DATA,
     ...STAR_CROSSED_LOVE_PACTS_DATA
+];
+
+const ALL_POWERS_KO = [
+    ...ESSENTIAL_BOONS_DATA_KO, ...MINOR_BOONS_DATA_KO, ...MAJOR_BOONS_DATA_KO,
+    ...TELEKINETICS_DATA_KO, ...METATHERMICS_DATA_KO,
+    ...ELEANORS_TECHNIQUES_DATA_KO, ...GENEVIEVES_TECHNIQUES_DATA_KO,
+    ...BREWING_DATA_KO, ...SOUL_ALCHEMY_DATA_KO, ...TRANSFORMATION_DATA_KO,
+    ...CHANNELLING_DATA_KO, ...NECROMANCY_DATA_KO, ...BLACK_MAGIC_DATA_KO,
+    ...TELEPATHY_DATA_KO, ...MENTAL_MANIPULATION_DATA_KO,
+    ...ENTRANCE_DATA_KO, ...FEATURES_DATA_KO, ...INFLUENCE_DATA_KO,
+    ...NET_AVATAR_DATA_KO, ...TECHNOMANCY_DATA_KO, ...NANITE_CONTROL_DATA_KO,
+    ...RIGHTEOUS_CREATION_SPECIALTIES_DATA_KO, ...RIGHTEOUS_CREATION_MAGITECH_DATA_KO,
+    ...RIGHTEOUS_CREATION_ARCANE_CONSTRUCTS_DATA_KO, ...RIGHTEOUS_CREATION_METAMAGIC_DATA_KO,
+    ...STAR_CROSSED_LOVE_PACTS_DATA_KO
 ];
 
 const getGradeColorClass = (grade?: string, isBold: boolean = true) => {
@@ -75,39 +100,50 @@ const getGradeColorClass = (grade?: string, isBold: boolean = true) => {
     }
 };
 
-const resolvePowerData = (text: string): ChoiceItem | undefined => {
+const getPowerIdFromAlias = (text: string): string | null => {
     const normalized = text.toLowerCase().trim();
     
-    // 1. Manual Aliases & Correction logic
-    if (normalized.includes('subatomic')) return TELEKINETICS_DATA.find(p => p.id === 'subatomic_manipulation');
-    if (normalized.includes('vampirism')) return BLACK_MAGIC_DATA.find(p => p.id === 'vampirism');
-    if (normalized.includes('undead thrall')) return BLACK_MAGIC_DATA.find(p => p.id === 'undead_thrall');
-    if (normalized.includes('flower') && normalized.includes('blood')) return BLACK_MAGIC_DATA.find(p => p.id === 'flowers_of_blood');
-    if (normalized.includes('manual override')) return TECHNOMANCY_DATA.find(p => p.id === 'manual_override');
-    if (normalized.includes('hypnos')) return MENTAL_MANIPULATION_DATA.find(p => p.id === 'hypnotist');
-    if (normalized.includes('human marionettes')) return SOUL_ALCHEMY_DATA.find(p => p.id === 'human_marionettes');
+    // Manual Aliases
+    if (normalized.includes('subatomic') || normalized === '분자세계 조작') return 'subatomic_manipulation';
+    if (normalized.includes('vampirism') || normalized === '흡혈') return 'vampirism';
+    if (normalized.includes('undead thrall') || normalized === '언데드 노예') return 'undead_thrall';
+    if ((normalized.includes('flower') && normalized.includes('blood')) || normalized === '혈화') return 'flowers_of_blood';
+    if (normalized.includes('manual override') || normalized === '수동 제어') return 'manual_override';
+    if (normalized.includes('hypnos') || normalized === '최면술사') return 'hypnotist';
+    if (normalized.includes('human marionettes') || normalized === '인간 마리오네트') return 'human_marionettes';
+    if (normalized.includes('forsake humanity') || normalized === '괴수화 i') return 'shed_humanity_i';
+    if (normalized.includes('subatomic destruction')) return 'subatomic_manipulation';
+    if (normalized.includes('guardian angel') || normalized === '수호천사') return 'guardian_angels';
+    if (normalized.includes('speed run')) return 'speed_plus';
+    if (normalized.includes('i am not a weapon')) return 'masquerade';
+    if (normalized.includes('hokuto senjukai ken') || normalized === '북두천수괴권') return 'hokuto_senjukai_ken';
+    if (normalized.includes('psychic force ii') || normalized === '염동력 ii') return 'psychic_force_ii';
+    if (normalized.includes('summon creature') || normalized === '마수 소환') return 'summon_creature';
+    if (normalized === 'c r a z y') return 'summon_weather';
+
+    return null;
+};
+
+const resolvePowerData = (text: string, powerList: ChoiceItem[]): ChoiceItem | undefined => {
+    const normalized = text.toLowerCase().trim();
     
-    // Additional Fixes
-    if (normalized.includes('forsake humanity')) return TRANSFORMATION_DATA.find(p => p.id === 'shed_humanity_i');
-    if (normalized.includes('subatomic destruction')) return TELEKINETICS_DATA.find(p => p.id === 'subatomic_manipulation');
-    if (normalized.includes('guardian angel')) return ELEANORS_TECHNIQUES_DATA.find(p => p.id === 'guardian_angels');
-    if (normalized.includes('speed run')) return MINOR_BOONS_DATA.find(p => p.id === 'speed_plus');
-    if (normalized.includes('i am not a weapon')) return MENTAL_MANIPULATION_DATA.find(p => p.id === 'masquerade');
-    if (normalized.includes('hokuto senjukai ken')) return MAJOR_BOONS_DATA.find(p => p.id === 'hokuto_senjukai_ken');
-    if (normalized.includes('psychic force ii')) return TELEKINETICS_DATA.find(p => p.id === 'psychic_force_ii');
-    if (normalized.includes('summon creature')) return INFLUENCE_DATA.find(p => p.id === 'summon_creature');
-    if (normalized === 'c r a z y') return INFLUENCE_DATA.find(p => p.id === 'summon_weather') || ALL_POWERS.find(p => p.id === 'summon_weather');
-    
+    // 1. Check ID via Alias
+    const aliasId = getPowerIdFromAlias(text);
+    if (aliasId) {
+        const found = powerList.find(p => p.id === aliasId);
+        if (found) return found;
+    }
+
     // 2. Exact Title Match
-    const exact = ALL_POWERS.find(p => p.title.toLowerCase() === normalized);
+    const exact = powerList.find(p => p.title.toLowerCase() === normalized);
     if (exact) return exact;
 
     // 3. Contains Match
-    const container = ALL_POWERS.find(p => p.title.toLowerCase().includes(normalized));
+    const container = powerList.find(p => p.title.toLowerCase().includes(normalized));
     if (container) return container;
     
     // 4. Reverse Contains
-    const contained = ALL_POWERS.find(p => normalized.includes(p.title.toLowerCase()));
+    const contained = powerList.find(p => normalized.includes(p.title.toLowerCase()));
     if (contained) return contained;
 
     return undefined;
@@ -126,7 +162,7 @@ const InfoTooltip: React.FC<{ title: string; description: string; imageSrc: stri
             </div>
             <div className="p-3">
                 <div className="text-[10px] text-gray-300 leading-normal font-normal whitespace-normal line-clamp-6 text-justify">
-                    {description}
+                    {renderFormattedText(description)}
                 </div>
             </div>
             {/* Arrow */}
@@ -136,12 +172,14 @@ const InfoTooltip: React.FC<{ title: string; description: string; imageSrc: stri
 );
 
 const ColoredPowerText: React.FC<{ text: string; isBold?: boolean }> = ({ text, isBold = true }) => {
+    const { language } = useCharacterContext();
     const parts = useMemo(() => text.split(',').map(p => p.trim()), [text]);
+    const activePowerList = language === 'ko' ? ALL_POWERS_KO : ALL_POWERS_EN;
     
     return (
         <span>
             {parts.map((part, i) => {
-                const powerData = resolvePowerData(part);
+                const powerData = resolvePowerData(part, activePowerList);
                 const colorClass = getGradeColorClass(powerData?.grade, isBold);
                 
                 const content = <span className={colorClass}>{part}</span>;
@@ -167,14 +205,33 @@ const ColoredPowerText: React.FC<{ text: string; isBold?: boolean }> = ({ text, 
 
 export const ClassmateCard: React.FC<ClassmateCardProps> = ({ classmate, isSelected, onSelect, disabled = false, selectionColor = 'amber', refundText, uniformId, uniformName, onUniformButtonClick }) => {
   const { id, name, cost, description, imageSrc, birthplace, signature, otherPowers } = classmate;
+  const { language } = useCharacterContext();
 
   const dominionInfo = useMemo(() => {
       const normalizedBirthplace = birthplace.toLowerCase().trim();
-      return DOMINIONS.find(d => 
+      const activeDominions = language === 'ko' ? DOMINIONS_KO : DOMINIONS;
+      
+      // Try to find in active list first
+      let found = activeDominions.find(d => 
           d.title.toLowerCase() === normalizedBirthplace || 
           d.id.toLowerCase() === normalizedBirthplace
       );
-  }, [birthplace]);
+      
+      // Fallback to English DOMINIONS lookup if not found (e.g. if birthplace in data is English but user switched to Korean)
+      if (!found) {
+           found = DOMINIONS.find(d => 
+              d.title.toLowerCase() === normalizedBirthplace || 
+              d.id.toLowerCase() === normalizedBirthplace
+          );
+          // If found in English list, try to map to Korean equivalent for display if needed
+          if (found && language === 'ko') {
+              const koFound = DOMINIONS_KO.find(d => d.id === found!.id);
+              if (koFound) found = koFound;
+          }
+      }
+      
+      return found;
+  }, [birthplace, language]);
 
   const themeClasses = {
       amber: {
@@ -204,6 +261,30 @@ export const ClassmateCard: React.FC<ClassmateCardProps> = ({ classmate, isSelec
   };
 
   const renderCost = (costStr: string) => {
+      if (language === 'ko') {
+          const parts = costStr.split(/((?:Costs|Grants)\s*[+-]?\d+\s*(?:FP|BP))/i);
+          return (
+              <span className="text-sm font-semibold">
+                  {parts.map((part, i) => {
+                        const trimmed = part.trim();
+                        if (!trimmed) return null;
+                        
+                        const fpMatch = trimmed.match(/(?:Costs|Grants)\s*([+-]?\d+)\s*FP/i);
+                        if (fpMatch) {
+                             return <span key={i} className="text-green-400 font-bold">행운 점수 {fpMatch[1]} </span>;
+                        }
+
+                        const bpMatch = trimmed.match(/(?:Costs|Grants)\s*([+-]?\d+)\s*BP/i);
+                        if (bpMatch) {
+                             return <span key={i} className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-300 to-purple-400 drop-shadow-[0_0_2px_rgba(192,38,211,0.5)]">축복 점수 {bpMatch[1]} </span>;
+                        }
+                        
+                        return <span key={i} className="text-white">{part}</span>;
+                  })}
+              </span>
+          )
+      }
+
       const regex = /(Costs|Grants|[-+]?\d+\s*FP|[-+]?\d+\s*BP)/gi;
       const parts = costStr.split(regex).filter(p => p !== undefined && p !== "");
       
@@ -232,6 +313,7 @@ export const ClassmateCard: React.FC<ClassmateCardProps> = ({ classmate, isSelec
         return (
             <>
                 {parts.map((part, index) => {
+                    // English Logic
                     if (part.includes("Some rumor that the spirit")) {
                         const splitText = "Some rumor that the spirit is her own ";
                         const [before] = part.split(splitText);
@@ -245,6 +327,32 @@ export const ClassmateCard: React.FC<ClassmateCardProps> = ({ classmate, isSelec
                             </p>
                         );
                     }
+
+                    // Korean Logic
+                    if (part.includes("어떤 소문에 따르면 그 영혼은")) {
+                        const sisterText = "여동생";
+                        const fadeText = "이름조차 기억나지 않네요."; // part of the last sentence
+                        
+                        // Structure: [Text before] + [sisterText] + [Text middle] + [fadeText]
+                        const splitAtSister = part.split(sisterText);
+                        if (splitAtSister.length > 1) {
+                            const beforeSister = splitAtSister[0];
+                            const afterSisterFull = splitAtSister[1];
+                            
+                            const splitAtFade = afterSisterFull.split(fadeText);
+                            const middleText = splitAtFade[0];
+                            
+                            return (
+                                <p key={index} className="mb-4 last:mb-0">
+                                    {renderFormattedText(beforeSister)}
+                                    <span className="text-white/30 font-bold">{sisterText}</span>
+                                    {renderFormattedText(middleText)}
+                                    <span className="bg-gradient-to-r from-gray-400 to-transparent text-transparent bg-clip-text font-bold decoration-clone">{fadeText}</span>
+                                </p>
+                            );
+                        }
+                    }
+
                     return <p key={index} className="mb-4 last:mb-0">{renderFormattedText(part)}</p>;
                 })}
             </>
@@ -261,8 +369,11 @@ export const ClassmateCard: React.FC<ClassmateCardProps> = ({ classmate, isSelec
           <p className="text-xs font-semibold mt-1">
               {parts.map((part, i) => {
                   if (part.match(/\+?\d+\s*FP/)) {
+                       // Korean translation for refund text if needed, though usually standard format handles it
+                      if (language === 'ko') return <span key={i} className="text-green-400 font-bold">{part.replace('FP', '')} 행운 점수</span>;
                       return <span key={i} className="text-green-400 font-bold">{part}</span>;
                   }
+                  if (language === 'ko' && part.trim() === 'Grants') return <span key={i} className="text-white">제공: </span>;
                   return <span key={i} className="text-white">{part}</span>;
               })}
           </p>
@@ -294,7 +405,9 @@ export const ClassmateCard: React.FC<ClassmateCardProps> = ({ classmate, isSelec
 
           <div className="text-xs text-gray-300 space-y-2 text-center md:text-left bg-black/20 p-3 rounded border border-white/5 flex-grow">
               <p>
-                <strong className="text-gray-500 font-bold block md:inline md:mr-1 uppercase tracking-wider text-[0.625rem]">Birthplace:</strong> 
+                <strong className="text-gray-500 font-bold block md:inline md:mr-1 uppercase tracking-wider text-[0.625rem]">
+                    {language === 'ko' ? "출신지:" : "Birthplace:"}
+                </strong> 
                 {dominionInfo ? (
                     <InfoTooltip title={dominionInfo.title} description={dominionInfo.description} imageSrc={dominionInfo.imageSrc}>
                         <span className="text-gray-200">{birthplace}</span>
@@ -303,14 +416,26 @@ export const ClassmateCard: React.FC<ClassmateCardProps> = ({ classmate, isSelec
                     <span className="text-gray-200">{birthplace}</span>
                 )}
               </p>
-              <p><strong className="text-gray-500 font-bold block md:inline md:mr-1 uppercase tracking-wider text-[0.625rem]">Signature:</strong> <ColoredPowerText text={signature} isBold={true} /></p>
-              <p><strong className="text-gray-500 font-bold block md:inline md:mr-1 uppercase tracking-wider text-[0.625rem]">Other Powers:</strong> <ColoredPowerText text={otherPowers} isBold={false} /></p>
+              <p>
+                  <strong className="text-gray-500 font-bold block md:inline md:mr-1 uppercase tracking-wider text-[0.625rem]">
+                      {language === 'ko' ? "주력기:" : "Signature:"}
+                  </strong> 
+                  <ColoredPowerText text={signature} isBold={true} />
+              </p>
+              <p>
+                  <strong className="text-gray-500 font-bold block md:inline md:mr-1 uppercase tracking-wider text-[0.625rem]">
+                      {language === 'ko' ? "기타 능력:" : "Other Powers:"}
+                  </strong> 
+                  <ColoredPowerText text={otherPowers} isBold={false} />
+              </p>
               <div className="pt-2 mt-2 border-t border-white/10">
                 <p className="flex items-center justify-between">
-                    <strong className="text-gray-500 font-bold uppercase tracking-wider text-[0.625rem]">Uniform:</strong> 
+                    <strong className="text-gray-500 font-bold uppercase tracking-wider text-[0.625rem]">
+                        {language === 'ko' ? "의복:" : "Uniform:"}
+                    </strong> 
                     <span className="relative group/uniform">
                         <span className="text-amber-200/80 cursor-help hover:text-amber-100 transition-colors">
-                            {uniformName || 'Unidentified'}
+                            {uniformName || (language === 'ko' ? '미정' : 'Unidentified')}
                         </span>
                         <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-20 h-20 opacity-0 group-hover/uniform:opacity-100 transition-opacity pointer-events-none z-50 rounded border border-white/20 shadow-xl overflow-hidden bg-black">
                             <img 
@@ -336,7 +461,7 @@ export const ClassmateCard: React.FC<ClassmateCardProps> = ({ classmate, isSelec
         onClick={handleUniformClick}
         className="absolute top-2 right-2 p-2 rounded-full bg-black/50 text-amber-200/70 hover:bg-yellow-900/50 hover:text-amber-100 transition-colors z-10"
         aria-label={`Change ${name}'s uniform`}
-        title="Change Uniform"
+        title={language === 'ko' ? "의복 변경" : "Change Uniform"}
         disabled={disabled}
       >
         <UniformIcon />

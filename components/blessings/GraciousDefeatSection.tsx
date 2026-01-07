@@ -1,8 +1,16 @@
 
+
 import React, { useState, useRef, useEffect } from 'react';
 import { useCharacterContext } from '../../context/CharacterContext';
-import { GRACIOUS_DEFEAT_DATA, GRACIOUS_DEFEAT_SIGIL_TREE_DATA, ENTRANCE_DATA, FEATURES_DATA, INFLUENCE_DATA, BLESSING_ENGRAVINGS } from '../../constants';
-import type { GraciousDefeatPower, GraciousDefeatSigil, MagicGrade } from '../../types';
+import { 
+    GRACIOUS_DEFEAT_DATA, GRACIOUS_DEFEAT_DATA_KO,
+    GRACIOUS_DEFEAT_SIGIL_TREE_DATA, GRACIOUS_DEFEAT_SIGIL_TREE_DATA_KO, 
+    ENTRANCE_DATA, ENTRANCE_DATA_KO,
+    FEATURES_DATA, FEATURES_DATA_KO, 
+    INFLUENCE_DATA, INFLUENCE_DATA_KO, 
+    BLESSING_ENGRAVINGS, BLESSING_ENGRAVINGS_KO
+} from '../../constants';
+import type { GraciousDefeatPower, GraciousDefeatSigil, MagicGrade, SigilCounts } from '../../types';
 import { BlessingIntro, SectionHeader, SectionSubHeader, WeaponIcon, CompanionIcon, BoostedEffectBox, renderFormattedText } from '../ui';
 import { CompellingWillSigilCard, SigilColor } from '../CompellingWillSigilCard';
 import { WeaponSelectionModal } from '../WeaponSelectionModal';
@@ -174,8 +182,16 @@ export const GraciousDefeatSection: React.FC = () => {
         featurePicksUsed,
         shiftingWeatherCount,
         kpPaidNodes, toggleKpNode,
-        fontSize
+        fontSize,
+        language
     } = useCharacterContext();
+
+    const activeData = language === 'ko' ? GRACIOUS_DEFEAT_DATA_KO : GRACIOUS_DEFEAT_DATA;
+    const activeTree = language === 'ko' ? GRACIOUS_DEFEAT_SIGIL_TREE_DATA_KO : GRACIOUS_DEFEAT_SIGIL_TREE_DATA;
+    const activeEntrance = language === 'ko' ? ENTRANCE_DATA_KO : ENTRANCE_DATA;
+    const activeFeatures = language === 'ko' ? FEATURES_DATA_KO : FEATURES_DATA;
+    const activeInfluence = language === 'ko' ? INFLUENCE_DATA_KO : INFLUENCE_DATA;
+    const activeEngravings = language === 'ko' ? BLESSING_ENGRAVINGS_KO : BLESSING_ENGRAVINGS;
 
     const openCompanionModal = (index: number) => {
         setAttendantModalState({ isOpen: true, index });
@@ -218,14 +234,15 @@ export const GraciousDefeatSection: React.FC = () => {
         
         const sigilType = getSigilTypeFromImage(sigil.imageSrc);
         const sigilCost = sigilType ? 1 : 0;
-        if (sigilType && ctx.availableSigilCounts[sigilType] < sigilCost) return true;
+        if (sigilType && ctx.availableSigilCounts[sigilType as keyof SigilCounts] < sigilCost) return true;
 
         return false;
     };
 
-    const getGraciousDefeatSigil = (id: string) => GRACIOUS_DEFEAT_SIGIL_TREE_DATA.find(s => s.id === id)!;
+    const getGraciousDefeatSigil = (id: string) => activeTree.find(s => s.id === id)!;
 
     const getSigilDisplayInfo = (sigil: GraciousDefeatSigil): { color: SigilColor, benefits: React.ReactNode } => {
+        // Use ID based type mapping because titles are localized
         const colorMap: Record<string, SigilColor> = {
             'Fireborn': 'orange', 'Cultivate': 'gray', 'Realmkeeper': 'yellow', 'Strengthen': 'lime',
             'Sweet Suffering': 'purple', 'Pocket God': 'red', 'Realmmaster': 'yellow',
@@ -233,18 +250,18 @@ export const GraciousDefeatSection: React.FC = () => {
         const color = colorMap[sigil.type] || 'gray';
         const benefits = (
             <>
-                {sigil.benefits.entrance ? <p className="text-blue-300">+ {sigil.benefits.entrance} Entrance</p> : null}
-                {sigil.benefits.features ? <p className="text-green-300">+ {sigil.benefits.features} Features</p> : null}
-                {sigil.benefits.influence ? <p className="text-red-300">+ {sigil.benefits.influence} Influence</p> : null}
+                {sigil.benefits.entrance ? <p className="text-blue-300">+ {sigil.benefits.entrance} {language === 'ko' ? "도입" : "Entrance"}</p> : null}
+                {sigil.benefits.features ? <p className="text-green-300">+ {sigil.benefits.features} {language === 'ko' ? "특성" : "Features"}</p> : null}
+                {sigil.benefits.influence ? <p className="text-red-300">+ {sigil.benefits.influence} {language === 'ko' ? "영향" : "Influence"}</p> : null}
             </>
         );
         return { color, benefits };
     };
 
     const handleKpToggle = (sigil: GraciousDefeatSigil) => {
-        const type = getSigilTypeFromImage(sigil.imageSrc);
-        if (type) {
-            toggleKpNode(String(sigil.id), type);
+        const sigilType = getSigilTypeFromImage(sigil.imageSrc);
+        if (sigilType) {
+            toggleKpNode(String(sigil.id), sigilType);
         }
     };
 
@@ -266,7 +283,16 @@ export const GraciousDefeatSection: React.FC = () => {
         );
     };
 
-    const boostDescriptions: { [key: string]: string } = {
+    const boostDescriptions: { [key: string]: string } = language === 'ko' ? {
+        natural_environment: "매 선택마다 면적이 세 배 증가합니다.",
+        artificial_environment: "매 선택마다 면적이 세 배 증가합니다.",
+        shifting_weather: "기상이변의 잠재력과 피해가 두 배 증가합니다.",
+        living_inhabitants: "동물 점수 10점이 추가로 주어집니다.",
+        broken_space: "가상 우주의 특정 공간에 공간적 '함정'을 설치합니다. 그 안에서 살아남거나 방향을 잡는 것은 사실상 불가능합니다.",
+        broken_time: "가상 우주에서 하루가 흐를 때 현실에서 한 달이 흐르도록 할 수 있습니다.",
+        promised_land: "동시 방문자 제한이 세 배로 증가합니다.",
+        verse_attendant: "동료 점수 50점이 추가로 주어집니다."
+    } : {
         natural_environment: "Triples acreage instead of doubles.",
         artificial_environment: "Triples acreage instead of doubles.",
         shifting_weather: "Doubles the potential power and damage of weather events.",
@@ -292,6 +318,15 @@ export const GraciousDefeatSection: React.FC = () => {
     const finalEngraving = graciousDefeatEngraving ?? selectedBlessingEngraving;
     const isSkinEngraved = finalEngraving === 'skin';
     const additionalCost = Math.floor(ctx.graciousDefeatSigilTreeCost * 0.25);
+    
+    // Calculate Lekolu FP cost for Magician Trait
+    const lekoluSigils = ['realmkeeper', 'realmmaster']; 
+    const selectedLekoluCount = Array.from(ctx.selectedGraciousDefeatSigils).filter(id => lekoluSigils.includes(id)).length;
+    const additionalFpCost = Math.floor(selectedLekoluCount * 6 * 0.25);
+
+    const costText = language === 'ko'
+        ? `(축복 점수 -${additionalCost}${additionalFpCost > 0 ? `, 행운 점수 -${additionalFpCost}` : ''})`
+        : `(-${additionalCost} BP${additionalFpCost > 0 ? `, -${additionalFpCost} FP` : ''})`;
 
     useEffect(() => {
         if (!isSkinEngraved && ctx.isGraciousDefeatMagicianApplied) {
@@ -303,13 +338,13 @@ export const GraciousDefeatSection: React.FC = () => {
 
     return (
         <section>
-            <BlessingIntro {...GRACIOUS_DEFEAT_DATA} />
+            <BlessingIntro {...activeData} />
             <div className="mt-8 mb-16 max-w-3xl mx-auto">
                 <h4 className="font-cinzel text-xl text-center tracking-widest my-6 text-purple-300 uppercase">
-                    Engrave this Blessing
+                    {language === 'ko' ? "축복 각인" : "Engrave this Blessing"}
                 </h4>
                 <div className="grid grid-cols-3 gap-4">
-                    {BLESSING_ENGRAVINGS.map(engraving => {
+                    {activeEngravings.map(engraving => {
                         const isSelected = finalEngraving === engraving.id;
                         const isOverridden = graciousDefeatEngraving !== null;
                         const isWeapon = engraving.id === 'weapon';
@@ -354,8 +389,8 @@ export const GraciousDefeatSection: React.FC = () => {
                             }`}
                         >
                             {ctx.isGraciousDefeatMagicianApplied
-                                ? `The 'Magician' trait is applied. Click to remove. (+${additionalCost} BP)`
-                                : `Click to apply the 'Magician' trait from your True Self. This allows you to use the Blessing without transforming for an additional ${additionalCost} BP.`}
+                                ? (language === 'ko' ? `'마법사' 특성이 적용되었습니다. ${costText}` : `The Magician trait is applied. ${costText}`)
+                                : (language === 'ko' ? `'마법사' 특성을 적용할 수 있습니다. 변신 없이 축복을 사용할 수 있게 됩니다. ${costText}` : `Click to enable the Magician trait from your True Self, allowing you to use the Blessing without transforming. ${costText}`)}
                         </button>
                     </div>
                 )}
@@ -372,7 +407,7 @@ export const GraciousDefeatSection: React.FC = () => {
                 />
             )}
             <div className="my-16 bg-black/20 p-8 rounded-lg border border-gray-800 overflow-x-auto">
-                <SectionHeader>SIGIL TREE</SectionHeader>
+                <SectionHeader>{language === 'ko' ? "표식 트리" : "SIGIL TREE"}</SectionHeader>
                 <div className="flex items-center min-w-max pb-8 px-4 justify-center">
                     
                     {/* Column 1: Root */}
@@ -452,10 +487,10 @@ export const GraciousDefeatSection: React.FC = () => {
                 </div>
             </div>
             <div className="mt-16 px-4 lg:px-8">
-                <SectionHeader>Entrance</SectionHeader>
-                <SectionSubHeader>Picks Available: {ctx.availableEntrancePicks - ctx.selectedEntrance.size} / {ctx.availableEntrancePicks}</SectionSubHeader>
+                <SectionHeader>{language === 'ko' ? "도입" : "Entrance"}</SectionHeader>
+                <SectionSubHeader>{language === 'ko' ? `선택 가능: ${ctx.availableEntrancePicks - ctx.selectedEntrance.size} / ${ctx.availableEntrancePicks}` : `Picks Available: ${ctx.availableEntrancePicks - ctx.selectedEntrance.size} / ${ctx.availableEntrancePicks}`}</SectionSubHeader>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" style={staticScaleStyle}>
-                    {ENTRANCE_DATA.map(power => {
+                    {activeEntrance.map(power => {
                         const isSelected = ctx.selectedEntrance.has(power.id);
                         const isDisabled = isGraciousDefeatPowerDisabled(power, 'entrance');
                         return <FeatureToggleCard
@@ -470,19 +505,21 @@ export const GraciousDefeatSection: React.FC = () => {
                 </div>
             </div>
             <div className="mt-16 px-4 lg:px-8">
-                <SectionHeader>Features</SectionHeader>
+                <SectionHeader>{language === 'ko' ? "특성" : "Features"}</SectionHeader>
                 <div className={`my-4 max-w-sm mx-auto p-4 border rounded-lg transition-all bg-black/20 ${ ctx.isFeaturesBoosted ? 'border-amber-400 ring-2 ring-amber-400/50 cursor-pointer hover:border-amber-300' : isFeaturesBoostDisabled ? 'border-gray-700 opacity-50 cursor-not-allowed' : 'border-gray-700 hover:border-amber-400/50 cursor-pointer'}`} onClick={!isFeaturesBoostDisabled ? () => ctx.handleGraciousDefeatBoostToggle('features') : undefined}>
                     <div className="flex items-center justify-center gap-4">
                         <img src="/images/zTm8fcLb-kaarn.png" alt="Kaarn Sigil" className="w-16 h-16"/>
                         <div className="text-left">
                             <h4 className="font-cinzel text-lg font-bold text-amber-300 tracking-widest">{ctx.isFeaturesBoosted ? 'BOOSTED' : 'BOOST'}</h4>
-                            {!ctx.isFeaturesBoosted && <p className="text-xs text-gray-400 mt-1">Activating this will consume one Kaarn sigil.</p>}
+                            {!ctx.isFeaturesBoosted && <p className="text-xs text-gray-400 mt-1">
+                                {language === 'ko' ? "활성화 시 카른 표식 1개 소모" : "Activating this will consume one Kaarn sigil."}
+                            </p>}
                         </div>
                     </div>
                 </div>
-                <SectionSubHeader>Picks Available: {ctx.availableFeaturesPicks - featurePicksUsed} / {ctx.availableFeaturesPicks}</SectionSubHeader>
+                <SectionSubHeader>{language === 'ko' ? `선택 가능: ${ctx.availableFeaturesPicks - featurePicksUsed} / ${ctx.availableFeaturesPicks}` : `Picks Available: ${ctx.availableFeaturesPicks - featurePicksUsed} / ${ctx.availableFeaturesPicks}`}</SectionSubHeader>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" style={staticScaleStyle}>
-                    {FEATURES_DATA.map(power => {
+                    {activeFeatures.map(power => {
                         const isSelectionDisabled = featurePicksUsed >= ctx.availableFeaturesPicks;
                         const boostedText = ctx.isFeaturesBoosted && boostDescriptions[power.id];
                         const stateInfo = featureStateMap[power.id as keyof typeof featureStateMap];
@@ -543,7 +580,9 @@ export const GraciousDefeatSection: React.FC = () => {
                                     <div className="mt-4 pt-4 border-t border-gray-700/50 w-full">
                                          <div className="flex items-center justify-center gap-2 mb-3">
                                             <button onClick={() => handleVerseAttendantCountChange(verseAttendantCount - 1)} disabled={verseAttendantCount === 0} className="px-3 py-1 text-lg leading-none rounded bg-gray-800/50 border border-gray-700 hover:bg-gray-700 disabled:opacity-50">-</button>
-                                            <span className={`font-semibold w-24 text-center ${verseAttendantCount > 0 ? 'text-white' : 'text-gray-500'}`}>{verseAttendantCount} taken</span>
+                                            <span className={`font-semibold w-24 text-center ${verseAttendantCount > 0 ? 'text-white' : 'text-gray-500'}`}>
+                                                {verseAttendantCount} {language === 'ko' ? "명" : "taken"}
+                                            </span>
                                             <button onClick={() => handleVerseAttendantCountChange(verseAttendantCount + 1)} disabled={isSelectionDisabled} className="px-3 py-1 text-lg leading-none rounded bg-gray-800/50 border border-gray-700 hover:bg-gray-700 disabled:opacity-50">+</button>
                                         </div>
                                         
@@ -614,7 +653,9 @@ export const GraciousDefeatSection: React.FC = () => {
                                     <div className="mt-4 pt-4 border-t border-gray-700/50 w-full">
                                          <div className="flex items-center justify-center gap-2 mb-3">
                                             <button onClick={() => removeLivingInhabitant(livingInhabitants[livingInhabitants.length - 1]?.id)} disabled={livingInhabitants.length === 0} className="px-3 py-1 text-lg leading-none rounded bg-gray-800/50 border border-gray-700 hover:bg-gray-700 disabled:opacity-50">-</button>
-                                            <span className={`font-semibold w-24 text-center ${livingInhabitants.length > 0 ? 'text-white' : 'text-gray-500'}`}>{livingInhabitants.length} species</span>
+                                            <span className={`font-semibold w-24 text-center ${livingInhabitants.length > 0 ? 'text-white' : 'text-gray-500'}`}>
+                                                {livingInhabitants.length} {language === 'ko' ? "종" : "species"}
+                                            </span>
                                             <button onClick={() => addLivingInhabitant()} disabled={isSelectionDisabled} className="px-3 py-1 text-lg leading-none rounded bg-gray-800/50 border border-gray-700 hover:bg-gray-700 disabled:opacity-50">+</button>
                                         </div>
                                         <div className="space-y-2 max-h-48 overflow-y-auto pr-1 custom-scrollbar">
@@ -631,8 +672,8 @@ export const GraciousDefeatSection: React.FC = () => {
                                                             onClick={(e) => e.stopPropagation()}
                                                         >
                                                             <option value="">Type...</option>
-                                                            <option value="populated">Populated (40 BP)</option>
-                                                            <option value="rarer">Rarer (70 BP)</option>
+                                                            <option value="populated">{language === 'ko' ? "다수 종족 (40 BP)" : "Populated (40 BP)"}</option>
+                                                            <option value="rarer">{language === 'ko' ? "희귀 종족 (70 BP)" : "Rarer (70 BP)"}</option>
                                                         </select>
                                                     </div>
                                                     
@@ -670,8 +711,8 @@ export const GraciousDefeatSection: React.FC = () => {
                                         isSelectionDisabled={isSelectionDisabled}
                                         boostedText={boostedText}
                                         calculateDisplayValue={power.id === 'promised_land' 
-                                            ? (c) => `${15 * Math.pow(ctx.isFeaturesBoosted ? 3 : 2, c)} ppl`
-                                            : (c) => `${30 * Math.pow(ctx.isFeaturesBoosted ? 3 : 2, c)} acres`
+                                            ? (c) => `${15 * Math.pow(ctx.isFeaturesBoosted ? 3 : 2, c)} ${language === 'ko' ? '명' : 'ppl'}`
+                                            : (c) => `${30 * Math.pow(ctx.isFeaturesBoosted ? 3 : 2, c)} ${language === 'ko' ? '헥타르' : 'acres'}`
                                         }
                                         fontSize={fontSize}
                                     />;
@@ -683,10 +724,10 @@ export const GraciousDefeatSection: React.FC = () => {
             </div>
             
             <div className="mt-16 px-4 lg:px-8">
-                <SectionHeader>Influence</SectionHeader>
-                <SectionSubHeader>Picks Available: {ctx.availableInfluencePicks - ctx.selectedInfluence.size} / {ctx.availableInfluencePicks}</SectionSubHeader>
+                <SectionHeader>{language === 'ko' ? "영향" : "Influence"}</SectionHeader>
+                <SectionSubHeader>{language === 'ko' ? `선택 가능: ${ctx.availableInfluencePicks - ctx.selectedInfluence.size} / ${ctx.availableInfluencePicks}` : `Picks Available: ${ctx.availableInfluencePicks - ctx.selectedInfluence.size} / ${ctx.availableInfluencePicks}`}</SectionSubHeader>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" style={staticScaleStyle}>
-                    {INFLUENCE_DATA.map(power => {
+                    {activeInfluence.map(power => {
                         const boostedText = ctx.isFeaturesBoosted && boostDescriptions[power.id];
                         const isSelected = ctx.selectedInfluence.has(power.id);
                         const isDisabled = isGraciousDefeatPowerDisabled(power, 'influence');
@@ -731,7 +772,7 @@ export const GraciousDefeatSection: React.FC = () => {
                     }}
                     currentCompanionName={verseAttendantCompanionNames[attendantModalState.index] || null}
                     pointLimit={50 + (ctx.isFeaturesBoosted ? 50 : 0)}
-                    title={`Assign Attendant #${attendantModalState.index + 1}`}
+                    title={language === 'ko' ? `관리자 #${attendantModalState.index + 1} 할당` : `Assign Attendant #${attendantModalState.index + 1}`}
                     categoryFilter="mage" 
                 />
             )}
@@ -745,7 +786,7 @@ export const GraciousDefeatSection: React.FC = () => {
                     }}
                     currentBeastName={overlordBeastName}
                     pointLimit={Infinity} // Infinite points
-                    title="Assign Overlord Form (Infinite Points)"
+                    title={language === 'ko' ? "최고존엄 형태 할당 (무한 BP)" : "Assign Overlord Form (Infinite Points)"}
                     excludedPerkIds={['chatterbox_beast', 'magical_beast']}
                 />
             )}
@@ -759,7 +800,7 @@ export const GraciousDefeatSection: React.FC = () => {
                     }}
                     currentBeastName={livingInhabitants.find(i => i.id === livingInhabitantModalState.id)?.beastName || null}
                     pointLimit={livingInhabitantModalState.type === 'populated' ? (40 + (ctx.isFeaturesBoosted ? 10 : 0)) : (70 + (ctx.isFeaturesBoosted ? 10 : 0))}
-                    title={`Assign ${livingInhabitantModalState.type === 'populated' ? 'Populated' : 'Rarer'} Inhabitant`}
+                    title={language === 'ko' ? `종족 할당 (${livingInhabitantModalState.type === 'populated' ? '다수' : '희귀'})` : `Assign ${livingInhabitantModalState.type === 'populated' ? 'Populated' : 'Rarer'} Inhabitant`}
                 />
             )}
         </section>

@@ -48,7 +48,7 @@ const TypewriterText: React.FC<{
 };
 
 export const SecretTransition: React.FC<SecretTransitionProps> = ({ onComplete }) => {
-    const { isPhotosensitivityDisabled } = useCharacterContext();
+    const { isPhotosensitivityDisabled, language } = useCharacterContext();
     const [phase, setPhase] = useState(0);
     const [opacity, setOpacity] = useState(0); // For fading text in/out
     const [showFlash, setShowFlash] = useState(false);
@@ -157,11 +157,24 @@ export const SecretTransition: React.FC<SecretTransitionProps> = ({ onComplete }
     const renderContent = () => {
         switch (phase) {
             case 0:
-                return <TypewriterText text='"Daddy, who are these people?"' className="text-gray-400 font-sans text-lg tracking-wide" nervous={true} />;
+                return <TypewriterText 
+                    text={language === 'ko' ? '"...아빠, 이 사람들은 누구에요?"' : '"Daddy, who are these people?"'} 
+                    className="text-gray-400 font-sans text-lg tracking-wide" 
+                    nervous={true} 
+                />;
             case 1:
-                return <TypewriterText text='"Stop, where are you taking him?"' className="text-gray-300 font-sans text-xl tracking-wide" nervous={true} />;
+                return <TypewriterText 
+                    text={language === 'ko' ? '"다들 그만둬, 대체 아빠를 어디로 데려가는 거야?"' : '"Stop, where are you taking him?"'} 
+                    className="text-gray-300 font-sans text-xl tracking-wide" 
+                    nervous={true} 
+                />;
             case 2:
-                return <TypewriterText text='"Please stop, you&apos;re hurting me!"' className="text-white font-sans text-2xl tracking-wide" nervous={true} speed={40} />;
+                return <TypewriterText 
+                    text={language === 'ko' ? '"제발 그만해, 아파, 아프다고!"' : '"Please stop, you\'re hurting me!"'} 
+                    className="text-white font-sans text-2xl tracking-wide" 
+                    nervous={true} 
+                    speed={40} 
+                />;
             case 3:
                 return (
                     <div className={isPhotosensitivityDisabled ? "nervous-text" : "shake-constant"}>
@@ -179,14 +192,18 @@ export const SecretTransition: React.FC<SecretTransitionProps> = ({ onComplete }
                     </div>
                 );
             case 5:
-                return <TypewriterText text="i just want to die." className="text-gray-600 font-sans text-xs lowercase tracking-widest italic" speed={100} />;
+                return <TypewriterText 
+                    text={language === 'ko' ? "차라리, 이젠 그냥 죽고 싶어." : "i just want to die."} 
+                    className="text-gray-600 font-sans text-xs lowercase tracking-widest italic" 
+                    speed={100} 
+                />;
             case 6:
                 return (
                     <div className="fixed inset-0 w-full h-full bg-black z-50 flex items-center justify-center overflow-hidden">
                         <div className="relative w-full h-full">
                             <video 
                                 ref={videoRef}
-                                src="https://i.imgur.com/Qr2mqe9.mp4" 
+                                src="/images/Qr2mqe9.mp4" 
                                 className="w-full h-full object-cover crt-video"
                                 autoPlay 
                                 playsInline

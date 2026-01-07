@@ -1,7 +1,12 @@
 
 import React, { useRef, useState } from 'react';
 import { useCharacterContext } from '../context/CharacterContext';
-import { DRYADEA_DATA, LIMITLESS_POTENTIAL_DATA, CUSTOM_SPELL_RULES_DATA, LIMITLESS_POTENTIAL_RUNES_DATA } from '../constants';
+import { 
+    DRYADEA_DATA, DRYADEA_DATA_KO, 
+    LIMITLESS_POTENTIAL_DATA, LIMITLESS_POTENTIAL_DATA_KO, 
+    CUSTOM_SPELL_RULES_DATA, CUSTOM_SPELL_RULES_DATA_KO,
+    LIMITLESS_POTENTIAL_RUNES_DATA, LIMITLESS_POTENTIAL_RUNES_DATA_KO 
+} from '../constants';
 import { BlessingIntro, SectionHeader, SectionSubHeader, CompanionIcon, WeaponIcon, VehicleIcon, renderFormattedText } from './ui';
 import type { CustomSpell, ChoiceItem } from '../types';
 import { CompanionSelectionModal } from './SigilTreeOptionCard';
@@ -13,11 +18,13 @@ interface RuneCounterProps {
   ruhaiCount: number;
   availableMialgrathCount: number;
   onAction: (runeId: 'ruhai' | 'mialgrath', action: 'buy' | 'sell') => void;
+  language: 'en' | 'ko';
+  runeData: ChoiceItem[];
 }
 
-const RuneCounter: React.FC<RuneCounterProps> = ({ ruhaiCount, availableMialgrathCount, onAction }) => {
-  const ruhaiMeta = LIMITLESS_POTENTIAL_RUNES_DATA.find(r => r.id === 'ruhai')!;
-  const mialgrathMeta = LIMITLESS_POTENTIAL_RUNES_DATA.find(r => r.id === 'mialgrath')!;
+const RuneCounter: React.FC<RuneCounterProps> = ({ ruhaiCount, availableMialgrathCount, onAction, language, runeData }) => {
+  const ruhaiMeta = runeData.find(r => r.id === 'ruhai')!;
+  const mialgrathMeta = runeData.find(r => r.id === 'mialgrath')!;
 
   const handleScroll = (e: React.MouseEvent<HTMLDivElement>) => {
     // Only scroll if clicked on the container background, not the items
@@ -33,6 +40,10 @@ const RuneCounter: React.FC<RuneCounterProps> = ({ ruhaiCount, availableMialgrat
       onAction(id, type);
   };
 
+  const headerClass = language === 'ko' 
+      ? "font-cinzel text-lg font-bold text-amber-500 mb-4 text-center tracking-[0.2em] border-b border-amber-900/30 pb-2"
+      : "font-cinzel text-xs text-amber-500 mb-4 text-center tracking-[0.2em] border-b border-amber-900/30 pb-2";
+
   return (
     <div
       className="fixed top-1/2 right-0 -translate-y-1/2 bg-black/80 backdrop-blur-md p-4 rounded-l-xl border-l border-t border-b border-amber-900/50 z-50 group cursor-pointer transition-all hover:border-amber-500/70 hover:shadow-[0_0_20px_rgba(245,158,11,0.2)] select-none"
@@ -42,7 +53,9 @@ const RuneCounter: React.FC<RuneCounterProps> = ({ ruhaiCount, availableMialgrat
       aria-label="Scroll to Rune purchase section"
       title="Scroll to Rune purchase section"
     >
-      <h4 className="font-cinzel text-xs text-amber-500 mb-4 text-center tracking-[0.2em] border-b border-amber-900/30 pb-2">RUNES</h4>
+      <h4 className={headerClass}>
+          {language === 'ko' ? "룬" : "RUNES"}
+      </h4>
       <div className="flex flex-col gap-4">
         <div 
             className="flex items-center justify-between gap-4 group/item cursor-pointer hover:bg-white/5 rounded p-1"
@@ -63,7 +76,9 @@ const RuneCounter: React.FC<RuneCounterProps> = ({ ruhaiCount, availableMialgrat
           <span className="font-mono text-xl font-bold text-amber-100 w-8 text-center">{availableMialgrathCount}</span>
         </div>
       </div>
-      <p className="text-[9px] text-gray-500 text-center mt-2 italic">L-Click: Buy<br/>R-Click: Sell</p>
+      <p className="text-[9px] text-gray-500 text-center mt-2 italic">
+          {language === 'ko' ? "좌클릭: 구매\n우클릭: 판매" : "L-Click: Buy\nR-Click: Sell"}
+      </p>
     </div>
   );
 };
@@ -75,9 +90,10 @@ interface RuneCardProps {
   onAction: (action: 'buy' | 'sell') => void;
   onAnimate: (rect: DOMRect) => void;
   fontSize?: 'regular' | 'large';
+  language: 'en' | 'ko';
 }
 
-const RuneCard: React.FC<RuneCardProps> = ({ rune, count, onAction, onAnimate, fontSize }) => {
+const RuneCard: React.FC<RuneCardProps> = ({ rune, count, onAction, onAnimate, fontSize, language }) => {
   const { cost, description, imageSrc, title } = rune;
   const imgRef = useRef<HTMLImageElement>(null);
 
@@ -104,7 +120,6 @@ const RuneCard: React.FC<RuneCardProps> = ({ rune, count, onAction, onAnimate, f
   const costClasses = isMialgrath ? 'text-cyan-300 border-cyan-900/50 bg-cyan-950/30' : 'text-amber-300 border-amber-900/50 bg-amber-950/30';
   const ringColor = isMialgrath ? 'group-hover:border-cyan-500/40' : 'group-hover:border-amber-500/40';
 
-  // Scale text classes based on fontSize prop
   const descriptionClass = fontSize === 'large' ? 'text-base' : 'text-sm';
   const costTextClass = fontSize === 'large' ? 'text-sm' : 'text-xs';
 
@@ -116,13 +131,11 @@ const RuneCard: React.FC<RuneCardProps> = ({ rune, count, onAction, onAnimate, f
       role="button"
       aria-label={`Buy ${title} (Right click to sell). Current count: ${count}`}
     >
-      {/* Decorative corners */}
       <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-gray-600 group-hover:border-white transition-colors rounded-tl-lg"></div>
       <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-gray-600 group-hover:border-white transition-colors rounded-tr-lg"></div>
       <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-gray-600 group-hover:border-white transition-colors rounded-bl-lg"></div>
       <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-gray-600 group-hover:border-white transition-colors rounded-br-lg"></div>
 
-      {/* Centered Circular Image Container */}
       <div className={`relative w-40 h-40 mb-6 rounded-full border-2 border-dashed border-gray-800 bg-black/40 flex items-center justify-center transition-colors duration-500 ${ringColor}`}>
         <div className="absolute inset-0 bg-white/5 rounded-full blur-xl scale-75 group-hover:scale-100 transition-transform duration-700 opacity-0 group-hover:opacity-20"></div>
         <img 
@@ -145,7 +158,7 @@ const RuneCard: React.FC<RuneCardProps> = ({ rune, count, onAction, onAnimate, f
       
        <div className="mt-4 w-full pt-4 border-t border-gray-800">
          <p className="text-[10px] text-gray-600 uppercase tracking-widest font-mono">
-            Left Click: Acquire • Right Click: Sell
+            {language === 'ko' ? "좌클릭: 획득 • 우클릭: 판매" : "Left Click: Acquire • Right Click: Sell"}
          </p>
       </div>
     </div>
@@ -163,15 +176,16 @@ interface CustomSpellInputProps {
     onClearAssignment: (spellId: number) => void;
     showKpButton?: boolean;
     onToggleKp?: (id: number, type: 'ruhai' | 'milgrath') => void;
+    language: 'en' | 'ko';
+    mialgrathImageSrc: string;
 }
 
 const CustomSpellInput: React.FC<CustomSpellInputProps> = ({ 
     spell, index, onDescriptionChange, onMialgrathToggle, onMialgrathDescriptionChange, canApplyMialgrath, onOpenAssignment, onClearAssignment,
-    showKpButton, onToggleKp
+    showKpButton, onToggleKp, language, mialgrathImageSrc
 }) => {
     
     const isMialgrathToggleDisabled = !spell.mialgrathApplied && !canApplyMialgrath;
-    const mialgrathMeta = LIMITLESS_POTENTIAL_RUNES_DATA.find(r => r.id === 'mialgrath')!;
 
     return (
         <div className={`
@@ -230,7 +244,7 @@ const CustomSpellInput: React.FC<CustomSpellInputProps> = ({
                                 : 'border-amber-900/30 focus:border-amber-500/50 focus:ring-amber-500/30'
                             }
                         `}
-                        placeholder="Define spell parameters, manifestations, and limitations..."
+                        placeholder={language === 'ko' ? "주문의 매개변수, 효과, 그리고 제한 사항을 정의하세요..." : "Define spell parameters, manifestations, and limitations..."}
                         rows={5}
                     />
                 </div>
@@ -254,10 +268,10 @@ const CustomSpellInput: React.FC<CustomSpellInputProps> = ({
                                         : 'border-amber-900/30 bg-black hover:border-amber-500/50 hover:bg-amber-950/20 cursor-pointer'
                                 }
                             `}
-                            title={spell.mialgrathApplied ? "Remove Milgrath Rune" : "Socket Milgrath Rune"}
+                            title={spell.mialgrathApplied ? (language === 'ko' ? "밀그라스 룬 제거" : "Remove Milgrath Rune") : (language === 'ko' ? "밀그라스 룬 장착" : "Socket Milgrath Rune")}
                         >
                             {spell.mialgrathApplied ? (
-                                <img src={mialgrathMeta.imageSrc} alt="Active" className="w-8 h-8 drop-shadow-[0_0_5px_rgba(34,211,238,0.8)]" />
+                                <img src={mialgrathImageSrc} alt="Active" className="w-8 h-8 drop-shadow-[0_0_5px_rgba(34,211,238,0.8)]" />
                             ) : (
                                 <div className="w-3 h-3 rounded-full bg-gray-800 shadow-inner"></div>
                             )}
@@ -269,8 +283,8 @@ const CustomSpellInput: React.FC<CustomSpellInputProps> = ({
                             </h5>
                             <p className="text-[10px] text-gray-500 leading-tight">
                                 {spell.mialgrathApplied 
-                                    ? "Reality constraints bypassed." 
-                                    : "Socket rune to defy standard restrictions."}
+                                    ? (language === 'ko' ? "현실 제약이 해제되었습니다." : "Reality constraints bypassed.") 
+                                    : (language === 'ko' ? "제약을 무시하려면 룬을 장착하세요." : "Socket rune to defy standard restrictions.")}
                             </p>
                         </div>
 
@@ -296,13 +310,13 @@ const CustomSpellInput: React.FC<CustomSpellInputProps> = ({
                             <div>
                                 <label className="block mb-2 text-xs font-bold text-cyan-500 font-cinzel uppercase tracking-widest flex items-center gap-2">
                                     <span className="w-1.5 h-1.5 bg-cyan-500 rounded-full"></span>
-                                    Override Protocol
+                                    {language === 'ko' ? "재정의 프로토콜" : "Override Protocol"}
                                 </label>
                                 <textarea
                                     value={spell.mialgrathDescription}
                                     onChange={(e) => onMialgrathDescriptionChange(spell.id, e.target.value)}
                                     className="w-full bg-black/40 border border-cyan-900/30 rounded p-3 text-cyan-100/90 placeholder-cyan-900/40 focus:outline-none focus:border-cyan-500/40 text-sm transition-colors resize-none font-sans leading-relaxed"
-                                    placeholder="Describe rule-breaking effects..."
+                                    placeholder={language === 'ko' ? "규칙을 깨뜨리는 효과를 서술하세요..." : "Describe rule-breaking effects..."}
                                     rows={5}
                                 />
                             </div>
@@ -311,7 +325,7 @@ const CustomSpellInput: React.FC<CustomSpellInputProps> = ({
                                 <div className="flex justify-between items-center mb-2">
                                     <label className="text-[10px] font-bold text-cyan-500 uppercase tracking-widest flex items-center gap-2">
                                         <span className="w-1.5 h-1.5 bg-cyan-500 rounded-full"></span>
-                                        Construct Binding
+                                        {language === 'ko' ? "구조물 결합" : "Construct Binding"}
                                     </label>
                                     <span className="text-[9px] text-cyan-500/60 font-mono border border-cyan-900/50 px-1.5 py-0.5 rounded bg-cyan-950/30">100 PTS MAX</span>
                                 </div>
@@ -334,16 +348,16 @@ const CustomSpellInput: React.FC<CustomSpellInputProps> = ({
                                             onClick={() => onClearAssignment(spell.id)}
                                             className="text-cyan-500 hover:text-cyan-200 text-[10px] px-2 py-1 rounded hover:bg-cyan-900/30 transition-colors border border-transparent hover:border-cyan-800"
                                         >
-                                            UNBIND
+                                            {language === 'ko' ? "해제" : "UNBIND"}
                                         </button>
                                     </div>
                                 ) : (
                                     <div className="grid grid-cols-4 gap-2">
                                         {[
-                                            { type: 'companion', icon: <CompanionIcon />, label: 'Comp' },
-                                            { type: 'beast', icon: <CompanionIcon />, label: 'Beast' },
-                                            { type: 'vehicle', icon: <VehicleIcon />, label: 'Vehicle' },
-                                            { type: 'weapon', icon: <WeaponIcon />, label: 'Weapon' },
+                                            { type: 'companion', icon: <CompanionIcon />, label: language === 'ko' ? '동료' : 'Comp' },
+                                            { type: 'beast', icon: <CompanionIcon />, label: language === 'ko' ? '동물' : 'Beast' },
+                                            { type: 'vehicle', icon: <VehicleIcon />, label: language === 'ko' ? '탈것' : 'Vehicle' },
+                                            { type: 'weapon', icon: <WeaponIcon />, label: language === 'ko' ? '무기' : 'Weapon' },
                                         ].map((item) => (
                                             <button
                                                 key={item.type}
@@ -379,8 +393,14 @@ export const PageFour: React.FC = () => {
         handleAssignEntityToSpell,
         fontSize,
         selectedStarCrossedLovePacts,
-        handleToggleKp
+        handleToggleKp,
+        language
     } = useCharacterContext();
+
+    const activeDrysdeaData = language === 'ko' ? DRYADEA_DATA_KO : DRYADEA_DATA;
+    const activeLimitlessData = language === 'ko' ? LIMITLESS_POTENTIAL_DATA_KO : LIMITLESS_POTENTIAL_DATA;
+    const activeRulesData = language === 'ko' ? CUSTOM_SPELL_RULES_DATA_KO : CUSTOM_SPELL_RULES_DATA;
+    const activeRunesData = language === 'ko' ? LIMITLESS_POTENTIAL_RUNES_DATA_KO : LIMITLESS_POTENTIAL_RUNES_DATA;
 
     const [fallingRunes, setFallingRunes] = React.useState<Array<{
         id: number;
@@ -406,8 +426,8 @@ export const PageFour: React.FC = () => {
             src,
             top: rect.top,
             left: rect.left,
-            width: rect.width, // Use captured visual width (including scale)
-            height: rect.height, // Use captured visual height (including scale)
+            width: rect.width, 
+            height: rect.height, 
             xOffsetEnd,
             rotation,
         };
@@ -463,16 +483,22 @@ export const PageFour: React.FC = () => {
                     }}
                 />
             ))}
-            <RuneCounter ruhaiCount={availableRuhaiCount} availableMialgrathCount={availableMialgrathCount} onAction={handleRuneAction} />
+            <RuneCounter 
+                ruhaiCount={availableRuhaiCount} 
+                availableMialgrathCount={availableMialgrathCount} 
+                onAction={handleRuneAction}
+                language={language}
+                runeData={activeRunesData}
+            />
 
-            <BlessingIntro {...DRYADEA_DATA} />
-            <BlessingIntro {...LIMITLESS_POTENTIAL_DATA} reverse />
+            <BlessingIntro {...activeDrysdeaData} />
+            <BlessingIntro {...activeLimitlessData} reverse />
             
             <section className="my-16 max-w-4xl mx-auto bg-black/40 backdrop-blur-md p-8 border border-gray-700/50 rounded-xl relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-amber-500 to-transparent opacity-50"></div>
-                <h3 className="text-center font-cinzel text-2xl text-amber-100 mb-6 tracking-wide drop-shadow-md">{renderFormattedText(CUSTOM_SPELL_RULES_DATA.title)}</h3>
+                <h3 className="text-center font-cinzel text-2xl text-amber-100 mb-6 tracking-wide drop-shadow-md">{renderFormattedText(activeRulesData.title)}</h3>
                 <ol className="space-y-4 text-gray-300 text-sm leading-relaxed">
-                    {CUSTOM_SPELL_RULES_DATA.rules.map((rule, index) => (
+                    {activeRulesData.rules.map((rule, index) => (
                         <li key={index} className="flex gap-4 items-start">
                             <span className="font-mono text-amber-500 font-bold">0{index + 1}.</span>
                             <span>{renderFormattedText(rule)}</span>
@@ -482,21 +508,23 @@ export const PageFour: React.FC = () => {
             </section>
 
             <section className="my-16" id="rune-purchase-section">
-                <SectionHeader>ACQUIRE RUNES</SectionHeader>
+                <SectionHeader>{language === 'ko' ? "룬 획득" : "ACQUIRE RUNES"}</SectionHeader>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto px-4">
                     <RuneCard 
-                        rune={LIMITLESS_POTENTIAL_RUNES_DATA[0]} 
+                        rune={activeRunesData[0]} 
                         count={totalRuhaiCount}
                         onAction={(action) => handleRuneAction('ruhai', action)}
-                        onAnimate={(rect) => handleRuneAnimation(rect, LIMITLESS_POTENTIAL_RUNES_DATA[0].imageSrc)}
+                        onAnimate={(rect) => handleRuneAnimation(rect, activeRunesData[0].imageSrc)}
                         fontSize={fontSize}
+                        language={language}
                     />
                     <RuneCard 
-                        rune={LIMITLESS_POTENTIAL_RUNES_DATA[1]}
+                        rune={activeRunesData[1]}
                         count={mialgrathRunesPurchased}
                         onAction={(action) => handleRuneAction('mialgrath', action)}
-                        onAnimate={(rect) => handleRuneAnimation(rect, LIMITLESS_POTENTIAL_RUNES_DATA[1].imageSrc)}
+                        onAnimate={(rect) => handleRuneAnimation(rect, activeRunesData[1].imageSrc)}
                         fontSize={fontSize}
+                        language={language}
                     />
                 </div>
             </section>
@@ -505,7 +533,7 @@ export const PageFour: React.FC = () => {
                  <section className="my-24 max-w-6xl mx-auto px-4">
                     <div className="flex items-center justify-center gap-4 mb-12">
                         <div className="h-px w-16 bg-amber-800"></div>
-                        <h2 className="font-cinzel text-3xl text-amber-100 tracking-[0.2em] text-center">SPELL CONFIGURATION</h2>
+                        <h2 className="font-cinzel text-3xl text-amber-100 tracking-[0.2em] text-center">{language === 'ko' ? "주문 설정" : "SPELL CONFIGURATION"}</h2>
                         <div className="h-px w-16 bg-amber-800"></div>
                     </div>
                     
@@ -523,6 +551,8 @@ export const PageFour: React.FC = () => {
                                 onClearAssignment={handleClearAssignment}
                                 showKpButton={hasKuriOdanCharm}
                                 onToggleKp={handleToggleKp}
+                                language={language}
+                                mialgrathImageSrc={activeRunesData[1].imageSrc}
                             />
                         ))}
                     </div>
@@ -542,7 +572,7 @@ export const PageFour: React.FC = () => {
                     onSelect={handleSelection}
                     currentCompanionName={getCurrentName()}
                     pointLimit={100}
-                    title="Assign Milgrath Companion"
+                    title={language === 'ko' ? "밀그라스 동료 할당" : "Assign Milgrath Companion"}
                     colorTheme="cyan"
                 />
             )}
@@ -552,7 +582,7 @@ export const PageFour: React.FC = () => {
                     onSelect={handleSelection}
                     currentBeastName={getCurrentName()}
                     pointLimit={100}
-                    title="Assign Milgrath Beast"
+                    title={language === 'ko' ? "밀그라스 동물 할당" : "Assign Milgrath Beast"}
                     colorTheme="cyan"
                 />
             )}
@@ -562,7 +592,7 @@ export const PageFour: React.FC = () => {
                     onSelect={handleSelection}
                     currentVehicleName={getCurrentName()}
                     pointLimit={100}
-                    title="Assign Milgrath Vehicle"
+                    title={language === 'ko' ? "밀그라스 탈것 할당" : "Assign Milgrath Vehicle"}
                     colorTheme="cyan"
                 />
             )}
@@ -572,7 +602,7 @@ export const PageFour: React.FC = () => {
                     onSelect={handleSelection}
                     currentWeaponName={getCurrentName()}
                     pointLimit={100}
-                    title="Assign Milgrath Weapon"
+                    title={language === 'ko' ? "밀그라스 무기 할당" : "Assign Milgrath Weapon"}
                     colorTheme="cyan"
                 />
             )}

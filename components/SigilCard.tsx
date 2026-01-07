@@ -1,6 +1,7 @@
 
 import React, { useRef } from 'react';
 import type { Sigil } from '../types';
+import { useCharacterContext } from '../context/CharacterContext';
 
 interface SigilCardProps {
   sigil: Sigil;
@@ -12,6 +13,7 @@ interface SigilCardProps {
 export const SigilCard: React.FC<SigilCardProps> = ({ sigil, count, onAction, onAnimate }) => {
   const { id, title, description, imageSrc, cost } = sigil;
   const imgRef = useRef<HTMLImageElement>(null);
+  const { language } = useCharacterContext();
 
   const handleBuy = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -62,7 +64,7 @@ export const SigilCard: React.FC<SigilCardProps> = ({ sigil, count, onAction, on
       </div>
        <div className="mt-4 w-full">
          <p className="text-xs text-gray-500 italic">
-            Left Click to Buy.<br/>Right Click to Sell.
+            {language === 'ko' ? <>좌클릭: 구매<br/>우클릭: 판매</> : <>Left Click to Buy.<br/>Right Click to Sell.</>}
          </p>
       </div>
     </div>

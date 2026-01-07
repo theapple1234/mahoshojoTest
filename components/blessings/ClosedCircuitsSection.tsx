@@ -1,8 +1,17 @@
 
+
 import React, { useState, useEffect } from 'react';
 import { useCharacterContext } from '../../context/CharacterContext';
-import { MARGRA_DATA, CLOSED_CIRCUITS_DATA, CLOSED_CIRCUITS_SIGIL_TREE_DATA, NET_AVATAR_DATA, TECHNOMANCY_DATA, NANITE_CONTROL_DATA, BLESSING_ENGRAVINGS } from '../../constants';
-import type { ClosedCircuitsPower, ClosedCircuitsSigil, ChoiceItem, MagicGrade } from '../../types';
+import { 
+    MARGRA_DATA, MARGRA_DATA_KO, 
+    CLOSED_CIRCUITS_DATA, CLOSED_CIRCUITS_DATA_KO, 
+    CLOSED_CIRCUITS_SIGIL_TREE_DATA, CLOSED_CIRCUITS_SIGIL_TREE_DATA_KO,
+    NET_AVATAR_DATA, NET_AVATAR_DATA_KO, 
+    TECHNOMANCY_DATA, TECHNOMANCY_DATA_KO, 
+    NANITE_CONTROL_DATA, NANITE_CONTROL_DATA_KO, 
+    BLESSING_ENGRAVINGS, BLESSING_ENGRAVINGS_KO
+} from '../../constants';
+import type { ClosedCircuitsPower, ClosedCircuitsSigil, ChoiceItem, MagicGrade, SigilCounts } from '../../types';
 import { BlessingIntro, SectionHeader, SectionSubHeader, WeaponIcon, CompanionIcon, BoostedEffectBox, renderFormattedText } from '../ui';
 import { CompellingWillSigilCard, SigilColor } from '../CompellingWillSigilCard';
 import { WeaponSelectionModal } from '../WeaponSelectionModal';
@@ -76,6 +85,10 @@ const PowerCard: React.FC<{
             <img src={power.imageSrc} alt={power.title} className="w-full aspect-[3/2] rounded-md mb-4 object-cover" />
             <h4 className="font-cinzel font-bold tracking-wider text-xl" style={{ textShadow, color: titleColor }}>{power.title}</h4>
             {power.cost && <p className="text-xs text-yellow-300/70 italic mt-1">{power.cost}</p>}
+            
+            {/* Separator Line */}
+            {power.description && <div className="w-16 h-px bg-white/10 mx-auto my-2"></div>}
+            
             <p className={`${descriptionClass} text-gray-400 font-medium leading-relaxed flex-grow text-left whitespace-pre-wrap`} style={{ textShadow }}>{renderFormattedText(power.description)}</p>
             {hasChildren && (
                  <div className="mt-4 pt-4 border-t border-gray-700/50 w-full">
@@ -109,8 +122,17 @@ export const ClosedCircuitsSection: React.FC = () => {
         closedCircuitsSigilTreeCost,
         
         kpPaidNodes, toggleKpNode,
-        fontSize
+        fontSize,
+        language
     } = useCharacterContext();
+
+    const activeMargra = language === 'ko' ? MARGRA_DATA_KO : MARGRA_DATA;
+    const activeClosedCircuits = language === 'ko' ? CLOSED_CIRCUITS_DATA_KO : CLOSED_CIRCUITS_DATA;
+    const activeTree = language === 'ko' ? CLOSED_CIRCUITS_SIGIL_TREE_DATA_KO : CLOSED_CIRCUITS_SIGIL_TREE_DATA;
+    const activeNetAvatar = language === 'ko' ? NET_AVATAR_DATA_KO : NET_AVATAR_DATA;
+    const activeTechnomancy = language === 'ko' ? TECHNOMANCY_DATA_KO : TECHNOMANCY_DATA;
+    const activeNaniteControl = language === 'ko' ? NANITE_CONTROL_DATA_KO : NANITE_CONTROL_DATA;
+    const activeEngravings = language === 'ko' ? BLESSING_ENGRAVINGS_KO : BLESSING_ENGRAVINGS;
 
     const finalEngraving = closedCircuitsEngraving ?? selectedBlessingEngraving;
     const isSkinEngraved = finalEngraving === 'skin';
@@ -134,7 +156,7 @@ export const ClosedCircuitsSection: React.FC = () => {
     };
 
     const isClosedCircuitsSigilDisabled = (sigil: ClosedCircuitsSigil): boolean => {
-        if (ctx.selectedClosedCircuitsSigils.has(sigil.id)) return false; // Can always deselect
+        if (ctx.selectedClosedCircuitsSigils.has(sigil.id)) return false; 
         if (!sigil.prerequisites.every(p => ctx.selectedClosedCircuitsSigils.has(p))) return true;
         
         // KP check
@@ -142,25 +164,30 @@ export const ClosedCircuitsSection: React.FC = () => {
 
         const sigilType = getSigilTypeFromImage(sigil.imageSrc);
         const sigilCost = sigilType ? 1 : 0;
-        if (sigilType && ctx.availableSigilCounts[sigilType] < sigilCost) return true;
+        if (sigilType && ctx.availableSigilCounts[sigilType as keyof SigilCounts] < sigilCost) return true;
 
         return false;
     };
 
-    const getClosedCircuitsSigil = (id: string) => CLOSED_CIRCUITS_SIGIL_TREE_DATA.find(s => s.id === id)!;
+    const getClosedCircuitsSigil = (id: string) => activeTree.find(s => s.id === id)!;
     
     const getSigilDisplayInfo = (sigil: ClosedCircuitsSigil): { color: SigilColor, benefits: React.ReactNode } => {
-        const colorMap: Record<string, SigilColor> = {
-            'SCRIPT KIDDY': 'orange', 'KYROTIK ARMOR™': 'yellow', 'EZ-HACK™': 'yellow',
-            'HEAVY DUTY': 'green', 'L33T H4XXOR': 'green', 'HACKER I': 'gray',
-            'HACKER 2': 'gray', 'NANITE MASTER': 'red', 'BLACK HAT': 'purple'
-        };
-        const color = colorMap[sigil.title] || 'gray';
+        // Use ID based mapping for colors as titles are localized
+        let color: SigilColor = 'gray';
+        switch(sigil.id) {
+            case 'script_kiddy': color = 'orange'; break;
+            case 'kyrotik_armor': case 'ez_hack': color = 'yellow'; break;
+            case 'heavy_duty': case 'l33t_h4xx0r': color = 'green'; break;
+            case 'hacker_i': case 'hacker_2': color = 'gray'; break;
+            case 'nanite_master': color = 'red'; break;
+            case 'black_hat': color = 'purple'; break;
+        }
+
         const benefits = (
             <>
-                {sigil.benefits.netAvatar ? <p className="text-blue-300">+ {sigil.benefits.netAvatar} Avatar</p> : null}
-                {sigil.benefits.technomancy ? <p className="text-green-300">+ {sigil.benefits.technomancy} Technomancy</p> : null}
-                {sigil.benefits.naniteControl ? <p className="text-cyan-300">+ {sigil.benefits.naniteControl} Nanite Control</p> : null}
+                {sigil.benefits.netAvatar ? <p className="text-blue-300">+ {sigil.benefits.netAvatar} {language === 'ko' ? "넷 아바타" : "Avatar"}</p> : null}
+                {sigil.benefits.technomancy ? <p className="text-green-300">+ {sigil.benefits.technomancy} {language === 'ko' ? "기계마법" : "Technomancy"}</p> : null}
+                {sigil.benefits.naniteControl ? <p className="text-cyan-300">+ {sigil.benefits.naniteControl} {language === 'ko' ? "나나이트 조종" : "Nanite Control"}</p> : null}
             </>
         );
         return { color, benefits };
@@ -191,21 +218,34 @@ export const ClosedCircuitsSection: React.FC = () => {
         );
     };
 
-    const boostDescriptions: { [key: string]: string } = {
-        domain_master_i: "Can control up to 5 devices simultaneously.",
-        weapon_sabotage: "Can permanently disable mundane weaponry.",
-        digital_infiltrator: "Bypass any non-magical firewall instantly.",
-        domain_master_ii: "Can override military-grade automated systems.",
-        vehicle_sabotage: "Can trigger critical engine failure instantly.",
-        counter_hacker: "Feedback damage to enemy hackers is doubled.",
-        verse_hijack: "Target verse suffers extreme latency and structural errors.",
+    const boostDescriptions: { [key: string]: string } = language === 'ko' ? {
+        domain_master_i: "시스템 보안을 뚫는 속도와 성공률, 들키지 않을 확률이 모두 두 배 상승합니다.",
+        weapon_sabotage: "능력이 두 배 강해져서 보다 뛰어난 무기에도 공작을 할 수 있습니다.",
+        digital_infiltrator: "주변 넓은 범위 안의 모든 컴퓨터와 서버에서 자동적으로 데이터를 흡수할 수 있습니다.",
+        domain_master_ii: "시스템 보안을 뚫는 속도와 성공률, 들키지 않을 확률이 모두 두 배 상승합니다.",
+        vehicle_sabotage: "능력이 두 배 강해져서 보다 뛰어난 탈것에도 공작을 할 수 있습니다.",
+        counter_hacker: "다른 네트워크 아바타를 두 배 더 효과적으로 상대할 수 있습니다.",
+        verse_hijack: "모든 파괴공작의 효율성이 두 배 증가합니다. 확장을 저해하거나, 가상 우주 내부의 구성 요소들을 파괴하거나 그 제어권을 강탈하는 행위 등이 포함됩니다.",
+        heavily_armed: "무기 점수 10점이 추가로 주어집니다.",
+        nanite_armor_i: "Energy efficiency increased; lasts longer.", // Missing
+        nanite_armor_ii: "약점의 크기가 절반으로 줄어듭니다.",
+        nanite_armor_iii: "Passive damage redirection enhanced.", // Missing
+        metal_skin: "임시 금속 피부가 실제 피부보다 단단해집니다.",
+        nanite_form: "동물 점수 10점이 추가로 주어집니다.",
+        grey_goo: "분해 속도가 두 배가 됩니다."
+    } : {
+        domain_master_i: "Doubles speed, chance of success and discretion when bypassing system security.",
+        weapon_sabotage: "Twice as powerful, allowing it to affect better weapons.",
+        vehicle_sabotage: "Twice as powerful, allowing it to affect better vehicles.",
+        digital_infiltrator: "Passively automatically sucks up all data from all computers and servers within a large radius.",
+        domain_master_ii: "Doubles speed, chance of success and discretion when bypassing system security.",
+        counter_hacker: "Doubled effectiveness against other avatars.",
+        verse_hijack: "All sabotages are doubled in effectiveness; stifling spread, destroying or seizing control of various verse features, etc.",
         heavily_armed: "+10 Weapon Points.",
-        nanite_armor_i: "Energy efficiency increased; lasts longer.",
-        nanite_armor_ii: "Weak points in armor are halved in size.",
-        nanite_armor_iii: "Passive damage redirection enhanced.",
-        metal_skin: "Healing speed through nanites is tripled.",
+        nanite_armor_ii: "Size of weak points halved.",
+        metal_skin: "Metallic areas are more durable than flesh.",
         nanite_form: "+10 Beast Points.",
-        grey_goo: "Decomposition spreads to nearby organic matter."
+        grey_goo: "Doubled rate of decomposition."
     };
 
     const isTechnomancyBoosted = ctx.isTechnomancyBoosted;
@@ -215,22 +255,31 @@ export const ClosedCircuitsSection: React.FC = () => {
     const isNaniteControlBoostDisabled = !isNaniteControlBoosted && ctx.availableSigilCounts.purth <= 0;
 
     const isMagicianSelected = selectedTrueSelfTraits.has('magician');
-    const additionalCost = Math.floor(ctx.closedCircuitsSigilTreeCost * 0.25);
+    const additionalCost = Math.floor(closedCircuitsSigilTreeCost * 0.25);
+    
+    // Calculate Lekolu FP cost for Magician Trait
+    const lekoluSigils = ['kyrotik_armor', 'ez_hack']; 
+    const selectedLekoluCount = Array.from(ctx.selectedClosedCircuitsSigils).filter(id => lekoluSigils.includes(id)).length;
+    const additionalFpCost = Math.floor(selectedLekoluCount * 6 * 0.25);
+
+    const costText = language === 'ko'
+        ? `(축복 점수 -${additionalCost}${additionalFpCost > 0 ? `, 행운 점수 -${additionalFpCost}` : ''})`
+        : `(-${additionalCost} BP${additionalFpCost > 0 ? `, -${additionalFpCost} FP` : ''})`;
 
     // Style to counteract global zoom for specific sections
     const staticScaleStyle: React.CSSProperties = fontSize === 'large' ? { zoom: 0.83333 } : {};
 
     return (
         <section>
-            <BlessingIntro {...MARGRA_DATA} />
-            <BlessingIntro {...CLOSED_CIRCUITS_DATA} reverse />
+            <BlessingIntro {...activeMargra} />
+            <BlessingIntro {...activeClosedCircuits} reverse />
             
             <div className="mt-8 mb-16 max-w-3xl mx-auto">
                 <h4 className="font-cinzel text-xl text-center tracking-widest my-6 text-purple-300 uppercase">
-                    Engrave this Blessing
+                    {language === 'ko' ? "축복 각인" : "Engrave this Blessing"}
                 </h4>
                 <div className="grid grid-cols-3 gap-4">
-                    {BLESSING_ENGRAVINGS.map(engraving => {
+                    {activeEngravings.map(engraving => {
                         const isSelected = finalEngraving === engraving.id;
                         const isOverridden = closedCircuitsEngraving !== null;
                         const isWeapon = engraving.id === 'weapon';
@@ -275,8 +324,8 @@ export const ClosedCircuitsSection: React.FC = () => {
                             }`}
                         >
                             {isClosedCircuitsMagicianApplied
-                                ? `The 'Magician' trait is applied. Click to remove. (+${additionalCost} BP)`
-                                : `Click to apply the 'Magician' trait from your True Self. This allows you to use the Blessing without transforming for an additional ${additionalCost} BP.`}
+                                ? (language === 'ko' ? `'마법사' 특성이 적용되었습니다. ${costText}` : `The Magician trait is applied. ${costText}`)
+                                : (language === 'ko' ? `'마법사' 특성을 적용할 수 있습니다. 변신 없이 축복을 사용할 수 있게 됩니다. ${costText}` : `Click to enable the Magician trait from your True Self, allowing you to use the Blessing without transforming. ${costText}`)}
                         </button>
                     </div>
                 )}
@@ -294,7 +343,7 @@ export const ClosedCircuitsSection: React.FC = () => {
             )}
 
             <div className="my-16 bg-black/20 p-8 rounded-lg border border-gray-800 overflow-x-auto">
-                <SectionHeader>SIGIL TREE</SectionHeader>
+                <SectionHeader>{language === 'ko' ? "표식 트리" : "SIGIL TREE"}</SectionHeader>
                 <div className="flex items-center min-w-max pb-8 px-4 justify-center">
                     
                     {/* Column 1: Root */}
@@ -373,10 +422,12 @@ export const ClosedCircuitsSection: React.FC = () => {
             </div>
 
             <div className="mt-16 px-4 lg:px-8">
-                <SectionHeader>Net Avatar</SectionHeader>
-                <SectionSubHeader>Picks Available: {ctx.availableNetAvatarPicks - ctx.selectedNetAvatars.size} / {ctx.availableNetAvatarPicks}</SectionSubHeader>
+                <SectionHeader>{language === 'ko' ? "넷 아바타" : "Net Avatar"}</SectionHeader>
+                <SectionSubHeader>
+                    {language === 'ko' ? `선택 가능: ${ctx.availableNetAvatarPicks - ctx.selectedNetAvatars.size} / ${ctx.availableNetAvatarPicks}` : `Picks Available: ${ctx.availableNetAvatarPicks - ctx.selectedNetAvatars.size} / ${ctx.availableNetAvatarPicks}`}
+                </SectionSubHeader>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" style={staticScaleStyle}>
-                    {NET_AVATAR_DATA.map(power => {
+                    {activeNetAvatar.map(power => {
                         const boostedText = isTechnomancyBoosted && boostDescriptions[power.id];
                         return (
                             <PowerCard 
@@ -395,19 +446,23 @@ export const ClosedCircuitsSection: React.FC = () => {
             </div>
 
             <div className="mt-16 px-4 lg:px-8">
-                <SectionHeader>Technomancy</SectionHeader>
+                <SectionHeader>{language === 'ko' ? "기계마법" : "Technomancy"}</SectionHeader>
                 <div className={`my-4 max-w-sm mx-auto p-4 border rounded-lg transition-all bg-black/20 ${ isTechnomancyBoosted ? 'border-amber-400 ring-2 ring-amber-400/50 cursor-pointer hover:border-amber-300' : isTechnomancyBoostDisabled ? 'border-gray-700 opacity-50 cursor-not-allowed' : 'border-gray-700 hover:border-amber-400/50 cursor-pointer'}`} onClick={!isTechnomancyBoostDisabled ? () => ctx.handleClosedCircuitsBoostToggle('technomancy') : undefined}>
                     <div className="flex items-center justify-center gap-4">
                         <img src="/images/zTm8fcLb-kaarn.png" alt="Kaarn Sigil" className="w-16 h-16"/>
                         <div className="text-left">
                             <h4 className="font-cinzel text-lg font-bold text-amber-300 tracking-widest">{isTechnomancyBoosted ? 'BOOSTED' : 'BOOST'}</h4>
-                            {!isTechnomancyBoosted && <p className="text-xs text-gray-400 mt-1">Activating this will consume one Kaarn sigil.</p>}
+                            {!isTechnomancyBoosted && <p className="text-xs text-gray-400 mt-1">
+                                {language === 'ko' ? "활성화 시 카른 표식 1개 소모" : "Activating this will consume one Kaarn sigil."}
+                            </p>}
                         </div>
                     </div>
                 </div>
-                <SectionSubHeader>Picks Available: {ctx.availableTechnomancyPicks - ctx.selectedTechnomancies.size} / {ctx.availableTechnomancyPicks}</SectionSubHeader>
+                <SectionSubHeader>
+                    {language === 'ko' ? `선택 가능: ${ctx.availableTechnomancyPicks - ctx.selectedTechnomancies.size} / ${ctx.availableTechnomancyPicks}` : `Picks Available: ${ctx.availableTechnomancyPicks - ctx.selectedTechnomancies.size} / ${ctx.availableTechnomancyPicks}`}
+                </SectionSubHeader>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" style={staticScaleStyle}>
-                    {TECHNOMANCY_DATA.map(power => {
+                    {activeTechnomancy.map(power => {
                         const boostedText = isTechnomancyBoosted && boostDescriptions[power.id];
                         return (
                             <PowerCard 
@@ -426,19 +481,23 @@ export const ClosedCircuitsSection: React.FC = () => {
             </div>
 
             <div className="mt-16 px-4 lg:px-8">
-                <SectionHeader>Nanite Control</SectionHeader>
+                <SectionHeader>{language === 'ko' ? "나나이트 조종" : "Nanite Control"}</SectionHeader>
                 <div className={`my-4 max-w-sm mx-auto p-4 border rounded-lg transition-all bg-black/20 ${ isNaniteControlBoosted ? 'border-amber-400 ring-2 ring-amber-400/50 cursor-pointer hover:border-amber-300' : isNaniteControlBoostDisabled ? 'border-gray-700 opacity-50 cursor-not-allowed' : 'border-gray-700 hover:border-amber-400/50 cursor-pointer'}`} onClick={!isNaniteControlBoostDisabled ? () => ctx.handleClosedCircuitsBoostToggle('naniteControl') : undefined}>
                     <div className="flex items-center justify-center gap-4">
                         <img src="/images/Dg6nz0R1-purth.png" alt="Purth Sigil" className="w-16 h-16"/>
                         <div className="text-left">
                             <h4 className="font-cinzel text-lg font-bold text-amber-300 tracking-widest">{isNaniteControlBoosted ? 'BOOSTED' : 'BOOST'}</h4>
-                            {!isNaniteControlBoosted && <p className="text-xs text-gray-400 mt-1">Activating this will consume one Purth sigil.</p>}
+                            {!isNaniteControlBoosted && <p className="text-xs text-gray-400 mt-1">
+                                {language === 'ko' ? "활성화 시 퍼르스 표식 1개 소모" : "Activating this will consume one Purth sigil."}
+                            </p>}
                         </div>
                     </div>
                 </div>
-                <SectionSubHeader>Picks Available: {ctx.availableNaniteControlPicks - ctx.selectedNaniteControls.size} / {ctx.availableNaniteControlPicks}</SectionSubHeader>
+                <SectionSubHeader>
+                    {language === 'ko' ? `선택 가능: ${ctx.availableNaniteControlPicks - ctx.selectedNaniteControls.size} / ${ctx.availableNaniteControlPicks}` : `Picks Available: ${ctx.availableNaniteControlPicks - ctx.selectedNaniteControls.size} / ${ctx.availableNaniteControlPicks}`}
+                </SectionSubHeader>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" style={staticScaleStyle}>
-                    {NANITE_CONTROL_DATA.map(power => {
+                    {activeNaniteControl.map(power => {
                         const boostedText = isNaniteControlBoosted && boostDescriptions[power.id];
                         const isHeavilyArmed = power.id === 'heavily_armed';
                         const isNaniteForm = power.id === 'nanite_form';
@@ -466,13 +525,13 @@ export const ClosedCircuitsSection: React.FC = () => {
                                 {boostedText && <BoostedEffectBox text={boostedText} />}
                                 {isHeavilyArmed && isSelected && heavilyArmedWeaponName && (
                                     <div className="text-center mt-2 border-t border-gray-700/50 pt-2">
-                                        <p className="text-xs text-gray-400">Assigned Weapon:</p>
+                                        <p className="text-xs text-gray-400">{language === 'ko' ? "할당된 무기:" : "Assigned Weapon:"}</p>
                                         <p className="text-sm font-bold text-amber-300">{heavilyArmedWeaponName}</p>
                                     </div>
                                 )}
                                 {isNaniteForm && isSelected && naniteFormBeastName && (
                                     <div className="text-center mt-2 border-t border-gray-700/50 pt-2">
-                                        <p className="text-xs text-gray-400">Assigned Form:</p>
+                                        <p className="text-xs text-gray-400">{language === 'ko' ? "할당된 형태:" : "Assigned Form:"}</p>
                                         <p className="text-sm font-bold text-amber-300">{naniteFormBeastName}</p>
                                     </div>
                                 )}
@@ -492,7 +551,7 @@ export const ClosedCircuitsSection: React.FC = () => {
                     }}
                     currentWeaponName={heavilyArmedWeaponName}
                     pointLimit={isNaniteControlBoosted ? 40 : 30}
-                    title={`Assign Nanite Weapon (${isNaniteControlBoosted ? 40 : 30} WP)`}
+                    title={language === 'ko' ? `나나이트 무기 할당 (${isNaniteControlBoosted ? 40 : 30} WP)` : `Assign Nanite Weapon (${isNaniteControlBoosted ? 40 : 30} WP)`}
                 />
             )}
             {isNaniteFormModalOpen && (
@@ -504,7 +563,7 @@ export const ClosedCircuitsSection: React.FC = () => {
                     }}
                     currentBeastName={naniteFormBeastName}
                     pointLimit={isNaniteControlBoosted ? 50 : 40}
-                    title={`Assign Nanite Form (${isNaniteControlBoosted ? 50 : 40} BP)`}
+                    title={language === 'ko' ? `나나이트 형체 할당 (${isNaniteControlBoosted ? 50 : 40} BP)` : `Assign Nanite Form (${isNaniteControlBoosted ? 50 : 40} BP)`}
                     categoryFilter="humanoid"
                     excludedPerkIds={['chatterbox_beast', 'magical_beast']}
                 />

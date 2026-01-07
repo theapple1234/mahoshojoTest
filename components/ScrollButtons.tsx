@@ -3,7 +3,7 @@ import React from 'react';
 import { useCharacterContext } from '../context/CharacterContext';
 
 export const ScrollButtons: React.FC = () => {
-  const { toggleSettings } = useCharacterContext();
+  const { toggleSettings, isIntroDone } = useCharacterContext();
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -14,7 +14,7 @@ export const ScrollButtons: React.FC = () => {
   };
 
   return (
-    <div className="fixed top-8 left-8 z-[60] flex flex-col items-center">
+    <div className={`fixed top-8 left-8 z-[60] flex flex-col items-center transition-all duration-1000 ease-out delay-300 ${isIntroDone ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10 pointer-events-none'}`}>
       {/* Settings Button - Always visible, distinct style */}
       <button 
         onClick={toggleSettings}

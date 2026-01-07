@@ -1,9 +1,9 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import * as Page3Constants from '../../constants/pageThree';
 import type { ChoiceItem, MagicGrade } from '../../types';
 import { renderFormattedText } from '../ui';
+import { useCharacterContext } from '../../context/CharacterContext';
 
 interface MapSelectionModalProps {
     onClose: () => void;
@@ -22,19 +22,6 @@ interface MapSelectionModalProps {
     mandatoryItemIds?: string[]; // IDs that are automatically selected, cannot be removed, and don't count towards limits
     customValidator?: (selectedIds: Set<string>, blessingCounts: Record<string, number>, gradeCounts: Record<string, number>) => string | null;
 }
-
-const BLESSING_GROUPS = [
-    { title: "Good Tidings", items: [...Page3Constants.ESSENTIAL_BOONS_DATA, ...Page3Constants.MINOR_BOONS_DATA, ...Page3Constants.MAJOR_BOONS_DATA] },
-    { title: "Compelling Will", items: [...Page3Constants.TELEKINETICS_DATA, ...Page3Constants.METATHERMICS_DATA] },
-    { title: "Worldly Wisdom", items: [...Page3Constants.ELEANORS_TECHNIQUES_DATA, ...Page3Constants.GENEVIEVES_TECHNIQUES_DATA] },
-    { title: "Bitter Dissatisfaction", items: [...Page3Constants.BREWING_DATA, ...Page3Constants.SOUL_ALCHEMY_DATA, ...Page3Constants.TRANSFORMATION_DATA] },
-    { title: "Lost Hope", items: [...Page3Constants.CHANNELLING_DATA, ...Page3Constants.NECROMANCY_DATA, ...Page3Constants.BLACK_MAGIC_DATA] },
-    { title: "Fallen Peace", items: [...Page3Constants.TELEPATHY_DATA, ...Page3Constants.MENTAL_MANIPULATION_DATA] },
-    { title: "Gracious Defeat", items: [...Page3Constants.ENTRANCE_DATA, ...Page3Constants.FEATURES_DATA, ...Page3Constants.INFLUENCE_DATA] },
-    { title: "Closed Circuits", items: [...Page3Constants.NET_AVATAR_DATA, ...Page3Constants.TECHNOMANCY_DATA, ...Page3Constants.NANITE_CONTROL_DATA] },
-    { title: "Righteous Creation", items: [...Page3Constants.RIGHTEOUS_CREATION_SPECIALTIES_DATA, ...Page3Constants.RIGHTEOUS_CREATION_MAGITECH_DATA, ...Page3Constants.RIGHTEOUS_CREATION_ARCANE_CONSTRUCTS_DATA, ...Page3Constants.RIGHTEOUS_CREATION_METAMAGIC_DATA] },
-    { title: "Star Crossed Love", items: Page3Constants.STAR_CROSSED_LOVE_PACTS_DATA },
-];
 
 const GRADE_STYLES: Record<string, { selected: string; unselected: string; bgSelected: string }> = {
     kaarn: {
@@ -69,6 +56,14 @@ const GRADE_STYLES: Record<string, { selected: string; unselected: string; bgSel
     }
 };
 
+const GRADE_NAMES_KO: Record<string, string> = {
+    kaarn: '카른',
+    purth: '퍼르스',
+    xuth: '주스',
+    lekolu: '레콜루',
+    sinthru: '신스루'
+};
+
 export const MapSelectionModal: React.FC<MapSelectionModalProps> = ({ 
     onClose, 
     onSelect, 
@@ -85,6 +80,7 @@ export const MapSelectionModal: React.FC<MapSelectionModalProps> = ({
     mandatoryItemIds = [],
     customValidator
 }) => {
+    const { language } = useCharacterContext();
     const [selectedIds, setSelectedIds] = useState<Set<string>>(() => {
         const initial = new Set(initialSelectedIds);
         mandatoryItemIds.forEach(id => initial.add(id));
@@ -92,6 +88,74 @@ export const MapSelectionModal: React.FC<MapSelectionModalProps> = ({
     });
     const [activeTab, setActiveTab] = useState(0);
     const [error, setError] = useState<string | null>(null);
+
+    const BLESSING_GROUPS = useMemo(() => {
+        const isKo = language === 'ko';
+        const C = Page3Constants;
+        
+        return [
+            { 
+                title: isKo ? "길조" : "Good Tidings", 
+                items: isKo 
+                    ? [...C.ESSENTIAL_BOONS_DATA_KO, ...C.MINOR_BOONS_DATA_KO, ...C.MAJOR_BOONS_DATA_KO] 
+                    : [...C.ESSENTIAL_BOONS_DATA, ...C.MINOR_BOONS_DATA, ...C.MAJOR_BOONS_DATA] 
+            },
+            { 
+                title: isKo ? "강렬한 의지" : "Compelling Will", 
+                items: isKo 
+                    ? [...C.TELEKINETICS_DATA_KO, ...C.METATHERMICS_DATA_KO] 
+                    : [...C.TELEKINETICS_DATA, ...C.METATHERMICS_DATA] 
+            },
+            { 
+                title: isKo ? "경험과 지혜" : "Worldly Wisdom", 
+                items: isKo 
+                    ? [...C.ELEANORS_TECHNIQUES_DATA_KO, ...C.GENEVIEVES_TECHNIQUES_DATA_KO] 
+                    : [...C.ELEANORS_TECHNIQUES_DATA, ...C.GENEVIEVES_TECHNIQUES_DATA] 
+            },
+            { 
+                title: isKo ? "씁쓸한 불만족" : "Bitter Dissatisfaction", 
+                items: isKo 
+                    ? [...C.BREWING_DATA_KO, ...C.SOUL_ALCHEMY_DATA_KO, ...C.TRANSFORMATION_DATA_KO] 
+                    : [...C.BREWING_DATA, ...C.SOUL_ALCHEMY_DATA, ...C.TRANSFORMATION_DATA] 
+            },
+            { 
+                title: isKo ? "잃어버린 희망" : "Lost Hope", 
+                items: isKo 
+                    ? [...C.CHANNELLING_DATA_KO, ...C.NECROMANCY_DATA_KO, ...C.BLACK_MAGIC_DATA_KO] 
+                    : [...C.CHANNELLING_DATA, ...C.NECROMANCY_DATA, ...C.BLACK_MAGIC_DATA] 
+            },
+            { 
+                title: isKo ? "무너진 평화" : "Fallen Peace", 
+                items: isKo 
+                    ? [...C.TELEPATHY_DATA_KO, ...C.MENTAL_MANIPULATION_DATA_KO] 
+                    : [...C.TELEPATHY_DATA, ...C.MENTAL_MANIPULATION_DATA] 
+            },
+            { 
+                title: isKo ? "품위있는 패배" : "Gracious Defeat", 
+                items: isKo 
+                    ? [...C.ENTRANCE_DATA_KO, ...C.FEATURES_DATA_KO, ...C.INFLUENCE_DATA_KO] 
+                    : [...C.ENTRANCE_DATA, ...C.FEATURES_DATA, ...C.INFLUENCE_DATA] 
+            },
+            { 
+                title: isKo ? "폐쇄회로" : "Closed Circuits", 
+                items: isKo 
+                    ? [...C.NET_AVATAR_DATA_KO, ...C.TECHNOMANCY_DATA_KO, ...C.NANITE_CONTROL_DATA_KO] 
+                    : [...C.NET_AVATAR_DATA, ...C.TECHNOMANCY_DATA, ...C.NANITE_CONTROL_DATA] 
+            },
+            { 
+                title: isKo ? "정당한 창조" : "Righteous Creation", 
+                items: isKo 
+                    ? [...C.RIGHTEOUS_CREATION_SPECIALTIES_DATA_KO, ...C.RIGHTEOUS_CREATION_MAGITECH_DATA_KO, ...C.RIGHTEOUS_CREATION_ARCANE_CONSTRUCTS_DATA_KO, ...C.RIGHTEOUS_CREATION_METAMAGIC_DATA_KO] 
+                    : [...C.RIGHTEOUS_CREATION_SPECIALTIES_DATA, ...C.RIGHTEOUS_CREATION_MAGITECH_DATA, ...C.RIGHTEOUS_CREATION_ARCANE_CONSTRUCTS_DATA, ...C.RIGHTEOUS_CREATION_METAMAGIC_DATA] 
+            },
+            { 
+                title: isKo ? "불행한 사랑" : "Star Crossed Love", 
+                items: isKo 
+                    ? C.STAR_CROSSED_LOVE_PACTS_DATA_KO 
+                    : C.STAR_CROSSED_LOVE_PACTS_DATA 
+            },
+        ];
+    }, [language]);
 
     const currentCost = useMemo(() => {
         let total = 0;
@@ -112,7 +176,7 @@ export const MapSelectionModal: React.FC<MapSelectionModalProps> = ({
             }
         });
         return total;
-    }, [selectedIds, gradeCosts, mandatoryItemIds]);
+    }, [selectedIds, gradeCosts, mandatoryItemIds, BLESSING_GROUPS]);
 
     // Calculate current counts per grade
     const counts = useMemo(() => {
@@ -133,7 +197,7 @@ export const MapSelectionModal: React.FC<MapSelectionModalProps> = ({
             }
         });
         return c;
-    }, [selectedIds, mandatoryItemIds]);
+    }, [selectedIds, mandatoryItemIds, BLESSING_GROUPS]);
 
     const blessingCounts = useMemo(() => {
         const c: Record<string, number> = {};
@@ -148,7 +212,7 @@ export const MapSelectionModal: React.FC<MapSelectionModalProps> = ({
             }
         });
         return c;
-    }, [selectedIds, mandatoryItemIds]);
+    }, [selectedIds, mandatoryItemIds, BLESSING_GROUPS]);
 
     const handleToggle = (item: ChoiceItem) => {
         setError(null);
@@ -229,6 +293,14 @@ export const MapSelectionModal: React.FC<MapSelectionModalProps> = ({
 
     // Helper to calculate non-mandatory count for total display
     const nonMandatoryCount = selectedIds.size - Array.from(selectedIds).filter(id => mandatoryItemIds.includes(id)).length;
+    
+    // Label font size class based on language
+    const labelClass = language === 'ko' ? "text-sm font-bold uppercase tracking-wider mr-2" : "text-xs font-bold uppercase tracking-wider mr-2";
+
+    // Text Sizes
+    const cardTitleClass = language === 'ko' ? "text-xs" : "text-[10px]";
+    const cardBadgeClass = language === 'ko' ? "text-[10px]" : "text-[9px]";
+    const tooltipTextClass = language === 'ko' ? "text-[11px]" : "text-[10px]";
 
     return createPortal(
         <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-[200] flex items-center justify-center p-4">
@@ -248,7 +320,7 @@ export const MapSelectionModal: React.FC<MapSelectionModalProps> = ({
                         {/* Blessings Limit Display */}
                         {maxBlessings !== undefined && (
                              <div className={`px-4 py-2 rounded border bg-black/40 flex items-center ${Object.keys(blessingCounts).length > maxBlessings ? 'border-red-500 text-red-400' : 'border-purple-500/50 text-purple-300'}`}>
-                                <span className="text-xs font-bold uppercase tracking-wider mr-2">Blessings</span>
+                                <span className={labelClass}>{language === 'ko' ? "축복" : "Blessings"}</span>
                                 <span className="font-mono text-lg">{Object.keys(blessingCounts).length} / {maxBlessings}</span>
                             </div>
                         )}
@@ -256,7 +328,7 @@ export const MapSelectionModal: React.FC<MapSelectionModalProps> = ({
                         {/* Dynamic Capacity Display */}
                         {maxTotal !== undefined ? (
                             <div className={`px-4 py-2 rounded border bg-black/40 flex items-center ${nonMandatoryCount >= maxTotal ? 'border-red-500 text-red-400' : 'border-cyan-500/50 text-cyan-300'}`}>
-                                <span className="text-xs font-bold uppercase tracking-wider mr-2">Capacity</span>
+                                <span className={labelClass}>{language === 'ko' ? "수용량" : "Capacity"}</span>
                                 <span className="font-mono text-lg">{nonMandatoryCount} / {maxTotal}</span>
                             </div>
                         ) : (
@@ -265,10 +337,11 @@ export const MapSelectionModal: React.FC<MapSelectionModalProps> = ({
                                     const count = counts[grade] || 0;
                                     const isFull = count >= limit;
                                     const isBlocked = exclusive && Object.keys(limits).some(g => g !== grade && counts[g] > 0);
+                                    const displayGrade = language === 'ko' ? (GRADE_NAMES_KO[grade] || grade.toUpperCase()) : grade.toUpperCase();
                                     
                                     return (
                                         <div key={grade} className={`px-4 py-2 rounded border bg-black/40 flex items-center ${isFull ? 'border-red-500 text-red-400' : isBlocked ? 'border-gray-800 text-gray-600' : 'border-cyan-500/50 text-cyan-300'}`}>
-                                            <span className="text-xs font-bold uppercase tracking-wider mr-2">{grade}</span>
+                                            <span className={labelClass}>{displayGrade}</span>
                                             <span className="font-mono text-lg">{count} / {limit}</span>
                                         </div>
                                     );
@@ -278,13 +351,13 @@ export const MapSelectionModal: React.FC<MapSelectionModalProps> = ({
                         
                         {pointLimit !== 9999 && (
                              <div className={`px-4 py-2 rounded border ${currentCost > pointLimit ? 'border-red-500 text-red-400' : 'border-cyan-500/50 text-cyan-300'} bg-black/40`}>
-                                <span className="text-xs font-bold uppercase tracking-wider mr-2">Points</span>
+                                <span className={labelClass}>{language === 'ko' ? "포인트" : "Points"}</span>
                                 <span className="font-mono text-lg">{currentCost} / {pointLimit}</span>
                             </div>
                         )}
 
                         <button onClick={handleSave} className="px-6 py-2 bg-cyan-900/50 hover:bg-cyan-800 border border-cyan-500/50 rounded text-cyan-100 font-cinzel transition-all">
-                            CONFIRM
+                            {language === 'ko' ? "확인" : "CONFIRM"}
                         </button>
                         <button onClick={onClose} className="text-gray-500 hover:text-white text-4xl">&times;</button>
                     </div>
@@ -354,6 +427,9 @@ export const MapSelectionModal: React.FC<MapSelectionModalProps> = ({
                                 }
 
                                 const styles = GRADE_STYLES[grade] || GRADE_STYLES.default;
+                                const displayGradeBadge = language === 'ko' && grade !== 'default' 
+                                    ? (GRADE_NAMES_KO[grade] || grade.toUpperCase()) 
+                                    : grade.toUpperCase();
 
                                 return (
                                     <div 
@@ -376,41 +452,41 @@ export const MapSelectionModal: React.FC<MapSelectionModalProps> = ({
                                             alt={item.title} 
                                             className="w-20 h-20 object-cover rounded-md mb-2 drop-shadow-md" 
                                         />
-                                        <h4 className={`text-[10px] font-bold font-cinzel text-center leading-tight ${isMandatory ? 'text-yellow-200' : ''}`}>
+                                        <h4 className={`${cardTitleClass} font-bold font-cinzel text-center leading-tight ${isMandatory ? 'text-yellow-200' : ''}`}>
                                             {item.title}
                                         </h4>
                                         
                                         {/* Cost Badge */}
                                         {grade !== 'default' && !isMandatory && (
-                                            <span className={`absolute top-2 right-2 text-[9px] font-mono px-1.5 rounded border bg-black/80 ${isSelected ? 'text-white border-white/30' : 'text-gray-600 border-gray-800'}`}>
-                                                {grade.toUpperCase()}
+                                            <span className={`absolute top-2 right-2 ${cardBadgeClass} font-mono px-1.5 rounded border bg-black/80 ${isSelected ? 'text-white border-white/30' : 'text-gray-600 border-gray-800'}`}>
+                                                {displayGradeBadge}
                                             </span>
                                         )}
                                         
                                         {isMandatory && (
-                                            <span className="absolute top-2 right-2 text-[9px] font-mono px-1.5 rounded border bg-black/80 text-yellow-400 border-yellow-600">
-                                                ESSENTIAL
+                                            <span className={`absolute top-2 right-2 ${cardBadgeClass} font-mono px-1.5 rounded border bg-black/80 text-yellow-400 border-yellow-600`}>
+                                                {language === 'ko' ? "필수" : "ESSENTIAL"}
                                             </span>
                                         )}
 
                                         {/* Hover Description Tooltip */}
                                         <div className="absolute inset-0 bg-black/95 p-3 flex flex-col justify-center items-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-20 text-center rounded-lg border border-gray-700">
-                                            <p className="text-[10px] text-gray-300 leading-relaxed line-clamp-6">
+                                            <p className={`${tooltipTextClass} text-gray-300 leading-relaxed line-clamp-6`}>
                                                 {renderFormattedText(item.description.replace(/^\{i\}Requires.*?\{\/i\}\s*/g, ''))}
                                             </p>
                                             {isDisabled && !isSelected && (
-                                                <p className="text-[9px] text-red-500 mt-2 font-mono border-t border-gray-800 pt-1 w-full">
-                                                    UNAVAILABLE
+                                                <p className={`${cardBadgeClass} text-red-500 mt-2 font-mono border-t border-gray-800 pt-1 w-full`}>
+                                                    {language === 'ko' ? "선택 불가" : "UNAVAILABLE"}
                                                 </p>
                                             )}
                                             {isMandatory && (
-                                                <p className="text-[9px] text-yellow-500 mt-2 font-mono border-t border-gray-800 pt-1 w-full">
-                                                    INCLUDED
+                                                <p className={`${cardBadgeClass} text-yellow-500 mt-2 font-mono border-t border-gray-800 pt-1 w-full`}>
+                                                    {language === 'ko' ? "포함됨" : "INCLUDED"}
                                                 </p>
                                             )}
                                             {!isDisabled && !isMandatory && pointLimit !== 9999 && (
-                                                <p className="text-[9px] text-cyan-400 mt-2 font-mono border-t border-gray-800 pt-1 w-full">
-                                                    Cost: {itemCost}
+                                                <p className={`${cardBadgeClass} text-cyan-400 mt-2 font-mono border-t border-gray-800 pt-1 w-full`}>
+                                                    {language === 'ko' ? "비용: " : "Cost: "}{itemCost}
                                                 </p>
                                             )}
                                         </div>

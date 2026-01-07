@@ -1,8 +1,8 @@
 
 import React from 'react';
-import { SummaryHeader, FamilyDetailCard, HousingDetailCard, CustomSpellCard } from './BuildSummaryShared';
+import { SummaryHeader, FamilyDetailCard, HousingDetailCard, CustomSpellCard, formatCostDisplay } from './BuildSummaryShared';
 
-export const TempleLayout: React.FC<{ sections: any[] }> = ({ sections }) => {
+export const TempleLayout: React.FC<{ sections: any[], language?: 'en' | 'ko' }> = ({ sections, language = 'en' }) => {
      const theme = {
         cardBg: "bg-white/80 shadow-md",
         cardBorder: "border-amber-900/20",
@@ -37,9 +37,9 @@ export const TempleLayout: React.FC<{ sections: any[] }> = ({ sections }) => {
                 )}
             </div>
             <div className="text-center mt-3 p-2 bg-white border border-amber-100 shadow-sm rounded-sm">
-                <h4 className="font-cinzel font-bold text-xs text-black">{item.title}</h4>
-                {item.cost && <p className="text-[9px] text-amber-700/70 font-serif italic mt-1">{item.cost}</p>}
-                {item.count && <span className="block text-[10px] text-amber-600 font-bold mt-1">Quantity: {item.count}</span>}
+                <h4 className="font-cinzel font-bold text-lg text-black">{item.title}</h4>
+                {item.cost && <p className="text-[9px] text-amber-700/70 font-serif italic mt-1">{formatCostDisplay(item.cost, language as 'en' | 'ko')}</p>}
+                {item.count && <span className="block build-summary-count-badge text-[10px] text-amber-600 font-bold mt-1">Quantity: {item.count}</span>}
                 {item.uniformName && <span className="block text-[9px] text-amber-900/80 font-bold mt-1 leading-[2.5]">Costume: {item.uniformName}</span>}
             </div>
         </div>
@@ -47,7 +47,7 @@ export const TempleLayout: React.FC<{ sections: any[] }> = ({ sections }) => {
     
     return (
         <div className="space-y-20 bg-[#f8f5f2] text-slate-800 p-12">
-            <SummaryHeader theme="light" />
+            <SummaryHeader theme="light" language={language} />
             
             {sections.map(section => (
                 <div key={section.id} className="relative">
@@ -60,13 +60,17 @@ export const TempleLayout: React.FC<{ sections: any[] }> = ({ sections }) => {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-10">
                                 {section.familyDetails?.length > 0 && (
                                     <div className="space-y-4">
-                                        <h5 className="font-cinzel text-xl text-amber-950 font-bold uppercase tracking-widest border-b-2 border-amber-100 pb-2">Lineage</h5>
+                                        <h5 className={`font-cinzel ${language === 'ko' ? 'text-3xl' : 'text-xl'} text-amber-950 font-bold uppercase tracking-widest border-b-2 border-amber-100 pb-2`}>
+                                            {language === 'ko' ? '혈통' : 'Lineage'}
+                                        </h5>
                                         {section.familyDetails.map((m: any) => <FamilyDetailCard key={m.id} member={m} theme={theme} />)}
                                     </div>
                                 )}
                                 {section.housingDetails?.length > 0 && (
                                     <div className="space-y-4">
-                                        <h5 className="font-cinzel text-xl text-amber-950 font-bold uppercase tracking-widest border-b-2 border-amber-100 pb-2">Estates</h5>
+                                        <h5 className={`font-cinzel ${language === 'ko' ? 'text-3xl' : 'text-xl'} text-amber-950 font-bold uppercase tracking-widest border-b-2 border-amber-100 pb-2`}>
+                                            {language === 'ko' ? '영지' : 'Estates'}
+                                        </h5>
                                         {section.housingDetails.map((h: any) => <HousingDetailCard key={h.id} home={h} theme={theme} />)}
                                     </div>
                                 )}
@@ -78,7 +82,7 @@ export const TempleLayout: React.FC<{ sections: any[] }> = ({ sections }) => {
                                 {section.blessingGroups.map((group: any) => (
                                     <div key={group.title}>
                                         <div className="mb-6 border-l-4 border-amber-300 pl-4 flex flex-wrap gap-3 items-baseline">
-                                            <h4 className="font-cinzel text-lg text-amber-700/80 uppercase tracking-widest">{group.title}</h4>
+                                            <h4 className={`font-cinzel ${language === 'ko' ? 'text-2xl font-bold' : 'text-lg'} text-amber-700/80 uppercase tracking-widest`}>{group.title}</h4>
                                             {group.engraving && <span className="text-xs text-amber-900/40 font-serif italic mr-2">{group.engraving}</span>}
                                             
                                             {/* Boost Indicators */}
@@ -90,6 +94,11 @@ export const TempleLayout: React.FC<{ sections: any[] }> = ({ sections }) => {
                                                         </span>
                                                     ))}
                                                 </div>
+                                            )}
+                                            {group.isMagicianActive && (
+                                                <span className="text-[10px] font-bold text-purple-700/80 uppercase tracking-widest font-serif flex items-center gap-1 ml-2 border border-purple-200 px-1.5 py-0.5 rounded bg-purple-50">
+                                                    <span className="text-purple-400">✦</span> {language === 'ko' ? '마법사' : 'Magician'}
+                                                </span>
                                             )}
                                         </div>
                                         <div className="flex flex-wrap gap-8">

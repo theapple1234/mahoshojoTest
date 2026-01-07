@@ -1,5 +1,7 @@
+
 import React, { useEffect } from 'react';
-import { UNIFORMS_DATA } from '../constants';
+import { UNIFORMS_DATA, UNIFORMS_DATA_KO } from '../constants';
+import { useCharacterContext } from '../context/CharacterContext';
 
 interface UniformSelectionModalProps {
     classmateName: string;
@@ -29,6 +31,9 @@ export const UniformSelectionModal: React.FC<UniformSelectionModalProps> = ({
     mode = 'uniform',
     theme = 'amber'
 }) => {
+    const { language } = useCharacterContext();
+    const activeUniforms = language === 'ko' ? UNIFORMS_DATA_KO : UNIFORMS_DATA;
+
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
             if (event.key === 'Escape') {
@@ -42,7 +47,14 @@ export const UniformSelectionModal: React.FC<UniformSelectionModalProps> = ({
         };
     }, [onClose]);
 
-    const titleText = mode === 'costume' ? 'Costume' : 'Uniform';
+    const titleText = mode === 'costume' 
+        ? (language === 'ko' ? '의복' : 'Costume') 
+        : (language === 'ko' ? '제복' : 'Uniform');
+    
+    const selectForText = language === 'ko' 
+        ? `${classmateName}의 ${titleText} 선택` 
+        : `Select ${titleText} for ${classmateName}`;
+
     const isGreen = theme === 'green';
 
     const themeClasses = {
@@ -70,7 +82,7 @@ export const UniformSelectionModal: React.FC<UniformSelectionModalProps> = ({
             >
                 <header className={`flex items-center justify-between p-4 border-b ${themeClasses.headerBorder}`}>
                     <h2 id="uniform-modal-title" className={`font-cinzel text-2xl ${themeClasses.title}`}>
-                        Select {titleText} for {classmateName}
+                        {selectForText}
                     </h2>
                     <button
                         onClick={onClose}
@@ -82,7 +94,7 @@ export const UniformSelectionModal: React.FC<UniformSelectionModalProps> = ({
                 </header>
                 <main className="p-6 overflow-y-auto">
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                        {UNIFORMS_DATA.map((uniform) => {
+                        {activeUniforms.map((uniform) => {
                             const isSelected = uniform.id === currentUniformId;
                             const borderClass = isSelected
                                 ? themeClasses.cardBorder

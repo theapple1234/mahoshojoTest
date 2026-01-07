@@ -8,10 +8,10 @@ interface SplashScreenProps {
 }
 
 export const SplashScreen: React.FC<SplashScreenProps> = ({ onStart, isExiting }) => {
-  const { setPhotosensitivityDisabled, setLanguage } = useCharacterContext();
-  const [lang, setLang] = useState<'en' | 'ko'>('en');
+  const { setPhotosensitivityDisabled, setLanguage, language } = useCharacterContext();
+  const [lang, setLang] = useState<'en' | 'ko'>(language);
   const [photosensitivity, setPhotosensitivity] = useState(false);
-
+  
   const handleLangChange = (newLang: 'en' | 'ko') => {
       setLang(newLang);
       setLanguage(newLang);
@@ -23,95 +23,95 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onStart, isExiting }
     onStart();
   };
 
-  const splashScreenClasses = `
-    fixed top-0 left-0 w-full h-full bg-[#0a101f] z-[100]
-    flex flex-col justify-center items-center
-    ${isExiting ? 'animate' : ''}
-  `;
-
   return (
-    <div className={splashScreenClasses}>
+    <div className={`fixed inset-0 z-[100] overflow-hidden flex flex-col items-center justify-center transition-opacity duration-1000 ${isExiting ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+      
       {/* Invisible dummy text to force font download immediately */}
-      <div className="font-kidari absolute opacity-0 pointer-events-none w-0 h-0 overflow-hidden" aria-hidden="true">
+      <div className="font-cinzel absolute opacity-0 pointer-events-none w-0 h-0 overflow-hidden" aria-hidden="true">
         괴물은 사라져야 한다.
       </div>
 
-      {/* Container - Centered */}
-      <div className="flex flex-col items-center w-full max-w-4xl px-4">
+      {/* Main Content Container - Centered */}
+      <div className={`relative z-10 w-full max-w-6xl px-6 flex flex-col items-center justify-center min-h-screen ${isExiting ? 'animate-zoom-out-exit' : ''}`}>
         
-        {/* Logo and Title Group */}
-        <div className={`relative flex flex-col items-center justify-center mb-6 ${isExiting ? 'animate-logo-exit' : ''}`}>
-            <img 
-              id="splash-image" 
-              src="/images/Z6tHPxPB-symbol-transparent.png" 
-              alt="Symbol" 
-              className="max-w-2xl w-3/4 md:w-1/2 no-glow relative z-0 opacity-90"
-            />
-            {/* Title below logo */}
-            <h1 className="font-bold text-center mt-6 relative z-10">
-                {lang === 'en' ? (
-                    <span className="font-cinzel text-2xl md:text-3xl text-transparent bg-clip-text bg-gradient-to-b from-white via-cyan-100 to-cyan-400 tracking-[0.2em] drop-shadow-[0_0_10px_rgba(34,211,238,0.4)]">
+        {/* Title Section */}
+        <div className="text-center mb-20 animate-entrance relative">
+            {/* Ambient Glow behind title */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-cyan-900/10 rounded-full blur-[80px] animate-pulse-slow pointer-events-none"></div>
+
+            {lang === 'en' ? (
+                <>
+                    <h2 className="text-cyan-400/80 font-cinzel text-sm md:text-base tracking-[0.6em] uppercase mb-6 animate-float-slow">Build Your Destiny</h2>
+                    <h1 className="font-cinzel text-5xl md:text-7xl lg:text-8xl font-bold text-transparent bg-clip-text bg-gradient-to-b from-white via-cyan-100 to-cyan-900 tracking-[0.1em] drop-shadow-[0_0_35px_rgba(34,211,238,0.4)]">
                         SEINARU<br/>MAGECRAFT GIRLS
-                    </span>
-                ) : (
-                    <>
-                        <span className="font-kidari block text-2xl md:text-3xl mb-0 tracking-widest text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] font-normal">
-                            괴물은 사라져야 한다.
-                        </span>
-                        <span className="font-kidari block text-4xl md:text-6xl font-bold -mt-2 pb-2 pt-4 leading-relaxed text-transparent bg-clip-text bg-gradient-to-b from-white via-cyan-100 to-cyan-400 drop-shadow-[0_0_10px_rgba(34,211,238,0.4)]">
-                            성스러운 마법소녀 CYOA
-                        </span>
-                    </>
-                )}
-            </h1>
+                    </h1>
+                </>
+            ) : (
+                <>
+                     <h2 className="font-cinzel text-white/60 text-lg md:text-2xl tracking-[0.3em] mb-6 animate-float-slow">
+                        괴물은 사라져야 한다
+                    </h2>
+                    <h1 className="font-cinzel text-6xl md:text-8xl font-bold text-transparent bg-clip-text bg-gradient-to-b from-white via-cyan-100 to-cyan-900 leading-tight drop-shadow-[0_0_35px_rgba(34,211,238,0.4)]">
+                        성스러운 마법소녀
+                    </h1>
+                </>
+            )}
         </div>
-        
-        {/* Controls Container - Slides Down on Exit */}
-        <div className={`flex flex-col items-center transition-all mt-6 ${isExiting ? 'animate-slide-down-exit' : ''}`}>
-            {/* Language Selection */}
-            <div className="flex gap-4 mb-6">
+
+        {/* Controls Container (Glassmorphism) */}
+        <div className="w-full max-w-sm bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-8 flex flex-col items-center gap-8 animate-entrance delay-200 shadow-2xl transition-transform hover:scale-[1.01] duration-500">
+            
+            {/* Language Switcher */}
+            <div className="relative flex bg-black/40 rounded-full p-1 border border-white/10">
                 <button 
                     onClick={() => handleLangChange('en')}
-                    className={`px-4 py-2 font-cinzel text-sm border rounded transition-all duration-300 ${lang === 'en' ? 'bg-cyan-900/50 border-cyan-500 text-cyan-200' : 'bg-transparent border-gray-700 text-gray-500 hover:text-gray-300'}`}
+                    className={`relative z-10 px-6 py-2 text-xs font-cinzel font-bold tracking-widest rounded-full transition-all duration-300 ${lang === 'en' ? 'text-black' : 'text-gray-500 hover:text-gray-300'}`}
                 >
                     ENGLISH
                 </button>
                 <button 
                     onClick={() => handleLangChange('ko')}
-                    className={`px-4 py-2 font-cinzel text-sm border rounded transition-all duration-300 ${lang === 'ko' ? 'bg-cyan-900/50 border-cyan-500 text-cyan-200' : 'bg-transparent border-gray-700 text-gray-500 hover:text-gray-300'}`}
+                    className={`relative z-10 px-6 py-2 text-xs font-cinzel font-bold tracking-widest rounded-full transition-all duration-300 ${lang === 'ko' ? 'text-black' : 'text-gray-500 hover:text-gray-300'}`}
                 >
                     KOREAN
                 </button>
-            </div>
-
-            {/* Photosensitivity Toggle */}
-            <div className="mb-8 flex items-start gap-3 max-w-md px-4">
-                <input 
-                    type="checkbox" 
-                    id="photosensitivity-toggle"
-                    checked={photosensitivity} 
-                    onChange={(e) => setPhotosensitivity(e.target.checked)} 
-                    className="mt-1 w-4 h-4 rounded border-gray-600 text-cyan-600 focus:ring-cyan-500 bg-gray-900 cursor-pointer"
-                />
-                <label htmlFor="photosensitivity-toggle" className="text-xs text-gray-400 cursor-pointer select-none leading-relaxed">
-                {lang === 'en' 
-                    ? "Disable photosensitive effects? Even though I don't know if it matters in this CYOA... there's always a 'what if'."
-                    : "광과민성 연출을 끄시겠습니까? 비록 이런 CYOA에서 상관이 있을진 모르겠지만 말이에요... 만약이라는게 있으니 말이죠."}
-                </label>
+                {/* Sliding Background Pill */}
+                <div 
+                    className={`absolute top-1 bottom-1 w-[calc(50%-4px)] bg-cyan-100 rounded-full transition-all duration-300 ease-out shadow-[0_0_15px_rgba(255,255,255,0.4)] ${lang === 'en' ? 'left-1' : 'left-[calc(50%+4px)]'}`}
+                ></div>
             </div>
 
             {/* Start Button */}
             <button 
                 onClick={handleStart}
-                className="px-12 py-3 font-cinzel text-2xl text-white tracking-[0.3em] border-2 border-white/20 hover:border-cyan-500 hover:text-cyan-300 hover:bg-cyan-950/30 rounded-sm transition-all duration-500 hover:shadow-[0_0_20px_rgba(34,211,238,0.3)]"
+                className="group relative w-full overflow-hidden rounded-lg bg-transparent px-8 py-5 transition-all duration-300 hover:bg-cyan-500/10 hover:shadow-[0_0_40px_rgba(34,211,238,0.2)] border border-cyan-500/50 hover:border-cyan-400"
             >
-                START
+                <div className="absolute inset-0 w-0 bg-gradient-to-r from-transparent via-white/10 to-transparent transition-all duration-[400ms] ease-out group-hover:w-full opacity-0 group-hover:opacity-100"></div>
+                <div className="absolute inset-0 bg-cyan-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <span className="relative font-cinzel text-2xl md:text-3xl text-cyan-100 tracking-[0.25em] font-bold group-hover:text-white transition-colors text-shadow-glow flex items-center justify-center">
+                    {lang === 'en' ? "ENTER" : "시작하기"}
+                </span>
             </button>
+
+            {/* Photosensitivity Toggle */}
+            <div className="flex items-center gap-3 group cursor-pointer opacity-60 hover:opacity-100 transition-opacity" onClick={() => setPhotosensitivity(!photosensitivity)}>
+                <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${photosensitivity ? 'bg-cyan-600 border-cyan-500' : 'bg-transparent border-gray-600 group-hover:border-gray-400'}`}>
+                    {photosensitivity && <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>}
+                </div>
+                <span className="text-[10px] text-gray-400 font-mono uppercase tracking-wider group-hover:text-gray-300 transition-colors select-none">
+                    {lang === 'en' ? "Disable Flashing Effects" : "광과민성 효과 끄기"}
+                </span>
+            </div>
+
         </div>
 
-        <p id="splash-subtext" className="text-white text-[10px] mt-8 opacity-90 font-mono tracking-widest drop-shadow-md">
-          ORIGINAL CYOA BY NXTUB | INTERACTIVE BY SAVIAPPLE IN ARCA.LIVE
-        </p>
+        {/* Footer */}
+        <div className="absolute bottom-6 opacity-30 hover:opacity-80 transition-opacity animate-entrance delay-300">
+            <p className="text-[9px] text-white font-mono tracking-[0.2em] uppercase text-center">
+                Original CYOA by NXTUB <span className="mx-2 text-cyan-500">•</span> Interactive by Saviapple
+            </p>
+        </div>
+
       </div>
     </div>
   );

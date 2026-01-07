@@ -1,6 +1,7 @@
 
 import React from 'react';
 import type { Sigil } from '../types';
+import { useCharacterContext } from '../context/CharacterContext';
 
 interface SpecialSigilCardProps {
   sigil: Sigil;
@@ -13,6 +14,7 @@ interface SpecialSigilCardProps {
 
 export const SpecialSigilCard: React.FC<SpecialSigilCardProps> = ({ sigil, selectedSubOptionIds, onSubOptionSelect, lekoluJobCounts, onLekoluJobAction, fontSize = 'regular' }) => {
   const { id, title, description, imageSrc, cost, subOptions } = sigil;
+  const { language } = useCharacterContext();
 
   const glowColors: Record<string, string> = {
     xuth: '#ef4444',
@@ -106,8 +108,8 @@ export const SpecialSigilCard: React.FC<SpecialSigilCardProps> = ({ sigil, selec
                     </div>
                     <p className={`${subDescriptionClass} text-gray-200 leading-snug flex-grow`} style={{ textShadow: `0 0 2px ${glowColor}` }}>{option.description}</p>
                     <div className="mt-3 pt-2 border-t border-gray-700/50 flex justify-between text-[10px] text-gray-500 font-mono tracking-tight uppercase">
-                        <span>L-Click: +1</span>
-                        <span>R-Click: -1</span>
+                        <span>{language === 'ko' ? "좌클릭: +1" : "L-Click: +1"}</span>
+                        <span>{language === 'ko' ? "우클릭: -1" : "R-Click: -1"}</span>
                     </div>
                   </div>
                 );

@@ -1,8 +1,14 @@
 
 import React, { useState, useEffect } from 'react';
 import { useCharacterContext } from '../../context/CharacterContext';
-import { WORLDLY_WISDOM_DATA, WORLDLY_WISDOM_SIGIL_TREE_DATA, ELEANORS_TECHNIQUES_DATA, GENEVIEVES_TECHNIQUES_DATA, BLESSING_ENGRAVINGS } from '../../constants';
-import type { WorldlyWisdomPower, WorldlyWisdomSigil, ChoiceItem, MagicGrade } from '../../types';
+import { 
+    WORLDLY_WISDOM_DATA, WORLDLY_WISDOM_DATA_KO,
+    WORLDLY_WISDOM_SIGIL_TREE_DATA, WORLDLY_WISDOM_SIGIL_TREE_DATA_KO,
+    ELEANORS_TECHNIQUES_DATA, ELEANORS_TECHNIQUES_DATA_KO,
+    GENEVIEVES_TECHNIQUES_DATA, GENEVIEVES_TECHNIQUES_DATA_KO,
+    BLESSING_ENGRAVINGS, BLESSING_ENGRAVINGS_KO
+} from '../../constants';
+import type { WorldlyWisdomPower, WorldlyWisdomSigil, ChoiceItem, MagicGrade, SigilCounts } from '../../types';
 import { BlessingIntro, SectionHeader, SectionSubHeader, WeaponIcon, BoostedEffectBox, renderFormattedText } from '../ui';
 import { CompellingWillSigilCard, SigilColor } from '../CompellingWillSigilCard';
 import { WeaponSelectionModal } from '../WeaponSelectionModal';
@@ -55,7 +61,10 @@ const PowerCard: React.FC<{
             <img src={power.imageSrc} alt={power.title} className="w-full aspect-[3/2] rounded-md mb-4 object-cover" />
             <h4 className="font-cinzel font-bold tracking-wider text-xl" style={{ textShadow, color: titleColor }}>{power.title}</h4>
             {power.cost && <p className="text-xs text-yellow-300/70 italic mt-1">{power.cost}</p>}
+            
+            {/* Separator Line */}
             {power.description && <div className="w-16 h-px bg-white/10 mx-auto my-2"></div>}
+            
             <p className={`${descriptionClass} text-gray-400 font-medium leading-relaxed flex-grow text-left whitespace-pre-wrap`} style={{ textShadow }}>{renderFormattedText(power.description)}</p>
             {children && (
                  <div className="mt-4 pt-4 border-t border-gray-700/50 w-full">
@@ -82,8 +91,15 @@ export const WorldlyWisdomSection: React.FC = () => {
         disableWorldlyWisdomMagician,
         worldlyWisdomSigilTreeCost,
         kpPaidNodes, toggleKpNode,
-        fontSize
+        fontSize,
+        language
     } = useCharacterContext();
+
+    const activeData = language === 'ko' ? WORLDLY_WISDOM_DATA_KO : WORLDLY_WISDOM_DATA;
+    const activeTree = language === 'ko' ? WORLDLY_WISDOM_SIGIL_TREE_DATA_KO : WORLDLY_WISDOM_SIGIL_TREE_DATA;
+    const activeEleanors = language === 'ko' ? ELEANORS_TECHNIQUES_DATA_KO : ELEANORS_TECHNIQUES_DATA;
+    const activeGenevieves = language === 'ko' ? GENEVIEVES_TECHNIQUES_DATA_KO : GENEVIEVES_TECHNIQUES_DATA;
+    const activeEngravings = language === 'ko' ? BLESSING_ENGRAVINGS_KO : BLESSING_ENGRAVINGS;
 
     const finalEngraving = worldlyWisdomEngraving ?? selectedBlessingEngraving;
     const isSkinEngraved = finalEngraving === 'skin';
@@ -94,26 +110,23 @@ export const WorldlyWisdomSection: React.FC = () => {
         }
     }, [isSkinEngraved, isWorldlyWisdomMagicianApplied, disableWorldlyWisdomMagician]);
 
-    const isWorldlyWisdomPowerDisabled = (power: WorldlyWisdomPower, type: 'eleanors' | 'genevieves'): boolean => {
-        const selectedSet = type === 'eleanors' ? ctx.selectedEleanorsTechniques : ctx.selectedGenevievesTechniques;
-        const availablePicks = type === 'eleanors' ? ctx.availableEleanorsPicks : ctx.availableGenevievesPicks;
+    const isWorldlyWisdomPowerDisabled = (power: WorldlyWisdomPower, type: 'eleanorsTechniques' | 'genevievesTechniques'): boolean => {
+        const selectedSet = type === 'eleanorsTechniques' ? ctx.selectedEleanorsTechniques : ctx.selectedGenevievesTechniques;
+        const availablePicks = type === 'eleanorsTechniques' ? ctx.availableEleanorsPicks : ctx.availableGenevievesPicks;
 
         if (!selectedSet.has(power.id) && selectedSet.size >= availablePicks) return true;
-        
         if (power.requires) {
-            const allSelectedPowersAndSigils = new Set([...ctx.selectedEleanorsTechniques, ...ctx.selectedGenevievesTechniques, ...ctx.selectedWorldlyWisdomSigils]);
-            if (!power.requires.every(req => allSelectedPowersAndSigils.has(req))) return true;
+            const allSelected = new Set([...ctx.selectedEleanorsTechniques, ...ctx.selectedGenevievesTechniques, ...ctx.selectedWorldlyWisdomSigils]);
+            if (!power.requires.every(req => allSelected.has(req))) return true;
         }
-        
         if (power.specialRequirement === 'requires_3_eleanor') {
-             if (ctx.selectedEleanorsTechniques.size < 3 && !selectedSet.has(power.id)) return true;
+            if (ctx.selectedEleanorsTechniques.size < 3) return true;
         }
-
         return false;
     };
 
     const isWorldlyWisdomSigilDisabled = (sigil: WorldlyWisdomSigil): boolean => {
-        if (ctx.selectedWorldlyWisdomSigils.has(sigil.id)) return false; // Can always deselect
+        if (ctx.selectedWorldlyWisdomSigils.has(sigil.id)) return false; 
         if (!sigil.prerequisites.every(p => ctx.selectedWorldlyWisdomSigils.has(p))) return true;
         
         // KP check
@@ -121,25 +134,30 @@ export const WorldlyWisdomSection: React.FC = () => {
 
         const sigilType = getSigilTypeFromImage(sigil.imageSrc);
         const sigilCost = sigilType ? 1 : 0;
-        if (sigilType && ctx.availableSigilCounts[sigilType] < sigilCost) return true;
+        if (sigilType && ctx.availableSigilCounts[sigilType as keyof SigilCounts] < sigilCost) return true;
 
         return false;
     };
 
-    const getWorldlyWisdomSigil = (id: string) => WORLDLY_WISDOM_SIGIL_TREE_DATA.find(s => s.id === id)!;
-
+    const getWorldlyWisdomSigil = (id: string) => activeTree.find(s => s.id === id)!;
+    
     const getSigilDisplayInfo = (sigil: WorldlyWisdomSigil): { color: SigilColor, benefits: React.ReactNode } => {
-        const colorMap: Record<string, SigilColor> = {
-            'Arborealist': 'orange', 
-            'Sanctified': 'green', 
-            'Healer': 'gray', 
-            'Dark Art': 'purple',
-        };
-        const color = colorMap[sigil.type] || 'gray';
+        const sigilType = getSigilTypeFromImage(sigil.imageSrc);
+        let color: SigilColor = 'gray';
+        
+        switch (sigilType) {
+            case 'kaarn': color = 'gray'; break;
+            case 'purth': color = 'green'; break;
+            case 'juathas': color = 'orange'; break;
+            case 'xuth': color = 'red'; break;
+            case 'sinthru': color = 'purple'; break;
+            case 'lekolu': color = 'yellow'; break;
+        }
+
         const benefits = (
             <>
-                {sigil.benefits.eleanors ? <p className="text-green-300">+ {sigil.benefits.eleanors} Eleanor's Techniques</p> : null}
-                {sigil.benefits.genevieves ? <p className="text-purple-300">+ {sigil.benefits.genevieves} Genevieve's Techniques</p> : null}
+                {sigil.benefits.eleanors ? <p className="text-lime-300">+ {sigil.benefits.eleanors} {language === 'ko' ? "엘레노어" : "Eleanor's"}</p> : null}
+                {sigil.benefits.genevieves ? <p className="text-red-300">+ {sigil.benefits.genevieves} {language === 'ko' ? "제네비브" : "Genevieve's"}</p> : null}
             </>
         );
         return { color, benefits };
@@ -170,19 +188,36 @@ export const WorldlyWisdomSection: React.FC = () => {
         );
     };
 
-    const boostDescriptions: { [key: string]: string } = {
-        healing_bliss: "Heals slightly faster generally; once per day, can heal twice as fast.",
-        defensive_circle: "Can be cast instantly and is mobile, following you.",
-        rejuvenating_bolt: "Charge time is halved.",
-        guardian_angels: "Can create up to 6 angels.",
-        psychic_surgery: "Can perform surgeries on oneself, albeit painfully.",
-        chloromancy: "Doubles range and speed of plant growth.",
-        botanic_mistresses: "Dryads last for a full day.",
-        maneaters: "Plants are much more durable and resistant to damage.",
-        flashback: "Can revert time on a target by up to 24 hours.",
-        sustaining_bond: "Can bond with up to 3 people.",
-        tree_of_life: "Revival ability can be used twice.",
-        the_reinmans_curse: "Curse takes effect much faster."
+    const eleanorBoostDescriptions: { [key: string]: string } = language === 'ko' ? {
+        healing_bliss: "치유 속도가 두 배가 됩니다. 집중을 덜 해도 됩니다.",
+        defensive_circle: "원 안에 있는 동료들이 받는 피해를 절반으로 줄입니다.",
+        rejuvenating_bolt: "치유량이 두 배가 되고, 재충전 속도가 두 배 빨라집니다.",
+        guardian_angels: "수호천사들이 훨씬 튼튼해지고 운을 더 크게 올려줍니다.",
+        psychic_surgery: "수술 속도가 두 배가 됩니다.",
+        chloromancy: "식물의 성장 및 변이 속도가 두 배가 됩니다.",
+        botanic_mistresses: "드리아드가 엘레노어의 기술 5가지를 사용할 수 있게 됩니다.",
+        maneaters: "식물들이 두 배 크고, 두 배 튼튼해집니다."
+    } : {
+        healing_bliss: "Heals twice as fast, requires less focus.",
+        defensive_circle: "Halves damage taken by allies within.",
+        rejuvenating_bolt: "Heals twice as much damage, recharges twice as fast.",
+        guardian_angels: "Angels are much more durable and provide even more luck.",
+        psychic_surgery: "Surgeries take half as long.",
+        chloromancy: "Plants grow and mutate twice as fast.",
+        botanic_mistresses: "Can use 5 techniques.",
+        maneaters: "Twice as large and durable."
+    };
+
+    const genevieveBoostDescriptions: { [key: string]: string } = language === 'ko' ? {
+        flashback: "시간을 4시간 전으로 되돌릴 수 있습니다. 마력 흡수 속도가 빨라집니다.",
+        sustaining_bond: "당신이 탈진하는 시간이 줄어듭니다.",
+        tree_of_life: "부활 가능한 시간이 죽은 지 하루 이내로 늘어납니다.",
+        the_reinmans_curse: "노화 속도가 100배 더 빨라집니다."
+    } : {
+        flashback: "Reverts 4 hours. Drains faster.",
+        sustaining_bond: "Exhaustion lasts less time.",
+        tree_of_life: "Can resurrect within a day.",
+        the_reinmans_curse: "Ages 100x faster."
     };
 
     const isEleanorsBoostDisabled = !ctx.isEleanorsTechniquesBoosted && ctx.availableSigilCounts.kaarn <= 0;
@@ -190,6 +225,11 @@ export const WorldlyWisdomSection: React.FC = () => {
 
     const isMagicianSelected = selectedTrueSelfTraits.has('magician');
     const additionalCost = Math.floor(worldlyWisdomSigilTreeCost * 0.25);
+    
+    // Worldly Wisdom has no Lekolu sigils, so additionalFpCost is 0.
+    const costText = language === 'ko'
+        ? `(축복 점수 -${additionalCost})`
+        : `(-${additionalCost} BP)`;
 
     // Style to counteract global zoom for specific sections
     // Global Large is 120%. 1 / 1.2 = 0.83333
@@ -197,13 +237,14 @@ export const WorldlyWisdomSection: React.FC = () => {
 
     return (
         <section>
-            <BlessingIntro {...WORLDLY_WISDOM_DATA} />
+            <BlessingIntro {...activeData} />
+            
             <div className="mt-8 mb-16 max-w-3xl mx-auto">
                 <h4 className="font-cinzel text-xl text-center tracking-widest my-6 text-purple-300 uppercase">
-                    Engrave this Blessing
+                    {language === 'ko' ? "축복 각인" : "Engrave this Blessing"}
                 </h4>
                 <div className="grid grid-cols-3 gap-4">
-                    {BLESSING_ENGRAVINGS.map(engraving => {
+                    {activeEngravings.map(engraving => {
                         const isSelected = finalEngraving === engraving.id;
                         const isOverridden = worldlyWisdomEngraving !== null;
                         const isWeapon = engraving.id === 'weapon';
@@ -247,9 +288,9 @@ export const WorldlyWisdomSection: React.FC = () => {
                                     : 'bg-gray-800/50 border-gray-700 text-gray-300 hover:border-purple-500/70'
                             }`}
                         >
-                            {isWorldlyWisdomMagicianApplied
-                                ? `The 'Magician' trait is applied. Click to remove. (+${additionalCost} BP)`
-                                : `Click to apply the 'Magician' trait from your True Self. This allows you to use the Blessing without transforming for an additional ${additionalCost} BP.`}
+                             {isWorldlyWisdomMagicianApplied
+                                ? (language === 'ko' ? `'마법사' 특성이 적용되었습니다. ${costText}` : `The Magician trait is applied. ${costText}`)
+                                : (language === 'ko' ? `'마법사' 특성을 적용할 수 있습니다. 변신 없이 축복을 사용할 수 있게 됩니다. ${costText}` : `Click to enable the Magician trait from your True Self, allowing you to use the Blessing without transforming. ${costText}`)}
                         </button>
                     </div>
                 )}
@@ -267,78 +308,83 @@ export const WorldlyWisdomSection: React.FC = () => {
             )}
 
             <div className="my-16 bg-black/20 p-8 rounded-lg border border-gray-800 overflow-x-auto">
-                <SectionHeader>SIGIL TREE</SectionHeader>
+                <SectionHeader>{language === 'ko' ? "표식 트리" : "SIGIL TREE"}</SectionHeader>
                 <div className="flex items-center min-w-max pb-8 px-4 justify-center">
                     
                     {/* Column 1: Root */}
-                    <div className="flex flex-col justify-center h-[32rem]">
+                    <div className="flex flex-col justify-center h-[28rem]">
                         {renderSigilNode('arborealist')}
                     </div>
 
                     {/* SVG Connector 1 (Split) */}
-                    <svg className="w-16 h-[32rem] flex-shrink-0 text-gray-600" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M 0 228 H 32" /> {/* Center Out */}
-                        <path d="M 32 100 V 356" /> {/* Vertical Line */}
-                        <path d="M 32 100 H 64" /> {/* Top Out */}
-                        <path d="M 32 356 H 64" /> {/* Bottom Out */}
+                    <svg className="w-16 h-[28rem] flex-shrink-0 text-gray-600" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M 0 224 H 20" /> {/* Center Out */}
+                        <path d="M 20 224 V 100 H 64" /> {/* Branch Top (Sanctified) */}
+                        <path d="M 20 224 V 348 H 64" /> {/* Branch Bottom (Healer) */}
                     </svg>
 
                     {/* Column 2 */}
-                    <div className="flex flex-col justify-between h-[32rem]">
-                        <div className="h-64 flex items-center justify-center">
+                    <div className="flex flex-col justify-between h-[28rem]">
+                        <div className="h-44 flex items-center justify-center">
                             {renderSigilNode('sanctified_i')}
                         </div>
-                        <div className="h-64 flex items-center justify-center">
+                        <div className="h-44 flex items-center justify-center">
                             {renderSigilNode('healer_i')}
                         </div>
                     </div>
 
-                    {/* SVG Connector 2 (Branch Up from Bottom) */}
-                    <svg className="w-12 h-[32rem] flex-shrink-0 text-gray-600" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M 0 356 H 24" /> {/* Healer I Out */}
-                        <path d="M 24 356 V 100 H 48" /> {/* Branch Up to Healer II */}
-                        <path d="M 24 356 H 48" /> {/* Continue Straight to Healer III */}
+                    {/* SVG Connector 2 */}
+                    <svg className="w-12 h-[28rem] flex-shrink-0 text-gray-600" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M 0 348 H 48" /> {/* Healer I -> Healer II */}
                     </svg>
 
                     {/* Column 3 */}
-                    <div className="flex flex-col justify-between h-[32rem]">
-                        <div className="h-64 flex items-center justify-center">
+                    <div className="flex flex-col justify-end h-[28rem]">
+                        <div className="h-44 flex items-center justify-center">
                             {renderSigilNode('healer_ii')}
-                        </div>
-                        <div className="h-64 flex items-center justify-center">
-                            {renderSigilNode('healer_iii')}
                         </div>
                     </div>
 
-                    {/* SVG Connector 3 (Straight) */}
-                    <svg className="w-12 h-[32rem] flex-shrink-0 text-gray-600" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M 0 100 H 48" /> {/* Lifted */}
-                        <path d="M 0 356 H 48" /> {/* Lifted */}
+                    {/* SVG Connector 3 */}
+                    <svg className="w-12 h-[28rem] flex-shrink-0 text-gray-600" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M 0 348 H 20 V 100 H 48" /> {/* Healer II -> Sanctified II */}
+                        <path d="M 0 348 H 48" /> {/* Healer II -> Healer III */}
                     </svg>
 
                     {/* Column 4 */}
-                    <div className="flex flex-col justify-between h-[32rem]">
-                        <div className="h-64 flex items-center justify-center">
-                             {renderSigilNode('sanctified_ii')}
+                    <div className="flex flex-col justify-between h-[28rem]">
+                        <div className="h-44 flex items-center justify-center">
+                            {renderSigilNode('sanctified_ii')}
                         </div>
-                        <div className="h-64 flex items-center justify-center">
-                            {renderSigilNode('healer_iv')}
+                        <div className="h-44 flex items-center justify-center">
+                            {renderSigilNode('healer_iii')}
                         </div>
                     </div>
-
-                    {/* SVG Connector 4 (Branch Up from Bottom) */}
-                    <svg className="w-12 h-[32rem] flex-shrink-0 text-gray-600" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M 0 356 H 24" /> {/* Healer IV In */}
-                        <path d="M 24 356 V 100 H 48" /> {/* Branch Up to Dark Art */}
-                        <path d="M 24 356 H 48" /> {/* Branch Straight to Sanctified III */}
+                    
+                    {/* SVG Connector 4 */}
+                    <svg className="w-12 h-[28rem] flex-shrink-0 text-gray-600" fill="none" stroke="currentColor" strokeWidth="2">
+                         <path d="M 0 348 H 48" /> {/* Healer III -> Healer IV */}
                     </svg>
 
                     {/* Column 5 */}
-                    <div className="flex flex-col justify-between h-[32rem]">
-                        <div className="h-64 flex items-center justify-center">
+                    <div className="flex flex-col justify-end h-[28rem]">
+                        <div className="h-44 flex items-center justify-center">
+                            {renderSigilNode('healer_iv')}
+                        </div>
+                    </div>
+                    
+                    {/* SVG Connector 5 */}
+                    <svg className="w-12 h-[28rem] flex-shrink-0 text-gray-600" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M 0 348 H 20 V 100 H 48" /> {/* Healer IV -> Dark Art */}
+                        <path d="M 0 348 H 48" /> {/* Healer IV -> Sanctified III */}
+                    </svg>
+
+                    {/* Column 6 */}
+                    <div className="flex flex-col justify-between h-[28rem]">
+                        <div className="h-44 flex items-center justify-center">
                             {renderSigilNode('dark_art')}
                         </div>
-                        <div className="h-64 flex items-center justify-center">
+                        <div className="h-44 flex items-center justify-center">
                             {renderSigilNode('sanctified_iii')}
                         </div>
                     </div>
@@ -347,27 +393,32 @@ export const WorldlyWisdomSection: React.FC = () => {
             </div>
 
             <div className="mt-16 px-4 lg:px-8">
-                <SectionHeader>Eleanor's Techniques</SectionHeader>
+                <SectionHeader>{language === 'ko' ? "엘레노어의 기술" : "Eleanor's Techniques"}</SectionHeader>
                 <div className={`my-4 max-w-sm mx-auto p-4 border rounded-lg transition-all bg-black/20 ${ ctx.isEleanorsTechniquesBoosted ? 'border-amber-400 ring-2 ring-amber-400/50 cursor-pointer hover:border-amber-300' : isEleanorsBoostDisabled ? 'border-gray-700 opacity-50 cursor-not-allowed' : 'border-gray-700 hover:border-amber-400/50 cursor-pointer'}`} onClick={!isEleanorsBoostDisabled ? () => ctx.handleWorldlyWisdomBoostToggle('eleanorsTechniques') : undefined}>
                     <div className="flex items-center justify-center gap-4">
                         <img src="/images/zTm8fcLb-kaarn.png" alt="Kaarn Sigil" className="w-16 h-16"/>
                         <div className="text-left">
                             <h4 className="font-cinzel text-lg font-bold text-amber-300 tracking-widest">{ctx.isEleanorsTechniquesBoosted ? 'BOOSTED' : 'BOOST'}</h4>
-                            {!ctx.isEleanorsTechniquesBoosted && <p className="text-xs text-gray-400 mt-1">Activating this will consume one Kaarn sigil.</p>}
+                            {!ctx.isEleanorsTechniquesBoosted && <p className="text-xs text-gray-400 mt-1">
+                                {language === 'ko' ? "활성화 시 카른 표식 1개 소모" : "Activating this will consume one Kaarn sigil."}
+                            </p>}
                         </div>
                     </div>
                 </div>
-                <SectionSubHeader>Picks Available: {ctx.availableEleanorsPicks - ctx.selectedEleanorsTechniques.size} / {ctx.availableEleanorsPicks}</SectionSubHeader>
+                <SectionSubHeader>
+                    {language === 'ko' ? `선택 가능: ${ctx.availableEleanorsPicks - ctx.selectedEleanorsTechniques.size} / ${ctx.availableEleanorsPicks}` : `Picks Available: ${ctx.availableEleanorsPicks - ctx.selectedEleanorsTechniques.size} / ${ctx.availableEleanorsPicks}`}
+                </SectionSubHeader>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" style={staticScaleStyle}>
-                    {ELEANORS_TECHNIQUES_DATA.map(power => {
-                        const boostedText = ctx.isEleanorsTechniquesBoosted && boostDescriptions[power.id];
+                    {activeEleanors.map(power => {
+                        const boostedText = ctx.isEleanorsTechniquesBoosted && eleanorBoostDescriptions[power.id];
+                        
                         return (
                             <PowerCard 
                                 key={power.id} 
                                 power={{...power, cost: ''}} 
                                 isSelected={ctx.selectedEleanorsTechniques.has(power.id)} 
                                 onToggle={ctx.handleEleanorsTechniqueSelect} 
-                                isDisabled={isWorldlyWisdomPowerDisabled(power, 'eleanors')} 
+                                isDisabled={isWorldlyWisdomPowerDisabled(power, 'eleanorsTechniques')}
                                 fontSize={fontSize}
                             >
                                 {boostedText && <BoostedEffectBox text={boostedText} />}
@@ -376,28 +427,34 @@ export const WorldlyWisdomSection: React.FC = () => {
                     })}
                 </div>
             </div>
+
             <div className="mt-16 px-4 lg:px-8">
-                <SectionHeader>Genevieve's Techniques</SectionHeader>
+                <SectionHeader>{language === 'ko' ? "제네비브의 기술" : "Genevieve's Techniques"}</SectionHeader>
                 <div className={`my-4 max-w-sm mx-auto p-4 border rounded-lg transition-all bg-black/20 ${ ctx.isGenevievesTechniquesBoosted ? 'border-amber-400 ring-2 ring-amber-400/50 cursor-pointer hover:border-amber-300' : isGenevievesBoostDisabled ? 'border-gray-700 opacity-50 cursor-not-allowed' : 'border-gray-700 hover:border-amber-400/50 cursor-pointer'}`} onClick={!isGenevievesBoostDisabled ? () => ctx.handleWorldlyWisdomBoostToggle('genevievesTechniques') : undefined}>
                     <div className="flex items-center justify-center gap-4">
                         <img src="/images/Dg6nz0R1-purth.png" alt="Purth Sigil" className="w-16 h-16"/>
                         <div className="text-left">
                             <h4 className="font-cinzel text-lg font-bold text-amber-300 tracking-widest">{ctx.isGenevievesTechniquesBoosted ? 'BOOSTED' : 'BOOST'}</h4>
-                            {!ctx.isGenevievesTechniquesBoosted && <p className="text-xs text-gray-400 mt-1">Activating this will consume one Purth sigil.</p>}
+                            {!ctx.isGenevievesTechniquesBoosted && <p className="text-xs text-gray-400 mt-1">
+                                {language === 'ko' ? "활성화 시 퍼르스 표식 1개 소모" : "Activating this will consume one Purth sigil."}
+                            </p>}
                         </div>
                     </div>
                 </div>
-                <SectionSubHeader>Picks Available: {ctx.availableGenevievesPicks - ctx.selectedGenevievesTechniques.size} / {ctx.availableGenevievesPicks}</SectionSubHeader>
+                <SectionSubHeader>
+                    {language === 'ko' ? `선택 가능: ${ctx.availableGenevievesPicks - ctx.selectedGenevievesTechniques.size} / ${ctx.availableGenevievesPicks}` : `Picks Available: ${ctx.availableGenevievesPicks - ctx.selectedGenevievesTechniques.size} / ${ctx.availableGenevievesPicks}`}
+                </SectionSubHeader>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" style={staticScaleStyle}>
-                    {GENEVIEVES_TECHNIQUES_DATA.map(power => {
-                        const boostedText = ctx.isGenevievesTechniquesBoosted && boostDescriptions[power.id];
+                    {activeGenevieves.map(power => {
+                        const boostedText = ctx.isGenevievesTechniquesBoosted && genevieveBoostDescriptions[power.id];
+                        
                         return (
                             <PowerCard 
                                 key={power.id} 
                                 power={{...power, cost: ''}} 
                                 isSelected={ctx.selectedGenevievesTechniques.has(power.id)} 
                                 onToggle={ctx.handleGenevievesTechniqueSelect} 
-                                isDisabled={isWorldlyWisdomPowerDisabled(power, 'genevieves')} 
+                                isDisabled={isWorldlyWisdomPowerDisabled(power, 'genevievesTechniques')}
                                 fontSize={fontSize}
                             >
                                 {boostedText && <BoostedEffectBox text={boostedText} />}

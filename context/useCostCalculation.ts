@@ -39,6 +39,14 @@ const SUN_FORGER_CREATION_POWERS = new Set([
     'roboticist_i', 'roboticist_ii'
 ]);
 
+// Set of Sigil IDs that are of type 'Lekolu' within trees
+const LEKOLU_TREE_SIGILS = new Set([
+    'thermosword', // Compelling Will
+    'realmkeeper', 'realmmaster', // Gracious Defeat
+    'kyrotik_armor', 'ez_hack', // Closed Circuits
+    'polymat' // Righteous Creation
+]);
+
 interface CostProps {
     selectedDominionId: string | null;
     pageOneState: PageOneState;
@@ -495,19 +503,34 @@ export const useCostCalculation = ({
 
         if (pageOneState.selectedTrueSelfTraits.has('magician')) {
             const magicianBlessings = [
-                { isApplied: pageThreeState.isGoodTidingsMagicianApplied, cost: pageThreeState.goodTidingsSigilTreeCost },
-                { isApplied: pageThreeState.isCompellingWillMagicianApplied, cost: pageThreeState.compellingWillSigilTreeCost },
-                { isApplied: pageThreeState.isWorldlyWisdomMagicianApplied, cost: pageThreeState.worldlyWisdomSigilTreeCost },
-                { isApplied: pageThreeState.isBitterDissatisfactionMagicianApplied, cost: pageThreeState.bitterDissatisfactionSigilTreeCost },
-                { isApplied: pageThreeState.isLostHopeMagicianApplied, cost: pageThreeState.lostHopeSigilTreeCost },
-                { isApplied: pageThreeState.isFallenPeaceMagicianApplied, cost: pageThreeState.fallenPeaceSigilTreeCost },
-                { isApplied: pageThreeState.isGraciousDefeatMagicianApplied, cost: pageThreeState.graciousDefeatSigilTreeCost },
-                { isApplied: pageThreeState.isClosedCircuitsMagicianApplied, cost: pageThreeState.closedCircuitsSigilTreeCost },
-                { isApplied: pageThreeState.isRighteousCreationMagicianApplied, cost: pageThreeState.righteousCreationSigilTreeCost },
+                { isApplied: pageThreeState.isGoodTidingsMagicianApplied, cost: pageThreeState.goodTidingsSigilTreeCost, sigils: [] }, // Good Tidings uses standard costs, sigil tree doesn't track ids here but costs directly
+                { isApplied: pageThreeState.isCompellingWillMagicianApplied, cost: pageThreeState.compellingWillSigilTreeCost, sigils: pageThreeState.selectedCompellingWillSigils },
+                { isApplied: pageThreeState.isWorldlyWisdomMagicianApplied, cost: pageThreeState.worldlyWisdomSigilTreeCost, sigils: pageThreeState.selectedWorldlyWisdomSigils },
+                { isApplied: pageThreeState.isBitterDissatisfactionMagicianApplied, cost: pageThreeState.bitterDissatisfactionSigilTreeCost, sigils: pageThreeState.selectedBitterDissatisfactionSigils },
+                { isApplied: pageThreeState.isLostHopeMagicianApplied, cost: pageThreeState.lostHopeSigilTreeCost, sigils: pageThreeState.selectedLostHopeSigils },
+                { isApplied: pageThreeState.isFallenPeaceMagicianApplied, cost: pageThreeState.fallenPeaceSigilTreeCost, sigils: pageThreeState.selectedFallenPeaceSigils },
+                { isApplied: pageThreeState.isGraciousDefeatMagicianApplied, cost: pageThreeState.graciousDefeatSigilTreeCost, sigils: pageThreeState.selectedGraciousDefeatSigils },
+                { isApplied: pageThreeState.isClosedCircuitsMagicianApplied, cost: pageThreeState.closedCircuitsSigilTreeCost, sigils: pageThreeState.selectedClosedCircuitsSigils },
+                { isApplied: pageThreeState.isRighteousCreationMagicianApplied, cost: pageThreeState.righteousCreationSigilTreeCost, sigils: pageThreeState.selectedRighteousCreationSigils },
             ];
+            
             magicianBlessings.forEach(blessing => {
                 if (blessing.isApplied) {
                     addBp(Math.floor(blessing.cost * 0.25));
+                    
+                    // Add FP cost for Lekolu sigils if present in the tree
+                    // Assume Lekolu base cost of 6 FP for calculation
+                    if (blessing.sigils) {
+                        let lekoluCount = 0;
+                        blessing.sigils.forEach((id: string) => {
+                            if (LEKOLU_TREE_SIGILS.has(id)) {
+                                lekoluCount++;
+                            }
+                        });
+                        if (lekoluCount > 0) {
+                            addFp(Math.floor(lekoluCount * 6 * 0.25));
+                        }
+                    }
                 }
             });
         }

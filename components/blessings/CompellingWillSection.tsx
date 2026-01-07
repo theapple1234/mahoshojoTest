@@ -1,8 +1,16 @@
 
+
 import React, { useState, useEffect } from 'react';
 import { useCharacterContext } from '../../context/CharacterContext';
-import { ARABELLA_DATA, COMPELLING_WILL_DATA, COMPELLING_WILL_SIGIL_TREE_DATA, TELEKINETICS_DATA, METATHERMICS_DATA, BLESSING_ENGRAVINGS } from '../../constants';
-import type { CompellingWillPower, CompellingWillSigil, ChoiceItem, MagicGrade } from '../../types';
+import { 
+    ARABELLA_DATA, ARABELLA_DATA_KO,
+    COMPELLING_WILL_DATA, COMPELLING_WILL_DATA_KO,
+    COMPELLING_WILL_SIGIL_TREE_DATA, COMPELLING_WILL_SIGIL_TREE_DATA_KO,
+    TELEKINETICS_DATA, TELEKINETICS_DATA_KO,
+    METATHERMICS_DATA, METATHERMICS_DATA_KO,
+    BLESSING_ENGRAVINGS, BLESSING_ENGRAVINGS_KO
+} from '../../constants';
+import type { CompellingWillPower, CompellingWillSigil, ChoiceItem, MagicGrade, SigilCounts } from '../../types';
 import { BlessingIntro, SectionHeader, SectionSubHeader, WeaponIcon, BoostedEffectBox, renderFormattedText } from '../ui';
 import { CompellingWillSigilCard, SigilColor } from '../CompellingWillSigilCard';
 import { WeaponSelectionModal } from '../WeaponSelectionModal';
@@ -75,6 +83,10 @@ const PowerCard: React.FC<{
             <img src={power.imageSrc} alt={power.title} className="w-full aspect-[3/2] rounded-md mb-4 object-cover" />
             <h4 className="font-cinzel font-bold tracking-wider text-xl" style={{ textShadow, color: titleColor }}>{power.title}</h4>
             {power.cost && <p className="text-xs text-yellow-300/70 italic mt-1">{power.cost}</p>}
+            
+            {/* Separator Line */}
+            {power.description && <div className="w-16 h-px bg-white/10 mx-auto my-2"></div>}
+            
             <p className={`${descriptionClass} text-gray-400 font-medium leading-relaxed flex-grow text-left whitespace-pre-wrap`} style={{ textShadow }}>{renderFormattedText(power.description)}</p>
             {hasChildren && (
                  <div className="mt-4 pt-4 border-t border-gray-700/50 w-full">
@@ -105,8 +117,15 @@ export const CompellingWillSection: React.FC = () => {
         compellingWillSigilTreeCost,
         
         kpPaidNodes, toggleKpNode,
-        fontSize
+        fontSize,
+        language
     } = useCharacterContext();
+
+    const activeArabella = language === 'ko' ? ARABELLA_DATA_KO : ARABELLA_DATA;
+    const activeCompellingWill = language === 'ko' ? COMPELLING_WILL_DATA_KO : COMPELLING_WILL_DATA;
+    const activeTree = language === 'ko' ? COMPELLING_WILL_SIGIL_TREE_DATA_KO : COMPELLING_WILL_SIGIL_TREE_DATA;
+    const activeTelekinetics = language === 'ko' ? TELEKINETICS_DATA_KO : TELEKINETICS_DATA;
+    const activeMetathermics = language === 'ko' ? METATHERMICS_DATA_KO : METATHERMICS_DATA;
 
     const finalEngraving = compellingWillEngraving ?? selectedBlessingEngraving;
     const isSkinEngraved = finalEngraving === 'skin';
@@ -131,40 +150,43 @@ export const CompellingWillSection: React.FC = () => {
     };
     
     const isCompellingWillSigilDisabled = (sigil: CompellingWillSigil): boolean => {
-        if (ctx.selectedCompellingWillSigils.has(sigil.id)) return false; // Can always deselect
+        if (ctx.selectedCompellingWillSigils.has(sigil.id)) return false; 
         if (!sigil.prerequisites.every(p => ctx.selectedCompellingWillSigils.has(p))) return true;
 
         // KP Check
         if (kpPaidNodes.has(String(sigil.id))) return false;
 
         const sigilType = getSigilTypeFromImage(sigil.imageSrc);
-        if (sigilType && ctx.availableSigilCounts[sigilType as keyof typeof ctx.availableSigilCounts] < 1) return true;
+        if (sigilType && ctx.availableSigilCounts[sigilType as keyof SigilCounts] < 1) return true;
 
         return false;
     };
 
-    const getCompellingWillSigil = (id: string) => COMPELLING_WILL_SIGIL_TREE_DATA.find(s => s.id === id)!;
+    const getCompellingWillSigil = (id: string) => activeTree.find(s => s.id === id)!;
     
     const getSigilDisplayInfo = (sigil: CompellingWillSigil): { color: SigilColor, benefits: React.ReactNode } => {
-        const colorMap: Record<string, SigilColor> = {
-            'MANIPULATOR': 'red', 'REALITY BENDER': 'red', 'PSYCHO': 'green',
-            'THERMAL MASTER': 'green', 'TELEKINETIC I': 'gray', 'TELEKINETIC II': 'gray',
-            'THERMOSWORD™': 'yellow',
-        };
-        const color = colorMap[sigil.title] || 'gray';
+        let color: SigilColor = 'gray';
+        
+        switch(sigil.id) {
+            case 'manipulator': case 'reality_bender': color = 'red'; break;
+            case 'psycho': case 'thermal_master': color = 'green'; break;
+            case 'thermosword': color = 'yellow'; break;
+            default: color = 'gray'; break;
+        }
+
         const benefits = (
             <>
-                {sigil.benefits.telekinetics ? <p className="text-cyan-300">+ {sigil.benefits.telekinetics} Telekinetics</p> : null}
-                {sigil.benefits.metathermics ? <p className="text-rose-300">+ {sigil.benefits.metathermics} Metathermics</p> : null}
+                {sigil.benefits.telekinetics ? <p className="text-cyan-300">+ {sigil.benefits.telekinetics} {language === 'ko' ? '염력' : 'Telekinetics'}</p> : null}
+                {sigil.benefits.metathermics ? <p className="text-rose-300">+ {sigil.benefits.metathermics} {language === 'ko' ? '메타열역학' : 'Metathermics'}</p> : null}
             </>
         );
         return { color, benefits };
     };
     
     const handleKpToggle = (sigil: CompellingWillSigil) => {
-        const type = getSigilTypeFromImage(sigil.imageSrc);
-        if (type) {
-            toggleKpNode(String(sigil.id), type);
+        const sigilType = getSigilTypeFromImage(sigil.imageSrc);
+        if (sigilType) {
+            toggleKpNode(String(sigil.id), sigilType);
         }
     };
 
@@ -186,7 +208,15 @@ export const CompellingWillSection: React.FC = () => {
         );
     };
 
-    const kaarnBoostDescriptions: { [key: string]: string } = {
+    const kaarnBoostDescriptions: { [key: string]: string } = language === 'ko' ? {
+        psychic_force_i: "능력을 두 배 강하게 사용할 수 있습니다. 단, 사용하고 나면 지치게 됩니다.",
+        psychic_force_ii: "능력을 두 배 강하게 사용할 수 있습니다. 단, 사용하고 나면 지치게 됩니다.",
+        forcefield: "일반적인 역장보다 열 배 강한 고정형 역장을 만들 수 있습니다. 다만 그 동안 움직일 수 없습니다.",
+        subatomic_manipulation: "변화가 두 배 빠르게 일어납니다. 폭발 위력이 0.2킬로톤으로 증가합니다.",
+        energy_channel: "에너지 광선의 위력이 소폭 상승합니다. 하루에 한 번 두 배의 위력을 갖는 광선을 발사할 수 있습니다.",
+        aquatic_force: "능력을 두 배 강하게 사용할 수 있습니다. 단, 사용하고 나면 지치게 됩니다.",
+        sonic_boom: "능력을 사용하면 더 이상 피해를 입지 않고 탈진하기만 합니다."
+    } : {
         psychic_force_i: "Can exert twice as much force at the price of exhaustion.",
         psychic_force_ii: "Can exert twice as much force at the price of exhaustion.",
         forcefield: "Can set down a static force field that is ten times as difficult to destroy, as long as you dont move.",
@@ -196,7 +226,16 @@ export const CompellingWillSection: React.FC = () => {
         sonic_boom: "Will exhaust rather than injure you."
     };
 
-    const purthBoostDescriptions: { [key: string]: string } = {
+    const purthBoostDescriptions: { [key: string]: string } = language === 'ko' ? {
+        pyromaniac_i: "화염의 열기가 두 배 강해지지만, 투사하는 당신에게도 피해를 줍니다.",
+        pyromaniac_ii: "화염의 열기가 두 배 강해지지만, 투사하는 당신에게도 피해를 줍니다.",
+        pyromaniac_iii: "화염의 열기가 두 배 강해지지만, 투사하는 당신에게도 피해를 줍니다.",
+        ice_cold_i: "얼음의 냉기가 두 배 강해지지만, 투사하는 당신에게도 피해를 줍니다.",
+        ice_cold_ii: "얼음의 냉기가 두 배 강해지지만, 투사하는 당신에게도 피해를 줍니다.",
+        ice_cold_iii: "얼음의 냉기가 두 배 강해지지만, 투사하는 당신에게도 피해를 줍니다.",
+        plasma_strike: "번개의 위력이 소폭 상승합니다. 하루에 한 번 두 배의 위력을 갖는 번개를 발사할 수 있습니다.",
+        thermal_weaponry: "이제 무기 점수 35점이 주어집니다."
+    } : {
         pyromaniac_i: "Can use flame spells with twice the heat, though they’re so intense they injure you just to release.",
         pyromaniac_ii: "Can use flame spells with twice the heat, though they’re so intense they injure you just to release.",
         pyromaniac_iii: "Can use flame spells with twice the heat, though they’re so intense they injure you just to release.",
@@ -212,22 +251,29 @@ export const CompellingWillSection: React.FC = () => {
 
     const isMagicianSelected = selectedTrueSelfTraits.has('magician');
     const additionalCost = Math.floor(compellingWillSigilTreeCost * 0.25);
+    
+    // Calculate Lekolu FP cost for Magician Trait
+    const lekoluSigils = ['thermosword']; 
+    const selectedLekoluCount = Array.from(ctx.selectedCompellingWillSigils).filter(id => lekoluSigils.includes(id)).length;
+    const additionalFpCost = Math.floor(selectedLekoluCount * 6 * 0.25);
 
-    // Style to counteract global zoom for specific sections
-    // Global Large is 120%. 1 / 1.2 = 0.83333
+    const costText = language === 'ko'
+        ? `(축복 점수 -${additionalCost}${additionalFpCost > 0 ? `, 행운 점수 -${additionalFpCost}` : ''})`
+        : `(-${additionalCost} BP${additionalFpCost > 0 ? `, -${additionalFpCost} FP` : ''})`;
+
     const staticScaleStyle: React.CSSProperties = fontSize === 'large' ? { zoom: 0.83333 } : {};
 
     return (
         <section>
-            <BlessingIntro {...ARABELLA_DATA} />
-            <BlessingIntro {...COMPELLING_WILL_DATA} reverse />
+            <BlessingIntro {...activeArabella} />
+            <BlessingIntro {...activeCompellingWill} reverse />
             
             <div className="mt-8 mb-16 max-w-3xl mx-auto">
                 <h4 className="font-cinzel text-xl text-center tracking-widest my-6 text-purple-300 uppercase">
-                    Engrave this Blessing
+                    {language === 'ko' ? "축복 각인" : "Engrave this Blessing"}
                 </h4>
                 <div className="grid grid-cols-3 gap-4">
-                    {BLESSING_ENGRAVINGS.map(engraving => {
+                    {(language === 'ko' ? BLESSING_ENGRAVINGS_KO : BLESSING_ENGRAVINGS).map(engraving => {
                         const isSelected = finalEngraving === engraving.id;
                         const isOverridden = compellingWillEngraving !== null;
                         const isWeapon = engraving.id === 'weapon';
@@ -272,8 +318,8 @@ export const CompellingWillSection: React.FC = () => {
                             }`}
                         >
                             {isCompellingWillMagicianApplied
-                                ? `The 'Magician' trait is applied. Click to remove. (+${additionalCost} BP)`
-                                : `Click to apply the 'Magician' trait from your True Self. This allows you to use the Blessing without transforming for an additional ${additionalCost} BP.`}
+                                ? (language === 'ko' ? `'마법사' 특성이 적용되었습니다. ${costText}` : `The Magician trait is applied. ${costText}`)
+                                : (language === 'ko' ? `'마법사' 특성을 적용할 수 있습니다. 변신 없이 축복을 사용할 수 있게 됩니다. ${costText}` : `Click to enable the Magician trait from your True Self, allowing you to use the Blessing without transforming. ${costText}`)}
                         </button>
                     </div>
                 )}
@@ -299,14 +345,14 @@ export const CompellingWillSection: React.FC = () => {
                     }}
                     currentWeaponName={thermalWeaponryWeaponName}
                     pointLimit={ctx.isMetathermicsBoosted ? 35 : 30}
-                    title="Assign Thermal Weapon"
+                    title={language === 'ko' ? "열 병기 할당" : "Assign Thermal Weapon"}
                     categoryFilter={['bladed_melee', 'blunt_melee']}
                     requiredPerkId="thermal_supercharge"
                 />
             )}
 
             <div className="my-16 bg-black/20 p-8 rounded-lg border border-gray-800 overflow-x-auto">
-                <SectionHeader>SIGIL TREE</SectionHeader>
+                <SectionHeader>{language === 'ko' ? "표식 트리" : "SIGIL TREE"}</SectionHeader>
                 <div className="flex items-center min-w-max pb-8 px-4 justify-center">
                     
                     {/* Column 1: Root */}
@@ -389,21 +435,25 @@ export const CompellingWillSection: React.FC = () => {
                 </div>
             </div>
             <div className="mt-16 px-4 lg:px-8">
-                <SectionHeader>Telekinetics</SectionHeader>
+                <SectionHeader>{language === 'ko' ? "염력" : "Telekinetics"}</SectionHeader>
                 <div className={`my-4 max-w-sm mx-auto p-4 border rounded-lg transition-all bg-black/20 ${ ctx.isTelekineticsBoosted ? 'border-amber-400 ring-2 ring-amber-400/50 cursor-pointer hover:border-amber-300' : isTelekineticsBoostDisabled ? 'border-gray-700 opacity-50 cursor-not-allowed' : 'border-gray-700 hover:border-amber-400/50 cursor-pointer'}`} onClick={!isTelekineticsBoostDisabled ? () => ctx.handleCompellingWillBoostToggle('telekinetics') : undefined}>
                     <div className="flex items-center justify-center gap-4">
                         <img src="/images/zTm8fcLb-kaarn.png" alt="Kaarn Sigil" className="w-16 h-16"/>
                         <div className="text-left">
                             <h4 className="font-cinzel text-lg font-bold text-amber-300 tracking-widest">{ctx.isTelekineticsBoosted ? 'BOOSTED' : 'BOOST'}</h4>
-                            {!ctx.isTelekineticsBoosted && <p className="text-xs text-gray-400 mt-1">Activating this will consume one Kaarn sigil.</p>}
+                            {!ctx.isTelekineticsBoosted && <p className="text-xs text-gray-400 mt-1">
+                                {language === 'ko' ? "활성화 시 카른 표식 1개 소모" : "Activating this will consume one Kaarn sigil."}
+                            </p>}
                         </div>
                     </div>
                 </div>
-                <SectionSubHeader>Picks Available: {ctx.availableTelekineticsPicks - ctx.selectedTelekinetics.size} / {ctx.availableTelekineticsPicks}</SectionSubHeader>
+                <SectionSubHeader>
+                    {language === 'ko' ? `선택 가능: ${ctx.availableTelekineticsPicks - ctx.selectedTelekinetics.size} / ${ctx.availableTelekineticsPicks}` : `Picks Available: ${ctx.availableTelekineticsPicks - ctx.selectedTelekinetics.size} / ${ctx.availableTelekineticsPicks}`}
+                </SectionSubHeader>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" style={staticScaleStyle}>
                     {(() => {
-                        const specialPower = TELEKINETICS_DATA.find(p => p.id === 'subatomic_manipulation');
-                        const otherPowers = TELEKINETICS_DATA.filter(p => p.id !== 'subatomic_manipulation');
+                        const specialPower = activeTelekinetics.find(p => p.id === 'subatomic_manipulation');
+                        const otherPowers = activeTelekinetics.filter(p => p.id !== 'subatomic_manipulation');
                         const firstHalf = otherPowers.slice(0, 3);
                         const secondHalf = otherPowers.slice(3);
 
@@ -438,19 +488,23 @@ export const CompellingWillSection: React.FC = () => {
                 </div>
             </div>
             <div className="mt-16 px-4 lg:px-8">
-                <SectionHeader>Metathermics</SectionHeader>
+                <SectionHeader>{language === 'ko' ? "메타열역학" : "Metathermics"}</SectionHeader>
                 <div className={`my-4 max-w-sm mx-auto p-4 border rounded-lg transition-all bg-black/20 ${ ctx.isMetathermicsBoosted ? 'border-amber-400 ring-2 ring-amber-400/50 cursor-pointer hover:border-amber-300' : isMetathermicsBoostDisabled ? 'border-gray-700 opacity-50 cursor-not-allowed' : 'border-gray-700 hover:border-amber-400/50 cursor-pointer'}`} onClick={!isMetathermicsBoostDisabled ? () => ctx.handleCompellingWillBoostToggle('metathermics') : undefined}>
                     <div className="flex items-center justify-center gap-4">
                         <img src="/images/Dg6nz0R1-purth.png" alt="Purth Sigil" className="w-16 h-16"/>
                         <div className="text-left">
                             <h4 className="font-cinzel text-lg font-bold text-amber-300 tracking-widest">{ctx.isMetathermicsBoosted ? 'BOOSTED' : 'BOOST'}</h4>
-                            {!ctx.isMetathermicsBoosted && <p className="text-xs text-gray-400 mt-1">Activating this will consume one Purth sigil.</p>}
+                            {!ctx.isMetathermicsBoosted && <p className="text-xs text-gray-400 mt-1">
+                                {language === 'ko' ? "활성화 시 퍼르스 표식 1개 소모" : "Activating this will consume one Purth sigil."}
+                            </p>}
                         </div>
                     </div>
                 </div>
-                <SectionSubHeader>Picks Available: {ctx.availableMetathermicsPicks - ctx.selectedMetathermics.size} / {ctx.availableMetathermicsPicks}</SectionSubHeader>
+                <SectionSubHeader>
+                    {language === 'ko' ? `선택 가능: ${ctx.availableMetathermicsPicks - ctx.selectedMetathermics.size} / ${ctx.availableMetathermicsPicks}` : `Picks Available: ${ctx.availableMetathermicsPicks - ctx.selectedMetathermics.size} / ${ctx.availableMetathermicsPicks}`}
+                </SectionSubHeader>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" style={staticScaleStyle}>
-                    {METATHERMICS_DATA.map(power => {
+                    {activeMetathermics.map(power => {
                         const boostedText = ctx.isMetathermicsBoosted && purthBoostDescriptions[power.id];
                         const isThermalWeaponry = power.id === 'thermal_weaponry';
                         const isSelected = ctx.selectedMetathermics.has(power.id);
@@ -469,7 +523,7 @@ export const CompellingWillSection: React.FC = () => {
                                  {boostedText && <BoostedEffectBox text={boostedText} />}
                                  {isThermalWeaponry && isSelected && thermalWeaponryWeaponName && (
                                     <div className="text-center mt-2 border-t border-gray-700/50 pt-2">
-                                        <p className="text-xs text-gray-400">Assigned Weapon:</p>
+                                        <p className="text-xs text-gray-400">{language === 'ko' ? "할당된 무기:" : "Assigned Weapon:"}</p>
                                         <p className="text-sm font-bold text-amber-300">{thermalWeaponryWeaponName}</p>
                                     </div>
                                 )}

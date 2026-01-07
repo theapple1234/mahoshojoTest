@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import * as Constants from '../../constants';
 import type { BeastSelections, CompanionOption } from '../../types';
@@ -7,20 +6,7 @@ import { ReferenceItemCard } from './ReferenceItemCard';
 import { MapSelectionModal } from './MapSelectionModal';
 import { BookIcon } from '../ui';
 import { Counter } from './Counter';
-
-const ALL_SPELLS = [
-    ...Constants.ESSENTIAL_BOONS_DATA, ...Constants.MINOR_BOONS_DATA, ...Constants.MAJOR_BOONS_DATA,
-    ...Constants.TELEKINETICS_DATA, ...Constants.METATHERMICS_DATA,
-    ...Constants.ELEANORS_TECHNIQUES_DATA, ...Constants.GENEVIEVES_TECHNIQUES_DATA,
-    ...Constants.BREWING_DATA, ...Constants.SOUL_ALCHEMY_DATA, ...Constants.TRANSFORMATION_DATA,
-    ...Constants.CHANNELLING_DATA, ...Constants.NECROMANCY_DATA, ...Constants.BLACK_MAGIC_DATA,
-    ...Constants.TELEPATHY_DATA, ...Constants.MENTAL_MANIPULATION_DATA,
-    ...Constants.ENTRANCE_DATA, ...Constants.FEATURES_DATA, ...Constants.INFLUENCE_DATA,
-    ...Constants.NET_AVATAR_DATA, ...Constants.TECHNOMANCY_DATA, ...Constants.NANITE_CONTROL_DATA,
-    ...Constants.RIGHTEOUS_CREATION_SPECIALTIES_DATA, ...Constants.RIGHTEOUS_CREATION_MAGITECH_DATA, 
-    ...Constants.RIGHTEOUS_CREATION_ARCANE_CONSTRUCTS_DATA, ...Constants.RIGHTEOUS_CREATION_METAMAGIC_DATA,
-    ...Constants.STAR_CROSSED_LOVE_PACTS_DATA
-];
+import { useCharacterContext } from '../../context/CharacterContext';
 
 type ActiveMapType = 'magicalBeast';
 
@@ -29,7 +15,41 @@ export const BeastSection: React.FC<{
     selections: BeastSelections;
     setSelections: React.Dispatch<React.SetStateAction<BeastSelections>>;
 }> = ({ setPoints, selections, setSelections }) => {
+    const { language } = useCharacterContext();
     const [activeMapType, setActiveMapType] = useState<ActiveMapType | null>(null);
+    
+    // Localization
+    const activeIntro = language === 'ko' ? Constants.BEAST_INTRO_KO : Constants.BEAST_INTRO;
+    const activeCategories = language === 'ko' ? Constants.BEAST_CATEGORIES_KO : Constants.BEAST_CATEGORIES;
+    const activeSizes = language === 'ko' ? Constants.BEAST_SIZES_KO : Constants.BEAST_SIZES;
+    const activePerks = language === 'ko' ? Constants.BEAST_PERKS_KO : Constants.BEAST_PERKS;
+    const activeTraits = language === 'ko' ? Constants.COMPANION_PERSONALITY_TRAITS_KO : Constants.COMPANION_PERSONALITY_TRAITS;
+
+    const ALL_SPELLS = language === 'ko' ? [
+        ...Constants.ESSENTIAL_BOONS_DATA_KO, ...Constants.MINOR_BOONS_DATA_KO, ...Constants.MAJOR_BOONS_DATA_KO,
+        ...Constants.TELEKINETICS_DATA_KO, ...Constants.METATHERMICS_DATA_KO,
+        ...Constants.ELEANORS_TECHNIQUES_DATA_KO, ...Constants.GENEVIEVES_TECHNIQUES_DATA_KO,
+        ...Constants.BREWING_DATA_KO, ...Constants.SOUL_ALCHEMY_DATA_KO, ...Constants.TRANSFORMATION_DATA_KO,
+        ...Constants.CHANNELLING_DATA_KO, ...Constants.NECROMANCY_DATA_KO, ...Constants.BLACK_MAGIC_DATA_KO,
+        ...Constants.TELEPATHY_DATA_KO, ...Constants.MENTAL_MANIPULATION_DATA_KO,
+        ...Constants.ENTRANCE_DATA_KO, ...Constants.FEATURES_DATA_KO, ...Constants.INFLUENCE_DATA_KO,
+        ...Constants.NET_AVATAR_DATA_KO, ...Constants.TECHNOMANCY_DATA_KO, ...Constants.NANITE_CONTROL_DATA_KO,
+        ...Constants.RIGHTEOUS_CREATION_SPECIALTIES_DATA_KO, ...Constants.RIGHTEOUS_CREATION_MAGITECH_DATA_KO, 
+        ...Constants.RIGHTEOUS_CREATION_ARCANE_CONSTRUCTS_DATA_KO, ...Constants.RIGHTEOUS_CREATION_METAMAGIC_DATA_KO,
+        ...Constants.STAR_CROSSED_LOVE_PACTS_DATA_KO
+    ] : [
+        ...Constants.ESSENTIAL_BOONS_DATA, ...Constants.MINOR_BOONS_DATA, ...Constants.MAJOR_BOONS_DATA,
+        ...Constants.TELEKINETICS_DATA, ...Constants.METATHERMICS_DATA,
+        ...Constants.ELEANORS_TECHNIQUES_DATA, ...Constants.GENEVIEVES_TECHNIQUES_DATA,
+        ...Constants.BREWING_DATA, ...Constants.SOUL_ALCHEMY_DATA, ...Constants.TRANSFORMATION_DATA,
+        ...Constants.CHANNELLING_DATA, ...Constants.NECROMANCY_DATA, ...Constants.BLACK_MAGIC_DATA,
+        ...Constants.TELEPATHY_DATA, ...Constants.MENTAL_MANIPULATION_DATA,
+        ...Constants.ENTRANCE_DATA, ...Constants.FEATURES_DATA, ...Constants.INFLUENCE_DATA,
+        ...Constants.NET_AVATAR_DATA, ...Constants.TECHNOMANCY_DATA, ...Constants.NANITE_CONTROL_DATA,
+        ...Constants.RIGHTEOUS_CREATION_SPECIALTIES_DATA, ...Constants.RIGHTEOUS_CREATION_MAGITECH_DATA, 
+        ...Constants.RIGHTEOUS_CREATION_ARCANE_CONSTRUCTS_DATA, ...Constants.RIGHTEOUS_CREATION_METAMAGIC_DATA,
+        ...Constants.STAR_CROSSED_LOVE_PACTS_DATA
+    ];
 
      useEffect(() => {
         let total = 0;
@@ -42,8 +62,9 @@ export const BeastSection: React.FC<{
             const perk = Constants.BEAST_PERKS.find(p => p.id === perkId);
             if (perk) {
                 let cost = perk.cost ?? 0;
-                if (perk.id === 'unnerving_appearance' && selections.perks.has('undead_perk')) cost = 0;
-                if (perk.id === 'steel_skin' && selections.perks.has('automaton_perk')) cost = 0;
+                /* FIX: Use perkId instead of id in forEach callback */
+                if (perkId === 'unnerving_appearance' && selections.perks.has('undead_perk')) cost = 0;
+                if (perkId === 'steel_skin' && selections.perks.has('automaton_perk')) cost = 0;
                 total += cost * count;
             }
         });
@@ -164,8 +185,12 @@ export const BeastSection: React.FC<{
     }
 
     const getModifiedPerk = (perk: CompanionOption): CompanionOption => {
-        if (perk.id === 'unnerving_appearance' && selections.perks.has('undead_perk')) return { ...perk, cost: 0, requirement: 'Free for Undead' };
-        if (perk.id === 'steel_skin' && selections.perks.has('automaton_perk')) return { ...perk, cost: 0, requirement: 'Free for Automaton' };
+        if (perk.id === 'unnerving_appearance' && selections.perks.has('undead_perk')) {
+             return { ...perk, cost: 0, requirement: language === 'ko' ? '언데드 무료' : 'Free for Undead' };
+        }
+        if (perk.id === 'steel_skin' && selections.perks.has('automaton_perk')) {
+            return { ...perk, cost: 0, requirement: language === 'ko' ? '오토마톤 무료' : 'Free for Automaton' };
+        }
         return perk;
     }
 
@@ -182,19 +207,29 @@ export const BeastSection: React.FC<{
     const mapModalConfig = React.useMemo(() => {
         if (activeMapType === 'magicalBeast') {
             const count = selections.magicalBeastCount || 0;
+            
+            // Build excluded IDs based on language context
             const excludedIds = [
-                ...Constants.ESSENTIAL_BOONS_DATA, ...Constants.MINOR_BOONS_DATA, ...Constants.MAJOR_BOONS_DATA,
-                ...Constants.BREWING_DATA, ...Constants.SOUL_ALCHEMY_DATA, ...Constants.TRANSFORMATION_DATA,
-                ...Constants.ENTRANCE_DATA, ...Constants.FEATURES_DATA, ...Constants.INFLUENCE_DATA,
-                ...Constants.RIGHTEOUS_CREATION_SPECIALTIES_DATA, ...Constants.RIGHTEOUS_CREATION_MAGITECH_DATA, 
-                ...Constants.RIGHTEOUS_CREATION_ARCANE_CONSTRUCTS_DATA, ...Constants.RIGHTEOUS_CREATION_METAMAGIC_DATA,
+                ...(language === 'ko' ? [
+                    ...Constants.ESSENTIAL_BOONS_DATA_KO, ...Constants.MINOR_BOONS_DATA_KO, ...Constants.MAJOR_BOONS_DATA_KO,
+                    ...Constants.BREWING_DATA_KO, ...Constants.SOUL_ALCHEMY_DATA_KO, ...Constants.TRANSFORMATION_DATA_KO,
+                    ...Constants.ENTRANCE_DATA_KO, ...Constants.FEATURES_DATA_KO, ...Constants.INFLUENCE_DATA_KO,
+                    ...Constants.RIGHTEOUS_CREATION_SPECIALTIES_DATA_KO, ...Constants.RIGHTEOUS_CREATION_MAGITECH_DATA_KO, 
+                    ...Constants.RIGHTEOUS_CREATION_ARCANE_CONSTRUCTS_DATA_KO, ...Constants.RIGHTEOUS_CREATION_METAMAGIC_DATA_KO,
+                ] : [
+                    ...Constants.ESSENTIAL_BOONS_DATA, ...Constants.MINOR_BOONS_DATA, ...Constants.MAJOR_BOONS_DATA,
+                    ...Constants.BREWING_DATA, ...Constants.SOUL_ALCHEMY_DATA, ...Constants.TRANSFORMATION_DATA,
+                    ...Constants.ENTRANCE_DATA, ...Constants.FEATURES_DATA, ...Constants.INFLUENCE_DATA,
+                    ...Constants.RIGHTEOUS_CREATION_SPECIALTIES_DATA, ...Constants.RIGHTEOUS_CREATION_MAGITECH_DATA, 
+                    ...Constants.RIGHTEOUS_CREATION_ARCANE_CONSTRUCTS_DATA, ...Constants.RIGHTEOUS_CREATION_METAMAGIC_DATA,
+                ])
             ].map(i => i.id);
 
             const itemsWithRequirements = ALL_SPELLS.filter(item => !!(item as any).requires).map(i => i.id);
             const bannedIds = [...excludedIds, ...itemsWithRequirements];
 
             return {
-                title: "Magical Beast Spells [MAP: Select Kaarn Spells]",
+                title: language === 'ko' ? "마수 마법 [카른 등급 마법 선택]" : "Magical Beast Spells [MAP: Select Kaarn Spells]",
                 limits: {},
                 maxTotal: count,
                 bannedItemIds: bannedIds,
@@ -203,20 +238,45 @@ export const BeastSection: React.FC<{
             };
         }
         return null;
-    }, [activeMapType, selections.magicalBeastCount, selections.magicalBeastMap]);
+    }, [activeMapType, selections.magicalBeastCount, selections.magicalBeastMap, language, ALL_SPELLS]);
+
+    const titles = language === 'ko' ? {
+        category: "카테고리",
+        size: "크기",
+        perks: "특성",
+        personality: "성격",
+        visual: "커스텀 이미지",
+        changeImage: "이미지 변경",
+        uploadImage: "이미지 업로드",
+        count: "개수",
+        purchases: "구매 횟수",
+        points: "포인트"
+    } : {
+        category: "CATEGORY",
+        size: "SIZE",
+        perks: "PERKS",
+        personality: "PERSONALITY TRAITS",
+        visual: "CUSTOM VISUAL",
+        changeImage: "Change Image",
+        uploadImage: "Upload Image",
+        count: "Count",
+        purchases: "Purchases",
+        points: "points"
+    };
 
     return (
         <div className="p-8 bg-black/50">
-            <div className="text-center mb-10"><img src={Constants.BEAST_INTRO.imageSrc} alt="Beasts" className="mx-auto rounded-xl border border-white/20 max-w-lg w-full" /><p className="text-center text-gray-400 italic max-w-xl mx-auto text-sm my-6">{Constants.BEAST_INTRO.description}</p></div>
-            <ReferenceSection title="CATEGORY"><div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">{Constants.BEAST_CATEGORIES.map(item => <ReferenceItemCard key={item.id} item={item} layout="default" isSelected={selections.category.includes(item.id)} onSelect={handleCategorySelect} disabled={isCategoryDisabled(item)} />)}</div></ReferenceSection>
-            <ReferenceSection title="SIZE"><div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 max-w-7xl mx-auto">{Constants.BEAST_SIZES.map(item => <ReferenceItemCard key={item.id} item={item} layout="default" isSelected={selections.size === item.id} onSelect={(id) => handleSelect('size', id)} disabled={isSizeDisabled(item)} />)}</div></ReferenceSection>
-            <ReferenceSection title="PERKS"><div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 max-w-7xl mx-auto">{Constants.BEAST_PERKS.map(item => {
+            <div className="text-center mb-10"><img src={activeIntro.imageSrc} alt="Beasts" className="mx-auto rounded-xl border border-white/20 max-w-lg w-full" /><p className="text-center text-gray-400 italic max-w-xl mx-auto text-sm my-6">{activeIntro.description}</p></div>
+            <ReferenceSection title={titles.category}><div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">{activeCategories.map(item => <ReferenceItemCard key={item.id} item={item} layout="default" isSelected={selections.category.includes(item.id)} onSelect={handleCategorySelect} disabled={isCategoryDisabled(item)} />)}</div></ReferenceSection>
+            <ReferenceSection title={titles.size}><div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 max-w-7xl mx-auto">{activeSizes.map(item => <ReferenceItemCard key={item.id} item={item} layout="default" isSelected={selections.size === item.id} onSelect={(id) => handleSelect('size', id)} disabled={isSizeDisabled(item)} />)}</div></ReferenceSection>
+            <ReferenceSection title={titles.perks}><div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 max-w-7xl mx-auto">{activePerks.map(item => {
                 const count = selections.perks.get(item.id) || 0;
                 const isSelected = count > 0;
 
                 if (item.id === 'hybrid') {
                     return <ReferenceItemCard key={item.id} item={item} layout="default" isSelected={isSelected} onSelect={() => {}} disabled={isPerkDisabled(item)}>
-                         <Counter label="Purchases" count={count} onCountChange={(n) => handlePerkCountChange('hybrid', n)} cost={`${item.cost} points`} max={7} />
+                         {/* FIX: Avoid using replace on number by using template literal */}
+                         <Counter label={titles.purchases} count={count} onCountChange={(n) => handlePerkCountChange('hybrid', n)} cost={`${item.cost} ${titles.points}`} max={7} />
                      </ReferenceItemCard>
                 }
 
@@ -246,10 +306,11 @@ export const BeastSection: React.FC<{
                                     </div>
                                 )}
                                 <Counter 
-                                    label="Count" 
+                                    label={titles.count} 
                                     count={count} 
                                     onCountChange={handleMagicalBeastCountChange} 
-                                    cost={`${item.cost} points`} 
+                                    /* FIX: Avoid using replace on number by using template literal */
+                                    cost={`${item.cost} ${titles.points}`} 
                                     layout="small" 
                                 />
                             </div>
@@ -258,9 +319,9 @@ export const BeastSection: React.FC<{
                 }
                 return <ReferenceItemCard key={item.id} item={getModifiedPerk(item)} layout="default" isSelected={isSelected} onSelect={(id) => handleSelect('perks', id)} disabled={isPerkDisabled(item)} />;
             })}</div></ReferenceSection>
-            {selections.perks.has('chatterbox_beast') && <ReferenceSection title="PERSONALITY TRAITS"><div className="grid grid-cols-5 sm:grid-cols-6 md:grid-cols-10 gap-4 max-w-7xl mx-auto">{Constants.COMPANION_PERSONALITY_TRAITS.map(item => <ReferenceItemCard key={item.id} item={item} layout="trait" isSelected={selections.traits.has(item.id)} onSelect={(id) => handleSelect('traits', id)} />)}</div></ReferenceSection>}
+            {selections.perks.has('chatterbox_beast') && <ReferenceSection title={titles.personality}><div className="grid grid-cols-5 sm:grid-cols-6 md:grid-cols-10 gap-4 max-w-7xl mx-auto">{activeTraits.map(item => <ReferenceItemCard key={item.id} item={item} layout="trait" isSelected={selections.traits.has(item.id)} onSelect={(id) => handleSelect('traits', id)} />)}</div></ReferenceSection>}
             
-            <ReferenceSection title="CUSTOM VISUAL">
+            <ReferenceSection title={titles.visual}>
                  <div className="flex justify-center">
                     <label className={`
                         relative w-48 aspect-[9/16] border-2 border-dashed rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all overflow-hidden group
@@ -276,7 +337,7 @@ export const BeastSection: React.FC<{
                             <>
                                 <img src={selections.customImage} alt="Custom" className="w-full h-full object-cover" />
                                 <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                                    <span className="text-xs text-white font-cinzel">Change Image</span>
+                                    <span className="text-xs text-white font-cinzel">{titles.changeImage}</span>
                                 </div>
                             </>
                         ) : (
@@ -284,7 +345,7 @@ export const BeastSection: React.FC<{
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-gray-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                 </svg>
-                                <span className="text-xs text-gray-500 font-cinzel">Upload Image</span>
+                                <span className="text-xs text-gray-500 font-cinzel">{titles.uploadImage}</span>
                             </>
                         )}
                     </label>

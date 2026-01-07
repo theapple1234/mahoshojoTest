@@ -1,7 +1,8 @@
 
 import React, { useEffect, useState } from 'react';
-import { CLASSMATES_DATA, CUSTOM_CLASSMATE_CHOICES_DATA, COMPANION_CATEGORIES, COMPANION_RELATIONSHIPS, COMPANION_PERSONALITY_TRAITS, COMPANION_PERKS, COMPANION_POWER_LEVELS } from '../constants';
+import { CLASSMATES_DATA, CLASSMATES_DATA_KO, CUSTOM_CLASSMATE_CHOICES_DATA, CUSTOM_CLASSMATE_CHOICES_DATA_KO, COMPANION_CATEGORIES, COMPANION_RELATIONSHIPS, COMPANION_PERSONALITY_TRAITS, COMPANION_PERKS, COMPANION_POWER_LEVELS } from '../constants';
 import type { Mentee, AllBuilds, CompanionSelections } from '../types';
+import { useCharacterContext } from '../context/CharacterContext';
 
 interface StudentSelectionModalProps {
     onClose: () => void;
@@ -56,8 +57,12 @@ export const StudentSelectionModal: React.FC<StudentSelectionModalProps> = ({
     currentMenteeId,
     selectedClassmateIds
 }) => {
+    const { language } = useCharacterContext();
     const [referenceCompanions, setReferenceCompanions] = useState<{name: string, points: number, imageSrc?: string}[]>([]);
     const [selectedTier, setSelectedTier] = useState<{ id: string, limit: number, cost: number, desc: string } | null>(null);
+
+    const activeClassmates = language === 'ko' ? CLASSMATES_DATA_KO : CLASSMATES_DATA;
+    const activeCustomOptions = language === 'ko' ? CUSTOM_CLASSMATE_CHOICES_DATA_KO : CUSTOM_CLASSMATE_CHOICES_DATA;
 
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
@@ -98,6 +103,11 @@ export const StudentSelectionModal: React.FC<StudentSelectionModalProps> = ({
     }, [onClose, selectedTier]);
 
     const parseCost = (costStr: string) => {
+        if (language === 'ko') {
+             // Example: "행운 점수 -4"
+             const match = costStr.match(/(-?\d+)/);
+             return match ? Math.abs(parseInt(match[1], 10)) : 0;
+        }
         const match = costStr.match(/(-?\d+)\s*FP/i);
         return match ? Math.abs(parseInt(match[1], 10)) : 0;
     };
@@ -139,6 +149,30 @@ export const StudentSelectionModal: React.FC<StudentSelectionModalProps> = ({
         hoverItem: 'hover:border-green-400/50',
         footerBorder: 'border-green-900/50'
     };
+    
+    const titles = language === 'ko' ? {
+        assignRef: '참고 빌드 할당',
+        selectStudent: '제자 선택 (1 FP 할인)',
+        desc: '당신의 제자가 될 학생을 선택하세요. 기본 비용에서 행운 점수 1점을 할인받습니다. 이 할인은 다른 할인과 중첩되지 않습니다.',
+        createNew: '새로운 학생 만들기',
+        chooseExisting: '클래스메이트 중에서 선택',
+        back: '뒤로',
+        costExceeds: '비용 초과',
+        clickToAssign: '클릭하여 할당',
+        noBuilds: '동료 빌드가 없습니다.',
+        goRef: '참고 페이지에서 빌드를 만드세요.'
+    } : {
+        assignRef: 'ASSIGN REFERENCE BUILD',
+        selectStudent: 'SELECT A STUDENT (1 FP DISCOUNT)',
+        desc: 'Choose a student to mentor. You receive a 1 FP discount on their base cost. This discount overrides any other discounts.',
+        createNew: 'Create New Student',
+        chooseExisting: 'Choose From Classmates',
+        back: 'Back',
+        costExceeds: 'Cost exceeds',
+        clickToAssign: 'Click to assign this student',
+        noBuilds: 'No companion builds found.',
+        goRef: 'Go to the Reference Page to create one.'
+    };
 
     return (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[101] flex items-center justify-center p-4" onClick={onClose}>
@@ -153,7 +187,7 @@ export const StudentSelectionModal: React.FC<StudentSelectionModalProps> = ({
                             </button>
                         )}
                         <h2 className={`font-cinzel text-2xl ${theme.titleText}`}>
-                            {selectedTier ? 'ASSIGN REFERENCE BUILD' : 'SELECT A STUDENT (1 FP DISCOUNT)'}
+                            {selectedTier ? titles.assignRef : titles.selectStudent}
                         </h2>
                     </div>
                     <button onClick={onClose} className={`${theme.closeBtn} text-3xl font-bold transition-colors`}>&times;</button>
@@ -162,15 +196,14 @@ export const StudentSelectionModal: React.FC<StudentSelectionModalProps> = ({
                     {!selectedTier ? (
                         <>
                             <p className="text-gray-400 text-sm italic text-center">
-                                Choose a student to mentor. You receive a 1 FP discount on their base cost. 
-                                This discount overrides any other discounts.
+                                {titles.desc}
                             </p>
 
                             {/* Create New Section */}
                             <div>
-                                <h3 className="text-lg font-bold text-white mb-4 border-b border-gray-700 pb-2">Create New Student</h3>
+                                <h3 className="text-lg font-bold text-white mb-4 border-b border-gray-700 pb-2">{titles.createNew}</h3>
                                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                                    {CUSTOM_CLASSMATE_CHOICES_DATA.map(option => {
+                                    {activeCustomOptions.map(option => {
                                         const originalCost = parseCost(option.cost);
                                         const discountedCost = Math.max(0, originalCost - 1);
                                         const isSelected = currentMenteeId === option.id;
@@ -194,9 +227,9 @@ export const StudentSelectionModal: React.FC<StudentSelectionModalProps> = ({
 
                             {/* Existing Classmates Section */}
                             <div>
-                                <h3 className="text-lg font-bold text-white mb-4 border-b border-gray-700 pb-2">Choose From Classmates</h3>
+                                <h3 className="text-lg font-bold text-white mb-4 border-b border-gray-700 pb-2">{titles.chooseExisting}</h3>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                                    {CLASSMATES_DATA.map(classmate => {
+                                    {activeClassmates.map(classmate => {
                                         if (selectedClassmateIds.has(classmate.id) && currentMenteeId !== classmate.id) {
                                             return null; 
                                         }
@@ -229,7 +262,10 @@ export const StudentSelectionModal: React.FC<StudentSelectionModalProps> = ({
                         // Build Selection View
                         <div className="space-y-4">
                             <p className={`text-center text-sm ${theme.infoText} mb-4 italic`}>
-                                Select a companion build that costs {selectedTier.limit} CP or less.
+                                {language === 'ko' 
+                                    ? `${selectedTier.limit}점 이하의 동료 빌드를 선택하세요.`
+                                    : `Select a companion build that costs ${selectedTier.limit} CP or less.`
+                                }
                             </p>
                             
                             <div className="space-y-3">
@@ -253,8 +289,8 @@ export const StudentSelectionModal: React.FC<StudentSelectionModalProps> = ({
                                                     <h3 className={`font-semibold transition-colors ${isOverLimit ? 'text-gray-400' : 'text-white group-hover:text-green-300'}`}>{comp.name}</h3>
                                                     <p className="text-xs text-gray-500">
                                                         {isOverLimit 
-                                                            ? `Cost exceeds ${selectedTier.limit} points` 
-                                                            : 'Click to assign this student'
+                                                            ? `${titles.costExceeds} ${selectedTier.limit} pts` 
+                                                            : titles.clickToAssign
                                                         }
                                                     </p>
                                                 </div>
@@ -264,14 +300,14 @@ export const StudentSelectionModal: React.FC<StudentSelectionModalProps> = ({
                                     })
                                 ) : (
                                     <p className="text-center text-gray-500 italic py-8">
-                                        No companion builds found.
+                                        {titles.noBuilds}
                                     </p>
                                 )}
                                 
                                 {referenceCompanions.length === 0 && (
                                      <p className="text-center text-gray-500 italic py-8 border border-dashed border-gray-700 rounded-lg">
-                                        No companion builds found.<br/>
-                                        Go to the Reference Page to create one.
+                                        {titles.noBuilds}<br/>
+                                        {titles.goRef}
                                     </p>
                                 )}
                             </div>
@@ -284,7 +320,7 @@ export const StudentSelectionModal: React.FC<StudentSelectionModalProps> = ({
                             onClick={() => setSelectedTier(null)}
                             className="px-4 py-2 text-sm font-cinzel bg-gray-800/50 border border-gray-700 rounded-md hover:bg-gray-700 transition-colors"
                         >
-                            Back
+                            {titles.back}
                         </button>
                     </footer>
                 )}

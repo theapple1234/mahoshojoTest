@@ -32,6 +32,9 @@ export const usePageOneState = () => {
     const [assignedVehicleName, setAssignedVehicleName] = useState<string | null>(null);
     const [blessedCompanions, setBlessedCompanions] = useState<Map<string, string>>(new Map());
     const [inhumanAppearanceBeastName, setInhumanAppearanceBeastName] = useState<string | null>(null);
+    
+    // Intro State
+    const [isIntroDone, setIsIntroDone] = useState(false);
 
     const isMultiplayer = selectedBuildTypeId === 'multiplayer';
 
@@ -240,6 +243,11 @@ export const usePageOneState = () => {
         setBlessedCompanions(new Map(Array.isArray(data.blessedCompanions) ? data.blessedCompanions : []));
         setMythicalPetBeastName(data.mythicalPetBeastName || null);
         setInhumanAppearanceBeastName(data.inhumanAppearanceBeastName || null);
+        
+        // Restore intro state
+        if (data.isIntroDone !== undefined) {
+             setIsIntroDone(data.isIntroDone);
+        }
     }, []);
 
     return {
@@ -267,6 +275,9 @@ export const usePageOneState = () => {
         selectedBuildTypeId, handleBuildTypeSelect,
         isMultiplayer,
         blessedCompanions, handleAssignBlessedCompanion,
+        
+        isIntroDone, setIsIntroDone, // Exposed
+        
         loadPageOneState
     };
 };

@@ -1,6 +1,9 @@
-
-import React, { useState } from 'react';
-import { COMMON_SIGILS_DATA, SPECIAL_SIGILS_DATA } from '../constants';
+import React, { useState, useMemo } from 'react';
+import { 
+    COMMON_SIGILS_DATA, COMMON_SIGILS_DATA_KO, 
+    SPECIAL_SIGILS_DATA, SPECIAL_SIGILS_DATA_KO 
+} from '../constants';
+import { useCharacterContext } from '../context/CharacterContext';
 
 interface SigilCounterProps {
   counts: { kaarn: number; purth: number; juathas: number; xuth: number; sinthru: number; lekolu: number; };
@@ -11,11 +14,6 @@ interface SigilCounterProps {
   acquiredLekoluJobs?: Map<string, number>;
   onLekoluJobAction?: (subOptionId: string, action: 'buy' | 'sell') => void;
 }
-
-const ALL_SIGILS_META = [
-    ...COMMON_SIGILS_DATA,
-    ...SPECIAL_SIGILS_DATA
-];
 
 // Custom order: Lekolu moved before Sinthru
 const SIGIL_DISPLAY_ORDER = ['kaarn', 'purth', 'juathas', 'xuth', 'lekolu', 'sinthru'];
@@ -28,7 +26,19 @@ export const SigilCounter: React.FC<SigilCounterProps> = ({
     acquiredLekoluJobs,
     onLekoluJobAction
 }) => {
+  const { language } = useCharacterContext();
   const [activeSpecialSigil, setActiveSpecialSigil] = useState<string | null>(null);
+
+  const isKo = language === 'ko';
+  
+  // Select localized data
+  const activeCommonData = isKo ? COMMON_SIGILS_DATA_KO : COMMON_SIGILS_DATA;
+  const activeSpecialData = isKo ? SPECIAL_SIGILS_DATA_KO : SPECIAL_SIGILS_DATA;
+  
+  const allSigilsMeta = useMemo(() => [
+      ...activeCommonData,
+      ...activeSpecialData
+  ], [activeCommonData, activeSpecialData]);
   
   const handleItemClick = (e: React.MouseEvent, id: string, isCommon: boolean) => {
     e.stopPropagation();
@@ -64,7 +74,7 @@ export const SigilCounter: React.FC<SigilCounterProps> = ({
   const renderMissionPopover = () => {
       if (!activeSpecialSigil) return null;
       
-      const sigilData = SPECIAL_SIGILS_DATA.find(s => s.id === activeSpecialSigil);
+      const sigilData = activeSpecialData.find(s => s.id === activeSpecialSigil);
       if (!sigilData || !sigilData.subOptions) return null;
 
       const themeClass = getSigilColor(activeSpecialSigil);
@@ -76,7 +86,9 @@ export const SigilCounter: React.FC<SigilCounterProps> = ({
             onClick={(e) => e.stopPropagation()}
           >
               <div className="flex justify-between items-center mb-4 border-b border-white/20 pb-2">
-                  <h5 className="font-cinzel font-bold text-lg tracking-wider">{sigilData.title} MISSIONS</h5>
+                  <h5 className="font-cinzel font-bold text-lg tracking-wider">
+                      {sigilData.title} {isKo ? '미션' : 'MISSIONS'}
+                  </h5>
                   <button 
                     onClick={() => setActiveSpecialSigil(null)}
                     className="text-white/50 hover:text-white transition-colors"
@@ -124,13 +136,13 @@ export const SigilCounter: React.FC<SigilCounterProps> = ({
                                   
                                   {isLekolu && (
                                       <div className="flex items-center justify-end gap-2 mt-2">
-                                          <span className="text-[10px] text-gray-500 uppercase tracking-wider">Count:</span>
+                                          <span className="text-[10px] text-gray-500 uppercase tracking-wider">{isKo ? '개수:' : 'Count:'}</span>
                                           <span className="font-bold text-yellow-400">{count}</span>
                                       </div>
                                   )}
                                   {!isLekolu && isSelected && (
                                       <div className="flex justify-end mt-1">
-                                          <span className="text-[10px] bg-white/20 px-1.5 rounded text-white font-bold tracking-wider">ACTIVE</span>
+                                          <span className="text-[10px] bg-white/20 px-1.5 rounded text-white font-bold tracking-wider">{isKo ? '활성화됨' : 'ACTIVE'}</span>
                                       </div>
                                   )}
                               </div>
@@ -139,7 +151,9 @@ export const SigilCounter: React.FC<SigilCounterProps> = ({
                   })}
               </div>
               <div className="mt-3 pt-2 border-t border-white/10 text-[9px] text-center opacity-60">
-                  {isLekolu ? "L-Click: Buy (+1) | R-Click: Sell (-1)" : "Click to Toggle Selection"}
+                  {isKo 
+                    ? (isLekolu ? "좌클릭: 구매 (+1) | 우클릭: 판매 (-1)" : "클릭하여 선택/해제")
+                    : (isLekolu ? "L-Click: Buy (+1) | R-Click: Sell (-1)" : "Click to Toggle Selection")}
               </div>
           </div>
       );
@@ -149,14 +163,16 @@ export const SigilCounter: React.FC<SigilCounterProps> = ({
     <div 
       className="fixed top-[35%] right-0 -translate-y-1/2 bg-black/80 backdrop-blur-md p-4 rounded-l-xl border-l border-t border-b border-gray-700 z-[80] shadow-2xl shadow-purple-900/20"
     >
-      <h4 className="font-cinzel text-lg text-purple-300 mb-4 text-center tracking-widest border-b border-gray-700 pb-2">SIGILS</h4>
+      <h4 className="font-cinzel text-lg text-purple-300 mb-4 text-center tracking-widest border-b border-gray-700 pb-2">
+          {isKo ? "표식" : "SIGILS"}
+      </h4>
       
       {/* Container for Relative Positioning of Popover */}
       <div className="relative flex flex-col gap-2">
         {renderMissionPopover()}
         
         {SIGIL_DISPLAY_ORDER.map((id) => {
-          const sigil = ALL_SIGILS_META.find(s => s.id === id);
+          const sigil = allSigilsMeta.find(s => s.id === id);
           if (!sigil) return null;
           
           const count = counts[id as keyof typeof counts];
@@ -172,7 +188,9 @@ export const SigilCounter: React.FC<SigilCounterProps> = ({
                 `}
                 onClick={(e) => handleItemClick(e, id, isCommon)}
                 onContextMenu={(e) => handleContextMenu(e, id, isCommon)}
-                title={isCommon ? "Left-Click: Buy (+1) | Right-Click: Sell (-1)" : "Click to Open Mission Menu"}
+                title={isKo 
+                    ? (isCommon ? "좌클릭: 구매 (+1) | 우클릭: 판매 (-1)" : "클릭하여 미션 메뉴 열기")
+                    : (isCommon ? "Left-Click: Buy (+1) | Right-Click: Sell (-1)" : "Click to Open Mission Menu")}
             >
               <img src={sigil.imageSrc} alt={sigil.title} className="w-10 h-10 object-contain drop-shadow-md group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)] transition-all" />
               <span className={`text-xl font-bold w-8 text-center ${count > 0 ? 'text-white' : 'text-gray-600'}`}>{count}</span>
@@ -181,7 +199,10 @@ export const SigilCounter: React.FC<SigilCounterProps> = ({
         })}
       </div>
       <p className="text-[10px] text-gray-500 text-center mt-3 italic">
-        L-Click: Buy/Menu<br/>R-Click: Sell/Close
+        {isKo 
+            ? <>좌클릭: 구매/메뉴<br/>우클릭: 판매/닫기</>
+            : <>L-Click: Buy/Menu<br/>R-Click: Sell/Close</>
+        }
       </p>
       
       <style>{`

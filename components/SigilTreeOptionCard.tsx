@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { COMPANION_CATEGORIES, COMPANION_RELATIONSHIPS, COMPANION_PERSONALITY_TRAITS, COMPANION_PERKS, COMPANION_POWER_LEVELS } from '../constants';
 import type { AllBuilds, CompanionSelections } from '../types';
+import { useCharacterContext } from '../context/CharacterContext';
 
 const STORAGE_KEY = 'seinaru_magecraft_builds';
 
@@ -18,15 +19,11 @@ const calculateCompanionPoints = (selections: CompanionSelections): number => {
         if (item) {
             let cost = item.cost ?? 0;
             // Handle Signature Power scaling cost logic if present in calculation context
-            // Note: Basic calculation here uses base cost. 
-            // If strictly matching ReferencePage logic is needed for Signature Power (5, then 10), 
-            // logic would need to be added here, but usually base cost is sufficient for selection filter.
-            if (perkId === 'signature_power' && count > 1) {
-                // Approximate logic: 5 + (count-1)*10
-                // Base cost is 5. So add (count-1) * 5 extra?
-                // For simplicity in this modal filter, we stick to base cost calculation 
-                // or replicate logic if critical. 
-                // Given "NaN" fix is the priority, ensuring `count` is a number via Map fix is key.
+            if (perkId === 'signature_power' && count > 0) {
+                 // First cost 5, subsequent cost 10
+                 // cost logic: 5 + (count - 1) * 10
+                 total += 5 + (count - 1) * 10;
+                 return;
             }
             total += cost * count; 
         }
@@ -40,7 +37,7 @@ const hydrateCompanionData = (data: any): CompanionSelections => {
         return {
             ...data,
             traits: new Set(data.traits || []),
-            perks: new Map(data.perks || []), // Fixed: Changed from Set to Map to correctly store counts
+            perks: new Map(data.perks || []), 
         };
     }
     return data;
@@ -67,6 +64,7 @@ export const CompanionSelectionModal: React.FC<CompanionSelectionModalProps> = (
     validator,
     colorTheme = 'purple'
 }) => {
+    const { language } = useCharacterContext();
     const [companionBuilds, setCompanionBuilds] = useState<Record<string, { points: number }>>({});
 
     useEffect(() => {
@@ -158,6 +156,24 @@ export const CompanionSelectionModal: React.FC<CompanionSelectionModalProps> = (
     };
 
     const currentTheme = themeClasses[colorTheme] || themeClasses.purple;
+    
+    // Localization
+    const msgSelect = language === 'ko' 
+        ? `${pointLimit !== Infinity ? `${pointLimit} 동료 점수 이하인 ` : ''}동료 빌드를 선택하세요.`
+        : `Select a companion build${pointLimit !== Infinity ? ` that costs ${pointLimit} Companion Points or less` : ''}.`;
+    const msgFilter = categoryFilter 
+        ? (language === 'ko' ? ` 카테고리 필수: ${categoryFilter === 'mage' ? '마법소녀' : categoryFilter === 'puppet' ? '퍼펫' : categoryFilter === 'automaton' ? '오토마톤' : categoryFilter === 'undead' ? '언데드' : categoryFilter}.` : ` Must have category: ${categoryFilter.toUpperCase()}.`)
+        : '';
+    const msgValidator = validator 
+        ? (language === 'ko' ? ` 특정 조건을 만족해야 합니다.` : ` Must meet specific criteria.`)
+        : '';
+        
+    const msgNoBuilds = language === 'ko' 
+        ? "호환되는 동료 빌드가 없습니다. 참고 페이지에서 만들어 보세요."
+        : "No compatible companion builds found. Go to the Reference Page to create one.";
+        
+    const msgCostExceeds = language === 'ko' ? `비용이 ${pointLimit}점을 초과합니다` : `Cost exceeds ${pointLimit} points`;
+    const msgClickToAssign = language === 'ko' ? "클릭하여 할당" : "Click to assign this companion";
 
     return (
         <div
@@ -185,9 +201,9 @@ export const CompanionSelectionModal: React.FC<CompanionSelectionModalProps> = (
                 </header>
                 <main className="p-6 overflow-y-auto">
                     <p className={`text-center text-sm ${currentTheme.infoText} mb-4 italic`}>
-                        Select a companion build{pointLimit !== Infinity ? ` that costs ${pointLimit} Companion Points or less` : ''}.
-                        {categoryFilter && ` Must have category: ${categoryFilter.toUpperCase()}.`}
-                        {validator && ` Must meet specific criteria.`}
+                        {msgSelect}
+                        {msgFilter}
+                        {msgValidator}
                     </p>
                     <div className="space-y-3">
                         {Object.keys(companionBuilds).length > 0 ? (
@@ -215,7 +231,7 @@ export const CompanionSelectionModal: React.FC<CompanionSelectionModalProps> = (
                                         <div>
                                             <h3 className="font-semibold text-white">{name}</h3>
                                             <p className="text-xs text-gray-400">
-                                                {isDisabled ? `Cost exceeds ${pointLimit} points` : 'Click to assign this companion'}
+                                                {isDisabled ? msgCostExceeds : msgClickToAssign}
                                             </p>
                                         </div>
                                         <span className={`font-bold text-lg ${costColor}`}>
@@ -226,7 +242,7 @@ export const CompanionSelectionModal: React.FC<CompanionSelectionModalProps> = (
                             })
                         ) : (
                             <p className="text-center text-gray-500 italic py-8">
-                                No compatible companion builds found. Go to the Reference Page to create one.
+                                {msgNoBuilds}
                             </p>
                         )}
                     </div>
@@ -236,7 +252,7 @@ export const CompanionSelectionModal: React.FC<CompanionSelectionModalProps> = (
                         onClick={() => onSelect(null)}
                         className="px-4 py-2 text-sm font-cinzel bg-gray-800/50 border border-gray-700 rounded-md hover:bg-gray-700 transition-colors"
                     >
-                        Clear Assignment
+                        {language === 'ko' ? "할당 해제" : "Clear Assignment"}
                     </button>
                 </footer>
             </div>

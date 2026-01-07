@@ -1,12 +1,12 @@
 
 /**
- * Simple Image Migration Script (ESM Version) - Path Update Only
+ * Simple Image & Video Migration Script (ESM Version) - Path Update Only
  * 
  * Usage: node tools/migrate-images-simple.js
  * 
  * Logic:
- * 1. Scan files for ibb.co links.
- * 2. Replace them with local paths (assuming images exist).
+ * 1. Scan files for ibb.co (images) and imgur (mp4) links.
+ * 2. Replace them with local paths (assuming files exist).
  * 3. Verify results.
  */
 
@@ -23,6 +23,7 @@ const ROOT_DIR = path.resolve(__dirname, '..');
 const PUBLIC_IMG_DIR = path.join(ROOT_DIR, 'public', 'images');
 const URL_PREFIX = '/images';
 const IMAGE_REGEX = /https:\/\/i\.ibb\.co\/([a-zA-Z0-9]+)\/([\w%\-]+)\.(jpg|png|jpeg|gif)/g;
+const VIDEO_REGEX = /https:\/\/i\.imgur\.com\/([a-zA-Z0-9]+)\.mp4/g;
 
 const rl = readline.createInterface({
     input: process.stdin,
@@ -57,14 +58,27 @@ async function scanPhase() {
 
     for (const filePath of filesToScan) {
         const content = fs.readFileSync(filePath, 'utf8');
-        const matches = [...content.matchAll(IMAGE_REGEX)];
         
-        if (matches.length > 0) {
-            matches.forEach(m => {
+        // Images
+        const imageMatches = [...content.matchAll(IMAGE_REGEX)];
+        if (imageMatches.length > 0) {
+            imageMatches.forEach(m => {
                 allMatches.push({
                     filePath,
                     fullUrl: m[0],
                     uniqueFilename: `${m[1]}-${m[2]}.${m[3]}`
+                });
+            });
+        }
+
+        // Videos
+        const videoMatches = [...content.matchAll(VIDEO_REGEX)];
+        if (videoMatches.length > 0) {
+            videoMatches.forEach(m => {
+                allMatches.push({
+                    filePath,
+                    fullUrl: m[0],
+                    uniqueFilename: `${m[1]}.mp4`
                 });
             });
         }
@@ -96,8 +110,6 @@ async function executionPhase(matches) {
             const localPath = path.join(PUBLIC_IMG_DIR, item.uniqueFilename);
             if (!fs.existsSync(localPath)) {
                 missingFileCount++;
-                // We typically still replace the path, or we could log a warning.
-                // Assuming "Simple" mode blindly updates paths.
             }
 
             if (content.includes(item.fullUrl)) {
@@ -117,7 +129,7 @@ async function executionPhase(matches) {
     console.log(`\n\n✅ Execution Complete.`);
     console.log(`- Replacements: ${replacementCount}`);
     if (missingFileCount > 0) {
-        console.log(`⚠️  Warning: ${missingFileCount} referenced images are missing from ${PUBLIC_IMG_DIR}`);
+        console.log(`⚠️  Warning: ${missingFileCount} referenced media files are missing from ${PUBLIC_IMG_DIR}`);
     }
 }
 
@@ -127,7 +139,7 @@ async function verificationPhase() {
     const remainingLinks = matches.length;
     
     console.log(`-------------------------------------------`);
-    console.log(`Remaining 'ibb.co' links: ${remainingLinks}`);
+    console.log(`Remaining remote links: ${remainingLinks}`);
     
     if (remainingLinks === 0) {
         console.log(`✅ SUCCESS: Source code has no remote links.`);
@@ -143,10 +155,10 @@ async function main() {
 
     while (loop) {
         const matches = await scanPhase();
-        const totalImages = matches.length;
-        console.log(`\n📊 Total Links Found: ${totalImages}`);
+        const totalItems = matches.length;
+        console.log(`\n📊 Total Links Found: ${totalItems}`);
 
-        if (totalImages > 0) {
+        if (totalItems > 0) {
             await executionPhase(matches);
         } else {
             console.log("No remote links found to update.");

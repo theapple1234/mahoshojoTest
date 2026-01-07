@@ -1,8 +1,9 @@
 
-import React from 'react';
-import { SummaryHeader, FamilyDetailCard, HousingDetailCard, CustomSpellCard } from './BuildSummaryShared';
 
-export const TerminalLayout: React.FC<{ sections: any[] }> = ({ sections }) => {
+import React from 'react';
+import { SummaryHeader, FamilyDetailCard, HousingDetailCard, CustomSpellCard, formatCostDisplay } from './BuildSummaryShared';
+
+export const TerminalLayout: React.FC<{ sections: any[], language?: 'en' | 'ko' }> = ({ sections, language = 'en' }) => {
     const theme = {
         cardBg: "bg-green-900/10",
         cardBorder: "border-green-500/30",
@@ -30,9 +31,12 @@ export const TerminalLayout: React.FC<{ sections: any[] }> = ({ sections }) => {
                         }}
                     ></div>
                     <div className="flex-grow min-w-0">
-                        <p className="text-xs font-bold truncate text-green-500 mb-0.5 leading-[2.5]">{item.title}</p>
+                        <p className="text-lg font-bold truncate text-green-500 mb-0.5 leading-[2.5]">{item.title}</p>
                         <p className="text-[9px] opacity-60 truncate leading-[2.5]">ID: {item.id}</p>
-                        {item.count && <p className="text-[9px] text-green-400 mt-0.5 leading-[2.5]">QTY: {item.count}</p>}
+                        {/* Cost Display Added Here */}
+                        {item.cost && <p className="text-[9px] text-green-400 mt-0.5 leading-[2.5]">{formatCostDisplay(item.cost, language as 'en' | 'ko')}</p>}
+                        
+                        {item.count && <p className="build-summary-count-badge text-[9px] text-green-400 mt-0.5 leading-[2.5]">QTY: {item.count}</p>}
                         {item.assignedName && (
                             <p className="text-[9px] text-green-200 mt-0.5 pt-0.5 truncate leading-[2.5]">[{item.assignedName}]</p>
                         )}
@@ -47,8 +51,8 @@ export const TerminalLayout: React.FC<{ sections: any[] }> = ({ sections }) => {
 
     return (
         <div className="bg-black p-8 font-galmuri text-green-500 space-y-12 border-x-4 border-green-900/30 min-h-screen relative leading-[2.5]">
-            <SummaryHeader theme="cyber" />
-            <div className="absolute inset-0 bg-[linear-gradient(rgba(0,255,0,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,0,0.03)_1px,transparent_1px)] bg-[size:20px_20px] pointer-events-none"></div>
+            <SummaryHeader theme="cyber" language={language} />
+            <div className="absolute inset-0 bg-[linear-gradient(rgba(0,255,0,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,0,0.03)_1px,transparent_1px)] bg-[size:20px_20px] pointer-events-none sovereignty h-full leading-[2.5]"></div>
 
             {sections.map((section, sIdx) => (
                 <div key={section.id}>
@@ -63,13 +67,17 @@ export const TerminalLayout: React.FC<{ sections: any[] }> = ({ sections }) => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                             {section.familyDetails?.length > 0 && (
                                 <div className="space-y-2 border border-green-900/50 p-2">
-                                    <h5 className="font-galmuri text-xs text-green-700 font-bold uppercase tracking-widest leading-[2.5]">&gt;&gt; LINEAGE_DATA</h5>
+                                    <h5 className="font-galmuri text-xs text-green-700 font-bold uppercase tracking-widest leading-[2.5]">
+                                        {language === 'ko' ? '&gt;&gt; LINEAGE_DATA' : '&gt;&gt; LINEAGE_DATA'}
+                                    </h5>
                                     {section.familyDetails.map((m: any) => <FamilyDetailCard key={m.id} member={m} theme={theme} />)}
                                 </div>
                             )}
                             {section.housingDetails?.length > 0 && (
                                 <div className="space-y-2 border border-green-900/50 p-2">
-                                    <h5 className="font-galmuri text-xs text-green-700 font-bold uppercase tracking-widest leading-[2.5]">&gt;&gt; ASSET_ALLOCATION</h5>
+                                    <h5 className="font-galmuri text-xs text-green-700 font-bold uppercase tracking-widest leading-[2.5]">
+                                        {language === 'ko' ? '&gt;&gt; ASSET_ALLOCATION' : '&gt;&gt; ASSET_ALLOCATION'}
+                                    </h5>
                                     {section.housingDetails.map((h: any) => <HousingDetailCard key={h.id} home={h} theme={theme} />)}
                                 </div>
                             )}
@@ -94,6 +102,11 @@ export const TerminalLayout: React.FC<{ sections: any[] }> = ({ sections }) => {
                                                     </span>
                                                 ))}
                                             </div>
+                                        )}
+                                        {group.isMagicianActive && (
+                                            <span className="text-[10px] font-bold text-green-400 uppercase tracking-wider flex items-center gap-1 ml-2">
+                                                <span className="text-green-500 font-bold">[!]</span> {language === 'ko' ? 'MAGICIAN_ACTIVE (마법사)' : 'MAGICIAN_ACTIVE'}
+                                            </span>
                                         )}
                                     </h4>
                                     {renderItemsGrid(group.items)}

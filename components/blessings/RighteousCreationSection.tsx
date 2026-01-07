@@ -1,8 +1,17 @@
 
+
 import React, { useState, useEffect } from 'react';
 import { useCharacterContext } from '../../context/CharacterContext';
-import { RIGHTEOUS_CREATION_DATA, RIGHTEOUS_CREATION_SIGIL_TREE_DATA, RIGHTEOUS_CREATION_SPECIALTIES_DATA, RIGHTEOUS_CREATION_MAGITECH_DATA, RIGHTEOUS_CREATION_ARCANE_CONSTRUCTS_DATA, RIGHTEOUS_CREATION_METAMAGIC_DATA, BLESSING_ENGRAVINGS } from '../../constants';
-import type { RighteousCreationPower, RighteousCreationSigil, ChoiceItem, MagicGrade } from '../../types';
+import { 
+    RIGHTEOUS_CREATION_DATA, RIGHTEOUS_CREATION_DATA_KO, 
+    RIGHTEOUS_CREATION_SIGIL_TREE_DATA, RIGHTEOUS_CREATION_SIGIL_TREE_DATA_KO, 
+    RIGHTEOUS_CREATION_SPECIALTIES_DATA, RIGHTEOUS_CREATION_SPECIALTIES_DATA_KO, 
+    RIGHTEOUS_CREATION_MAGITECH_DATA, RIGHTEOUS_CREATION_MAGITECH_DATA_KO, 
+    RIGHTEOUS_CREATION_ARCANE_CONSTRUCTS_DATA, RIGHTEOUS_CREATION_ARCANE_CONSTRUCTS_DATA_KO, 
+    RIGHTEOUS_CREATION_METAMAGIC_DATA, RIGHTEOUS_CREATION_METAMAGIC_DATA_KO, 
+    BLESSING_ENGRAVINGS, BLESSING_ENGRAVINGS_KO
+} from '../../constants';
+import type { RighteousCreationPower, RighteousCreationSigil, ChoiceItem, MagicGrade, SigilCounts } from '../../types';
 import { BlessingIntro, SectionHeader, SectionSubHeader, WeaponIcon, CompanionIcon, VehicleIcon, BoostedEffectBox, renderFormattedText } from '../ui';
 import { CompellingWillSigilCard, SigilColor } from '../CompellingWillSigilCard';
 import { WeaponSelectionModal } from '../WeaponSelectionModal';
@@ -118,8 +127,17 @@ export const RighteousCreationSection: React.FC = () => {
         masterMechanicVehicleName, handleMasterMechanicVehicleAssign,
 
         kpPaidNodes, toggleKpNode,
-        fontSize
+        fontSize,
+        language
     } = useCharacterContext();
+
+    const activeData = language === 'ko' ? RIGHTEOUS_CREATION_DATA_KO : RIGHTEOUS_CREATION_DATA;
+    const activeTree = language === 'ko' ? RIGHTEOUS_CREATION_SIGIL_TREE_DATA_KO : RIGHTEOUS_CREATION_SIGIL_TREE_DATA;
+    const activeSpecialties = language === 'ko' ? RIGHTEOUS_CREATION_SPECIALTIES_DATA_KO : RIGHTEOUS_CREATION_SPECIALTIES_DATA;
+    const activeMagitech = language === 'ko' ? RIGHTEOUS_CREATION_MAGITECH_DATA_KO : RIGHTEOUS_CREATION_MAGITECH_DATA;
+    const activeArcane = language === 'ko' ? RIGHTEOUS_CREATION_ARCANE_CONSTRUCTS_DATA_KO : RIGHTEOUS_CREATION_ARCANE_CONSTRUCTS_DATA;
+    const activeMetamagic = language === 'ko' ? RIGHTEOUS_CREATION_METAMAGIC_DATA_KO : RIGHTEOUS_CREATION_METAMAGIC_DATA;
+    const activeEngravings = language === 'ko' ? BLESSING_ENGRAVINGS_KO : BLESSING_ENGRAVINGS;
 
     const finalEngraving = righteousCreationEngraving ?? selectedBlessingEngraving;
     const isSkinEngraved = finalEngraving === 'skin';
@@ -181,35 +199,39 @@ export const RighteousCreationSection: React.FC = () => {
 
         const sigilType = getSigilTypeFromImage(sigil.imageSrc);
         const sigilCost = sigilType ? 1 : 0;
-        if (sigilType && ctx.availableSigilCounts[sigilType] < sigilCost) return true;
+        if (sigilType && ctx.availableSigilCounts[sigilType as keyof SigilCounts] < sigilCost) return true;
 
         return false;
     };
 
-    const getRighteousCreationSigil = (id: string) => RIGHTEOUS_CREATION_SIGIL_TREE_DATA.find(s => s.id === id)!;
+    const getRighteousCreationSigil = (id: string) => activeTree.find(s => s.id === id)!;
     
     const getSigilDisplayInfo = (sigil: RighteousCreationSigil): { color: SigilColor, benefits: React.ReactNode } => {
-        const colorMap: Record<string, SigilColor> = {
-            'ROOKIE ENGINEER': 'orange', 'POLYMATH™': 'yellow', 'TECHNICIAN': 'gray', 'MAGICIAN': 'gray',
-            'MAGITECHNICIAN': 'green', 'ARCANE WIZARD': 'green', 'METAMAGICIAN': 'green',
-            'MASTER MAGITECH': 'red', 'MASTER ARCANA': 'red', 'METAMASTER': 'red',
-        };
-        const color = colorMap[sigil.title] || 'gray';
+        // Use ID based mapping for colors as titles change
+        let color: SigilColor = 'gray';
+        switch(sigil.id) {
+            case 'rookie_engineer': color = 'orange'; break;
+            case 'polymat': color = 'yellow'; break;
+            case 'technician': case 'magician': color = 'gray'; break;
+            case 'magitechnician': case 'arcane_wizard': case 'metamagician': color = 'green'; break;
+            case 'master_magitech': case 'master_arcana': case 'metamaster': color = 'red'; break;
+        }
+
         const benefits = (
             <>
-                {sigil.benefits.specialty ? <p className="text-orange-300">+ {sigil.benefits.specialty} Specialty</p> : null}
-                {sigil.benefits.magitech ? <p className="text-blue-300">+ {sigil.benefits.magitech} Magitech</p> : null}
-                {sigil.benefits.arcaneConstructs ? <p className="text-purple-300">+ {sigil.benefits.arcaneConstructs} Arcane Constructs</p> : null}
-                {sigil.benefits.metamagic ? <p className="text-lime-300">+ {sigil.benefits.metamagic} Metamagic</p> : null}
+                {sigil.benefits.specialty ? <p className="text-orange-300">+ {sigil.benefits.specialty} {language === 'ko' ? "특기" : "Specialty"}</p> : null}
+                {sigil.benefits.magitech ? <p className="text-blue-300">+ {sigil.benefits.magitech} {language === 'ko' ? "마법공학" : "Magitech"}</p> : null}
+                {sigil.benefits.arcaneConstructs ? <p className="text-purple-300">+ {sigil.benefits.arcaneConstructs} {language === 'ko' ? "비전 구조체" : "Arcane Constructs"}</p> : null}
+                {sigil.benefits.metamagic ? <p className="text-lime-300">+ {sigil.benefits.metamagic} {language === 'ko' ? "메타마법" : "Metamagic"}</p> : null}
             </>
         );
         return { color, benefits };
     };
 
     const handleKpToggle = (sigil: RighteousCreationSigil) => {
-        const type = getSigilTypeFromImage(sigil.imageSrc);
-        if (type) {
-            toggleKpNode(String(sigil.id), type);
+        const sigilType = getSigilTypeFromImage(sigil.imageSrc);
+        if (sigilType) {
+            toggleKpNode(String(sigil.id), sigilType);
         }
     };
 
@@ -233,6 +255,15 @@ export const RighteousCreationSection: React.FC = () => {
 
     const isMagicianSelected = selectedTrueSelfTraits.has('magician');
     const additionalCost = Math.floor(righteousCreationSigilTreeCost * 0.25);
+    
+    // Calculate Lekolu FP cost for Magician Trait
+    const lekoluSigils = ['polymat']; 
+    const selectedLekoluCount = Array.from(ctx.selectedRighteousCreationSigils).filter(id => lekoluSigils.includes(id)).length;
+    const additionalFpCost = Math.floor(selectedLekoluCount * 6 * 0.25);
+
+    const costText = language === 'ko'
+        ? `(축복 점수 -${additionalCost}${additionalFpCost > 0 ? `, 행운 점수 -${additionalFpCost}` : ''})`
+        : `(-${additionalCost} BP${additionalFpCost > 0 ? `, -${additionalFpCost} FP` : ''})`;
 
     // Style to counteract global zoom for specific sections
     // Global Large is 120%. 1 / 1.2 = 0.83333
@@ -240,13 +271,13 @@ export const RighteousCreationSection: React.FC = () => {
 
     return (
         <section>
-            <BlessingIntro {...RIGHTEOUS_CREATION_DATA} />
+            <BlessingIntro {...activeData} />
             <div className="mt-8 mb-16 max-w-3xl mx-auto">
                 <h4 className="font-cinzel text-xl text-center tracking-widest my-6 text-purple-300 uppercase">
-                    Engrave this Blessing
+                    {language === 'ko' ? "축복 각인" : "Engrave this Blessing"}
                 </h4>
                 <div className="grid grid-cols-3 gap-4">
-                    {BLESSING_ENGRAVINGS.map(engraving => {
+                    {activeEngravings.map(engraving => {
                         const isSelected = finalEngraving === engraving.id;
                         const isOverridden = righteousCreationEngraving !== null;
                         const isWeapon = engraving.id === 'weapon';
@@ -291,8 +322,8 @@ export const RighteousCreationSection: React.FC = () => {
                             }`}
                         >
                             {isRighteousCreationMagicianApplied
-                                ? `The 'Magician' trait is applied. Click to remove. (+${additionalCost} BP)`
-                                : `Click to apply the 'Magician' trait from your True Self. This allows you to use the Blessing without transforming for an additional ${additionalCost} BP.`}
+                                ? (language === 'ko' ? `'마법사' 특성이 적용되었습니다. ${costText}` : `The Magician trait is applied. ${costText}`)
+                                : (language === 'ko' ? `'마법사' 특성을 적용할 수 있습니다. 변신 없이 축복을 사용할 수 있게 됩니다. ${costText}` : `Click to enable the Magician trait from your True Self, allowing you to use the Blessing without transforming. ${costText}`)}
                         </button>
                     </div>
                 )}
@@ -310,7 +341,7 @@ export const RighteousCreationSection: React.FC = () => {
             )}
 
             <div className="my-16 bg-black/20 p-8 rounded-lg border border-gray-800 overflow-x-auto">
-                <SectionHeader>SIGIL TREE</SectionHeader>
+                <SectionHeader>{language === 'ko' ? "표식 트리" : "SIGIL TREE"}</SectionHeader>
                 <div className="flex items-center min-w-max pb-8 px-4 justify-center">
                     
                     {/* Column 1: Root */}
@@ -398,10 +429,12 @@ export const RighteousCreationSection: React.FC = () => {
             </div>
 
             <div className="mt-16 px-4 lg:px-8">
-                <SectionHeader>Specialties</SectionHeader>
-                <SectionSubHeader>Picks Available: {ctx.availableSpecialtyPicks - ctx.selectedSpecialties.size} / {ctx.availableSpecialtyPicks}</SectionSubHeader>
+                <SectionHeader>{language === 'ko' ? "특기" : "Specialties"}</SectionHeader>
+                <SectionSubHeader>
+                    {language === 'ko' ? `선택 가능: ${ctx.availableSpecialtyPicks - ctx.selectedSpecialties.size} / ${ctx.availableSpecialtyPicks}` : `Picks Available: ${ctx.availableSpecialtyPicks - ctx.selectedSpecialties.size} / ${ctx.availableSpecialtyPicks}`}
+                </SectionSubHeader>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6" style={staticScaleStyle}>
-                    {RIGHTEOUS_CREATION_SPECIALTIES_DATA.map(power => (
+                    {activeSpecialties.map(power => (
                         <PowerCard 
                             key={power.id} 
                             power={{...power, cost: ''}} 
@@ -416,10 +449,12 @@ export const RighteousCreationSection: React.FC = () => {
             </div>
 
             <div className="mt-16 px-4 lg:px-8">
-                <SectionHeader>Magitech</SectionHeader>
-                <SectionSubHeader>Picks Available: {ctx.availableMagitechPicks - ctx.selectedMagitechPowers.size} / {ctx.availableMagitechPicks}</SectionSubHeader>
+                <SectionHeader>{language === 'ko' ? "마법공학" : "Magitech"}</SectionHeader>
+                <SectionSubHeader>
+                    {language === 'ko' ? `선택 가능: ${ctx.availableMagitechPicks - ctx.selectedMagitechPowers.size} / ${ctx.availableMagitechPicks}` : `Picks Available: ${ctx.availableMagitechPicks - ctx.selectedMagitechPowers.size} / ${ctx.availableMagitechPicks}`}
+                </SectionSubHeader>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" style={staticScaleStyle}>
-                    {RIGHTEOUS_CREATION_MAGITECH_DATA.map(power => {
+                    {activeMagitech.map(power => {
                         const isWeaponsmith = power.id === 'weaponsmith';
                         const isMasterMechanic = power.id === 'master_mechanic_i';
                         const isSelected = ctx.selectedMagitechPowers.has(power.id);
@@ -439,17 +474,16 @@ export const RighteousCreationSection: React.FC = () => {
                                 (isMasterMechanic && isSelected) ? () => setIsMasterMechanicModalOpen(true) : undefined
                             }
                             fontSize={fontSize}
-                            hideSeparator={true}
                         >
                             {isWeaponsmith && isSelected && weaponsmithWeaponName && (
                                 <div className="text-center mt-2 border-t border-gray-700/50 pt-2">
-                                    <p className="text-xs text-gray-400">Assigned Weapon:</p>
+                                    <p className="text-xs text-gray-400">{language === 'ko' ? "할당된 무기:" : "Assigned Weapon:"}</p>
                                     <p className="text-sm font-bold text-cyan-300 truncate">{weaponsmithWeaponName}</p>
                                 </div>
                             )}
                             {isMasterMechanic && isSelected && masterMechanicVehicleName && (
                                 <div className="text-center mt-2 border-t border-gray-700/50 pt-2">
-                                    <p className="text-xs text-gray-400">Assigned Vehicle:</p>
+                                    <p className="text-xs text-gray-400">{language === 'ko' ? "할당된 탈것:" : "Assigned Vehicle:"}</p>
                                     <p className="text-sm font-bold text-cyan-300 truncate">{masterMechanicVehicleName}</p>
                                 </div>
                             )}
@@ -459,10 +493,12 @@ export const RighteousCreationSection: React.FC = () => {
             </div>
 
             <div className="mt-16 px-4 lg:px-8">
-                <SectionHeader>Arcane Constructs</SectionHeader>
-                <SectionSubHeader>Picks Available: {ctx.availableArcaneConstructsPicks - ctx.selectedArcaneConstructsPowers.size} / {ctx.availableArcaneConstructsPicks}</SectionSubHeader>
+                <SectionHeader>{language === 'ko' ? "비전 구조체" : "Arcane Constructs"}</SectionHeader>
+                <SectionSubHeader>
+                    {language === 'ko' ? `선택 가능: ${ctx.availableArcaneConstructsPicks - ctx.selectedArcaneConstructsPowers.size} / ${ctx.availableArcaneConstructsPicks}` : `Picks Available: ${ctx.availableArcaneConstructsPicks - ctx.selectedArcaneConstructsPowers.size} / ${ctx.availableArcaneConstructsPicks}`}
+                </SectionSubHeader>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" style={staticScaleStyle}>
-                    {RIGHTEOUS_CREATION_ARCANE_CONSTRUCTS_DATA.map(power => {
+                    {activeArcane.map(power => {
                         const isRoboticistI = power.id === 'roboticist_i';
                         const isRoboticistII = power.id === 'roboticist_ii';
                         const isDivineClay = power.id === 'divine_clay';
@@ -485,17 +521,16 @@ export const RighteousCreationSection: React.FC = () => {
                                     (isRoboticistII && isSelected) ? () => setIsRoboticistIIModalOpen(true) : undefined
                                 }
                                 fontSize={fontSize}
-                                hideSeparator={true}
                             >
                                 {isRoboticistI && isSelected && roboticistIBeastName && (
                                     <div className="text-center mt-2 border-t border-gray-700/50 pt-2">
-                                        <p className="text-xs text-gray-400">Assigned Automaton:</p>
+                                        <p className="text-xs text-gray-400">{language === 'ko' ? "할당된 로봇:" : "Assigned Automaton:"}</p>
                                         <p className="text-sm font-bold text-amber-300 truncate">{roboticistIBeastName}</p>
                                     </div>
                                 )}
                                 {isRoboticistII && isSelected && roboticistCompanionName && (
                                     <div className="text-center mt-2 border-t border-gray-700/50 pt-2">
-                                        <p className="text-xs text-gray-400">Assigned Android:</p>
+                                        <p className="text-xs text-gray-400">{language === 'ko' ? "할당된 안드로이드:" : "Assigned Android:"}</p>
                                         <p className="text-sm font-bold text-cyan-300 truncate">{roboticistCompanionName}</p>
                                     </div>
                                 )}
@@ -506,10 +541,12 @@ export const RighteousCreationSection: React.FC = () => {
             </div>
 
             <div className="mt-16 px-4 lg:px-8">
-                <SectionHeader>Metamagic</SectionHeader>
-                <SectionSubHeader>Picks Available: {ctx.availableMetamagicPicks - ctx.selectedMetamagicPowers.size} / {ctx.availableMetamagicPicks}</SectionSubHeader>
+                <SectionHeader>{language === 'ko' ? "메타마법" : "Metamagic"}</SectionHeader>
+                <SectionSubHeader>
+                    {language === 'ko' ? `선택 가능: ${ctx.availableMetamagicPicks - ctx.selectedMetamagicPowers.size} / ${ctx.availableMetamagicPicks}` : `Picks Available: ${ctx.availableMetamagicPicks - ctx.selectedMetamagicPowers.size} / ${ctx.availableMetamagicPicks}`}
+                </SectionSubHeader>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" style={staticScaleStyle}>
-                    {RIGHTEOUS_CREATION_METAMAGIC_DATA.map(power => {
+                    {activeMetamagic.map(power => {
                         const isMariasGift = power.id === 'marias_gift';
                         return (
                             <PowerCard 
@@ -520,7 +557,6 @@ export const RighteousCreationSection: React.FC = () => {
                                 isDisabled={isRighteousCreationPowerDisabled(power, 'metamagic')} 
                                 className={isMariasGift ? "lg:col-span-1 lg:row-span-2" : ""}
                                 fontSize={fontSize}
-                                hideSeparator={true}
                             />
                         )
                     })}
@@ -537,7 +573,7 @@ export const RighteousCreationSection: React.FC = () => {
                     }}
                     currentWeaponName={weaponsmithWeaponName}
                     pointLimit={40}
-                    title="Assign Masterpiece Weapon (40 WP)"
+                    title={language === 'ko' ? "역작 무기 할당 (40 WP)" : "Assign Masterpiece Weapon (40 WP)"}
                 />
             )}
             {isRoboticistIModalOpen && (
@@ -549,7 +585,7 @@ export const RighteousCreationSection: React.FC = () => {
                     }}
                     currentBeastName={roboticistIBeastName}
                     pointLimit={40}
-                    title="Assign Automaton (40 BP)"
+                    title={language === 'ko' ? "로봇 할당 (40 BP)" : "Assign Automaton (40 BP)"}
                     requiredPerkId="automaton_perk"
                     excludedPerkIds={['chatterbox_beast', 'magical_beast']}
                 />
@@ -563,7 +599,7 @@ export const RighteousCreationSection: React.FC = () => {
                     }}
                     currentCompanionName={roboticistCompanionName}
                     pointLimit={50}
-                    title="Assign Android (50 CP)"
+                    title={language === 'ko' ? "안드로이드 할당 (50 CP)" : "Assign Android (50 CP)"}
                     categoryFilter="automaton"
                 />
             )}
@@ -574,10 +610,9 @@ export const RighteousCreationSection: React.FC = () => {
                         handleMasterMechanicVehicleAssign(name);
                         setIsMasterMechanicModalOpen(false);
                     }}
-                    // FIX: Corrected prop name from currentWeaponName to currentVehicleName
                     currentVehicleName={masterMechanicVehicleName}
                     pointLimit={50 + (ctx.selectedMagitechPowers.has('master_mechanic_ii') ? 50 : 0)}
-                    title={`Assign Dream Ride (${50 + (ctx.selectedMagitechPowers.has('master_mechanic_ii') ? 50 : 0)} VP)`}
+                    title={language === 'ko' ? `꿈의 탈것 할당 (${50 + (ctx.selectedMagitechPowers.has('master_mechanic_ii') ? 50 : 0)} VP)` : `Assign Dream Ride (${50 + (ctx.selectedMagitechPowers.has('master_mechanic_ii') ? 50 : 0)} VP)`}
                 />
             )}
         </section>
