@@ -67,7 +67,12 @@ export const BeastSelectionModal: React.FC<BeastSelectionModalProps> = ({
     requiredPerkId,
     colorTheme = 'purple'
 }) => {
-    const { language } = useCharacterContext();
+    const { 
+        language,
+        selectedNecromancy,
+        selectedArcaneConstructsPowers,
+        selectedNaniteControls
+    } = useCharacterContext();
     const [beastBuilds, setBeastBuilds] = useState<Record<string, { points: number }>>({});
 
     useEffect(() => {
@@ -78,6 +83,10 @@ export const BeastSelectionModal: React.FC<BeastSelectionModalProps> = ({
                 const beasts = parsedBuilds.beasts || {};
                 const buildsWithPoints: Record<string, { points: number }> = {};
                 
+                const hasRoboticist = selectedArcaneConstructsPowers.has('roboticist_i');
+                const hasNaniteForm = selectedNaniteControls.has('nanite_form');
+                const hasUndeadBeast = selectedNecromancy.has('undead_beast');
+
                 for (const name in beasts) {
                     const build = beasts[name];
                     if (build.version === 1) {
@@ -95,6 +104,15 @@ export const BeastSelectionModal: React.FC<BeastSelectionModalProps> = ({
                             continue;
                         }
 
+                        // Validate Perk Unlock Conditions
+                        if (hydratedData.perks.has('automaton_perk') && !hasRoboticist && !hasNaniteForm) {
+                            continue;
+                        }
+
+                        if (hydratedData.perks.has('undead_perk') && !hasUndeadBeast) {
+                            continue;
+                        }
+
                         const points = calculateBeastPoints(hydratedData);
                         buildsWithPoints[name] = { points };
                     }
@@ -104,7 +122,7 @@ export const BeastSelectionModal: React.FC<BeastSelectionModalProps> = ({
                 console.error("Failed to parse beast builds from storage:", error);
             }
         }
-    }, [categoryFilter, excludedPerkIds, requiredPerkId]);
+    }, [categoryFilter, excludedPerkIds, requiredPerkId, selectedNecromancy, selectedArcaneConstructsPowers, selectedNaniteControls]);
 
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {

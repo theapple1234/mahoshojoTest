@@ -782,7 +782,7 @@ export const GraciousDefeatSection: React.FC = () => {
                     currentCompanionName={verseAttendantCompanionNames[attendantModalState.index] || null}
                     pointLimit={50 + (ctx.isFeaturesBoosted ? 50 : 0)}
                     title={language === 'ko' ? `관리자 #${attendantModalState.index + 1} 할당` : `Assign Attendant #${attendantModalState.index + 1}`}
-                    categoryFilter="mage" 
+                    categoryFilter="puppet" 
                 />
             )}
 

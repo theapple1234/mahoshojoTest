@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import * as Constants from '../../constants';
 import type { BeastSelections, CompanionOption } from '../../types';
@@ -15,7 +16,12 @@ export const BeastSection: React.FC<{
     selections: BeastSelections;
     setSelections: React.Dispatch<React.SetStateAction<BeastSelections>>;
 }> = ({ setPoints, selections, setSelections }) => {
-    const { language } = useCharacterContext();
+    const { 
+        language,
+        selectedNecromancy,
+        selectedArcaneConstructsPowers,
+        selectedNaniteControls
+    } = useCharacterContext();
     const [activeMapType, setActiveMapType] = useState<ActiveMapType | null>(null);
     
     // Localization
@@ -179,8 +185,17 @@ export const BeastSection: React.FC<{
     
     const isPerkDisabled = (perk: CompanionOption) => {
         if (perk.id === 'noble_steed') return !['medium', 'large', 'humongous'].includes(selections.size ?? '');
-        if (perk.id === 'automaton_perk' && !selections.category.includes('automaton')) return true;
-        if (perk.id === 'undead_perk' && !selections.category.includes('undead')) return true;
+        
+        if (perk.id === 'automaton_perk') {
+             const hasRoboticist = selectedArcaneConstructsPowers.has('roboticist_i');
+             const hasNaniteForm = selectedNaniteControls.has('nanite_form');
+             return !hasRoboticist && !hasNaniteForm;
+        }
+        
+        if (perk.id === 'undead_perk') {
+            return !selectedNecromancy.has('undead_beast');
+        }
+        
         return false;
     }
 
