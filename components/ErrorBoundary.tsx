@@ -1,3 +1,4 @@
+
 import React, { ErrorInfo, ReactNode } from "react";
 
 interface Props {
@@ -26,10 +27,6 @@ export class ErrorBoundary extends React.Component<Props, State> {
 
   public render() {
     if (this.state.hasError) {
-      const isChunkError = this.state.error?.message?.includes("dynamically imported module") || 
-                           this.state.error?.message?.includes("Importing a module script failed") ||
-                           this.state.error?.name === "ChunkLoadError";
-
       return (
         <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#0a101f] text-white p-6 text-center">
             <div className="max-w-md w-full bg-black/40 border-2 border-red-500/50 rounded-xl p-8 shadow-2xl backdrop-blur-md">
@@ -40,13 +37,11 @@ export class ErrorBoundary extends React.Component<Props, State> {
                 </div>
                 
                 <h2 className="font-cinzel text-2xl font-bold text-red-100 mb-4 tracking-widest">
-                    {isChunkError ? "CONNECTION LOST" : "CRITICAL ERROR"}
+                    CRITICAL ERROR
                 </h2>
                 
                 <p className="text-gray-300 mb-8 leading-relaxed font-sans text-sm">
-                    {isChunkError 
-                        ? "새로운 업데이트가 감지되었거나 연결이 끊어졌습니다. 페이지를 새로고침하여 최신 버전을 받아와 주세요." 
-                        : "예기치 않은 오류가 발생했습니다. 문제가 지속되면 개발자에게 문의해주세요."}
+                    예기치 않은 오류가 발생했습니다. 문제가 지속되면 개발자에게 문의해주세요.
                 </p>
                 
                 <button
@@ -59,7 +54,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
                     <div className="absolute inset-0 bg-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg"></div>
                 </button>
 
-                {!isChunkError && this.state.error && (
+                {this.state.error && (
                     <div className="mt-6 p-3 bg-black/60 rounded border border-red-900/30 text-left overflow-auto max-h-32">
                         <code className="text-[10px] text-red-400 font-mono break-all">
                             {this.state.error.toString()}

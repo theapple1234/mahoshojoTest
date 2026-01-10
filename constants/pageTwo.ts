@@ -174,7 +174,7 @@ export const DURATION_DATA_KO: ChoiceItem[] = [
     { id: '6_years', title: '~6년', cost: 'Grants +15 BP', description: "보통 학생들이 공부하는 기간입니다. 향후 진로가 뭐가 됐든 이 정도면 성공할 수 있을 만큼 충분히 교육을 받을 수 있어요.", imageSrc: '/images/R4yLPbnx-year2.png' },
     { id: '10_years', title: '~10년', cost: 'Grants +20 BP', description: "학자 타입의 사람들에게 맞는, 약간은 비주류인 선택지입니다. 당신의 축복을 새롭게 받아들일 수 있게 되지만, 직업 경험이 없다는 것 때문에 경쟁자들에게 밀릴 수도 있죠.", imageSrc: '/images/HpBXpjrH-year3.png' },
     { id: '15_years', title: '~15년', cost: 'Grants +25 BP', description: "이쯤 되면 인생의 대부분을 마법학교에서 보낸 셈입니다. 이곳이 또 하나의 집처럼 느껴지겠지만, 수많은 친구들이 먼저 학교를 떠나는 것을 맘아프게 배웅해 줘야 할 겁니다.", imageSrc: '/images/7xV8dvdq-year4.png' },
-    { id: '20_years', title: '20년 이상', cost: 'Grants +30 BP', description: "거의 학교에 뼈를 묻은 셈이네요. 배우는 것은 정말 많겠지만, 이 시간 동안 현장에서 직접 경험을 쌓는 게 낫지 않았을까 하는 생각을 하게 될 것입니다.", imageSrc: '/images/d0h4CzY0-year5.png' },
+    { id: '20_years', title: '20년 이상', cost: 'Grants +30 BP', description: "거의 학교에 뼈를 묻은 셈이네요. 배우는 것은 정말 많겠지만, 이 시간 동안 현장에서 직접 경험을 쌓는 게 낫지 않았을까 하는 생각을 하게 될 겁니다.", imageSrc: '/images/d0h4CzY0-year5.png' },
 ];
 
 export const CLUBS_DATA: ChoiceItem[] = [

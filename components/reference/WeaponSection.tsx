@@ -314,7 +314,7 @@ export const WeaponSection: React.FC<{
 
                 if (['transforming'].includes(item.id)) {
                      return <ReferenceItemCard key={item.id} item={item} layout="default" isSelected={isSelected} onSelect={() => {}} disabled={isPerkDisabled(item)}>
-                         {/* FIX: Avoid using replace on number by using template literal */}
+                         {/* FIX: Avoid using replace on number by using template literal */
                          <Counter label={titles.count} count={count} onCountChange={(n) => handlePerkCountChange(item.id, n)} cost={`${item.cost} ${titles.points}`} layout="small" />
                      </ReferenceItemCard>
                 }
