@@ -2,6 +2,7 @@
 import React from 'react';
 import type { Sigil } from '../types';
 import { useCharacterContext } from '../context/CharacterContext';
+import { useLongPress } from '../hooks/useLongPress';
 
 interface SpecialSigilCardProps {
   sigil: Sigil;
@@ -11,6 +12,66 @@ interface SpecialSigilCardProps {
   onLekoluJobAction?: (subOptionId: string, action: 'buy' | 'sell') => void;
   fontSize?: 'regular' | 'large';
 }
+
+const LekoluJobCard: React.FC<{
+    option: any;
+    count: number;
+    onAction: (id: string, action: 'buy' | 'sell') => void;
+    subBorderClass: string;
+    language: 'en' | 'ko';
+    subDescriptionClass: string;
+    glowColor: string;
+}> = ({ option, count, onAction, subBorderClass, language, subDescriptionClass, glowColor }) => {
+    
+    const handleBuy = () => onAction(option.id, 'buy');
+    const handleSell = () => { if (count > 0) onAction(option.id, 'sell'); };
+
+    const longPressProps = useLongPress(
+        (e) => {
+            handleSell();
+            if (navigator.vibrate) navigator.vibrate(50);
+        },
+        (e) => {
+            handleBuy();
+        },
+        { shouldPreventDefault: true, delay: 500 }
+    );
+
+    return (
+        <div 
+            className={`flex flex-col p-3 bg-gray-900/50 border rounded-lg h-full transition-all duration-300 cursor-pointer relative group ${subBorderClass} ${count > 0 ? 'shadow-[0_0_15px_rgba(234,179,8,0.15)] transform -translate-y-1' : ''}`}
+            {...longPressProps}
+            onContextMenu={(e) => { e.preventDefault(); handleSell(); }}
+            role="button"
+            tabIndex={0}
+        >
+            <div className="relative">
+                <img 
+                    src={option.imageSrc} 
+                    alt="" 
+                    className={`w-full h-32 object-cover rounded-md mb-3 transition-opacity duration-300 ${count > 0 ? 'opacity-100' : 'opacity-80 group-hover:opacity-100'}`}
+                />
+                {count > 0 && (
+                    <div className="absolute -top-3 -right-3 z-10 filter drop-shadow-lg">
+                        <div className="relative w-12 h-12 flex items-center justify-center">
+                            <div className="absolute inset-0 bg-yellow-500/20 rounded-full blur-md"></div>
+                            <div className="absolute inset-2 bg-[#1a1005] border-2 border-yellow-500 transform rotate-45 shadow-[0_0_10px_rgba(234,179,8,0.5)]"></div>
+                            <div className="absolute inset-3 border border-yellow-500/50 transform rotate-45"></div>
+                            <span className="relative z-10 font-cinzel font-bold text-yellow-400 text-xl tracking-tighter drop-shadow-md select-none">
+                                {count}
+                            </span>
+                        </div>
+                    </div>
+                )}
+            </div>
+            <p className={`${subDescriptionClass} text-gray-200 leading-snug flex-grow`} style={{ textShadow: `0 0 2px ${glowColor}` }}>{option.description}</p>
+            <div className="mt-3 pt-2 border-t border-gray-700/50 flex justify-between text-[10px] text-gray-500 font-mono tracking-tight uppercase">
+                <span>{language === 'ko' ? "좌클릭: +1" : "L-Click: +1"}</span>
+                <span>{language === 'ko' ? "우클릭/홀드: -1" : "R-Click/Hold: -1"}</span>
+            </div>
+        </div>
+    );
+};
 
 export const SpecialSigilCard: React.FC<SpecialSigilCardProps> = ({ sigil, selectedSubOptionIds, onSubOptionSelect, lekoluJobCounts, onLekoluJobAction, fontSize = 'regular' }) => {
   const { id, title, description, imageSrc, cost, subOptions } = sigil;
@@ -29,7 +90,7 @@ export const SpecialSigilCard: React.FC<SpecialSigilCardProps> = ({ sigil, selec
   };
 
   const descriptionClass = fontSize === 'large' ? 'text-base' : 'text-sm';
-  const subDescriptionClass = fontSize === 'large' ? 'text-sm' : 'text-xs';
+  const subDescriptionClass = fontSize === 'large' ? 'text-base' : 'text-sm';
 
   return (
     <div 
@@ -68,51 +129,18 @@ export const SpecialSigilCard: React.FC<SpecialSigilCardProps> = ({ sigil, selec
               const subBorderClass = isSelected ? theme.selected : `border-gray-700 ${theme.hover}`;
 
               if (id === 'lekolu' && onLekoluJobAction && lekoluJobCounts) {
-                const handleBuy = (e: React.MouseEvent) => {
-                    e.stopPropagation();
-                    onLekoluJobAction(option.id, 'buy');
-                };
-                const handleSell = (e: React.MouseEvent) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    if (count > 0) onLekoluJobAction(option.id, 'sell');
-                };
-
-                return (
-                  <div 
-                    key={option.id} 
-                    className={`flex flex-col p-3 bg-gray-900/50 border rounded-lg h-full transition-all duration-300 cursor-pointer relative group ${subBorderClass} ${count > 0 ? 'shadow-[0_0_15px_rgba(234,179,8,0.15)] transform -translate-y-1' : ''}`}
-                    onClick={handleBuy}
-                    onContextMenu={handleSell}
-                    role="button"
-                    tabIndex={0}
-                  >
-                    <div className="relative">
-                        <img 
-                            src={option.imageSrc} 
-                            alt="" 
-                            className={`w-full h-32 object-cover rounded-md mb-3 transition-opacity duration-300 ${count > 0 ? 'opacity-100' : 'opacity-80 group-hover:opacity-100'}`}
-                        />
-                        {count > 0 && (
-                            <div className="absolute -top-3 -right-3 z-10 filter drop-shadow-lg">
-                                <div className="relative w-12 h-12 flex items-center justify-center">
-                                    <div className="absolute inset-0 bg-yellow-500/20 rounded-full blur-md"></div>
-                                    <div className="absolute inset-2 bg-[#1a1005] border-2 border-yellow-500 transform rotate-45 shadow-[0_0_10px_rgba(234,179,8,0.5)]"></div>
-                                    <div className="absolute inset-3 border border-yellow-500/50 transform rotate-45"></div>
-                                    <span className="relative z-10 font-cinzel font-bold text-yellow-400 text-xl tracking-tighter drop-shadow-md select-none">
-                                        {count}
-                                    </span>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                    <p className={`${subDescriptionClass} text-gray-200 leading-snug flex-grow`} style={{ textShadow: `0 0 2px ${glowColor}` }}>{option.description}</p>
-                    <div className="mt-3 pt-2 border-t border-gray-700/50 flex justify-between text-[10px] text-gray-500 font-mono tracking-tight uppercase">
-                        <span>{language === 'ko' ? "좌클릭: +1" : "L-Click: +1"}</span>
-                        <span>{language === 'ko' ? "우클릭: -1" : "R-Click: -1"}</span>
-                    </div>
-                  </div>
-                );
+                  return (
+                      <LekoluJobCard 
+                        key={option.id}
+                        option={option}
+                        count={count}
+                        onAction={onLekoluJobAction}
+                        subBorderClass={subBorderClass}
+                        language={language}
+                        subDescriptionClass={subDescriptionClass}
+                        glowColor={glowColor}
+                      />
+                  );
               } else {
                 const columnSpanClass = id === 'xuth' ? 'sm:col-span-2' : '';
                 return (

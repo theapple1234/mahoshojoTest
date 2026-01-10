@@ -2,6 +2,7 @@
 import React, { useRef } from 'react';
 import type { Sigil } from '../types';
 import { useCharacterContext } from '../context/CharacterContext';
+import { useLongPress } from '../hooks/useLongPress';
 
 interface SigilCardProps {
   sigil: Sigil;
@@ -15,21 +16,36 @@ export const SigilCard: React.FC<SigilCardProps> = ({ sigil, count, onAction, on
   const imgRef = useRef<HTMLImageElement>(null);
   const { language } = useCharacterContext();
 
-  const handleBuy = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleBuy = () => {
     onAction('buy');
     if (imgRef.current) {
       onAnimate(imgRef.current.getBoundingClientRect());
     }
   };
 
-  const handleSell = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleSell = () => {
     if (count > 0) {
       onAction('sell');
     }
   };
+
+  // Hybrid Interaction Logic:
+  // Tap/Click -> Buy
+  // Long Press -> Sell
+  // Right Click -> Sell
+  const longPressProps = useLongPress(
+      (e) => {
+         // Long Press Action
+         handleSell();
+         // Vibrate if supported
+         if (navigator.vibrate) navigator.vibrate(50);
+      },
+      (e) => {
+          // Tap/Click Action
+          handleBuy();
+      },
+      { shouldPreventDefault: true, delay: 500 }
+  );
 
   const glowColors: Record<string, string> = {
     kaarn: '#9ca3af',
@@ -40,10 +56,10 @@ export const SigilCard: React.FC<SigilCardProps> = ({ sigil, count, onAction, on
 
   return (
     <div 
-      className="group flex flex-col items-center text-center p-6 transition-all duration-300 ease-in-out bg-black/30 rounded-lg h-full border border-gray-700 hover:border-gray-500 cursor-pointer hover:bg-black/40 select-none relative"
+      className="group flex flex-col items-center text-center p-6 transition-all duration-300 ease-in-out bg-black/30 rounded-lg h-full border border-gray-700 hover:border-gray-500 cursor-pointer hover:bg-black/40 select-none relative active:scale-95"
       style={{ boxShadow: `0 0 10px ${glowColor}20` }}
-      onClick={handleBuy}
-      onContextMenu={handleSell}
+      {...longPressProps}
+      onContextMenu={(e) => { e.preventDefault(); handleSell(); }}
       role="button"
       tabIndex={0}
       aria-label={`Buy ${title}. Current count: ${count}`}
@@ -63,8 +79,8 @@ export const SigilCard: React.FC<SigilCardProps> = ({ sigil, count, onAction, on
         <p className="text-xs italic mt-4 font-bold" style={{ color: glowColor }}>{cost}</p>
       </div>
        <div className="mt-4 w-full">
-         <p className="text-xs text-gray-500 italic">
-            {language === 'ko' ? <>좌클릭: 구매<br/>우클릭: 판매</> : <>Left Click to Buy.<br/>Right Click to Sell.</>}
+         <p className="text-[10px] text-gray-500 italic font-mono uppercase tracking-tight">
+            {language === 'ko' ? "좌클릭/탭: 구매 • 우클릭/홀드: 판매" : "L-Click/Tap: Buy • R-Click/Hold: Sell"}
          </p>
       </div>
     </div>

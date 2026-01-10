@@ -54,7 +54,7 @@ const PowerCard: React.FC<{
     const textShadow = shadowColor ? `0 0 2px ${shadowColor}` : 'none';
     const titleColor = shadowColor || 'white';
     
-    const descriptionClass = fontSize === 'large' ? 'text-sm' : 'text-xs';
+    const descriptionClass = fontSize === 'large' ? 'text-base' : 'text-sm';
 
     return (
         <div className={`${wrapperClass} relative`} onClick={() => !isDisabled && onToggle(power.id)}>

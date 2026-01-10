@@ -23,6 +23,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onStart, isExiting }
     onStart();
   };
 
+  // Main Splash Screen
   return (
     <div className={`fixed inset-0 z-[100] overflow-hidden flex flex-col items-center justify-center transition-opacity duration-1000 ${isExiting ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
       

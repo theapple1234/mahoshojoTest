@@ -12,16 +12,16 @@ import { SettingsModal } from './components/SettingsModal';
 import { StarBackground } from './components/StarBackground';
 import { ErrorBoundary } from './components/ErrorBoundary';
 
-// Lazy load page components
-const PageOne = React.lazy(() => import('./components/PageOne').then(module => ({ default: module.PageOne })));
-const PageTwo = React.lazy(() => import('./components/PageTwo').then(module => ({ default: module.PageTwo })));
-const PageThree = React.lazy(() => import('./components/PageThree').then(module => ({ default: module.PageThree })));
-const PageFour = React.lazy(() => import('./components/PageFour').then(module => ({ default: module.PageFour })));
-const PageFive = React.lazy(() => import('./components/PageFive').then(module => ({ default: module.PageFive })));
-const PageSix = React.lazy(() => import('./components/PageSix').then(module => ({ default: module.PageSix })));
-const ReferencePage = React.lazy(() => import('./components/ReferencePage').then(module => ({ default: module.ReferencePage })));
-const BuildSummaryPage = React.lazy(() => import('./components/BuildSummaryPage').then(module => ({ default: module.BuildSummaryPage })));
-const LostBlessingPage = React.lazy(() => import('./components/LostBlessingPage').then(module => ({ default: module.LostBlessingPage })));
+// Static imports to ensure all resources are loaded upfront
+import { PageOne } from './components/PageOne';
+import { PageTwo } from './components/PageTwo';
+import { PageThree } from './components/PageThree';
+import { PageFour } from './components/PageFour';
+import { PageFive } from './components/PageFive';
+import { PageSix } from './components/PageSix';
+import { ReferencePage } from './components/ReferencePage';
+import { BuildSummaryPage } from './components/BuildSummaryPage';
+import { LostBlessingPage } from './components/LostBlessingPage';
 
 const PAGE_TITLES = ['YOUR BIRTH', 'YOUR SCHOOLING', 'SIGILS & BLESSINGS', 'DESIGN YOUR MAGIC', 'YOUR CAREER', 'YOUR RETIREMENT'];
 // Removed PAGE_BACKGROUNDS as we use a persistent background now, but kept logic for potential overlays
@@ -86,15 +86,6 @@ const BackgroundTransition: React.FC<{ currentPage: number }> = ({ currentPage }
         </div>
     );
 };
-
-const LoadingScreen: React.FC = () => (
-  <div className="flex flex-col items-center justify-center min-h-[60vh] w-full animate-fade-in">
-     <div className="relative w-12 h-12 mb-6">
-        <div className="absolute inset-0 border-2 border-transparent border-t-cyan-500 rounded-full animate-spin"></div>
-        <div className="absolute inset-0 border-2 border-transparent border-b-purple-500 rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
-     </div>
-  </div>
-);
 
 const AppContent: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -278,17 +269,12 @@ const AppContent: React.FC = () => {
           <>
               {/* Separate suspense for the main page content to keep it mounted while modals load */}
               <ErrorBoundary>
-                <Suspense fallback={<div className="fixed inset-0 bg-[#000000] z-[100]"></div>}>
-                    <LostBlessingPage enableEntranceAnimation={showSecretIntro} />
-                </Suspense>
+                <LostBlessingPage enableEntranceAnimation={showSecretIntro} />
               </ErrorBoundary>
 
-              {/* Separate suspense for modals with a transparent fallback to avoid flashing black */}
-              <Suspense fallback={<div className="fixed inset-0 z-[150] flex items-center justify-center pointer-events-none"><div className="w-10 h-10 border-4 border-red-500 border-t-transparent rounded-full animate-spin"></div></div>}>
-                  {isReferencePageOpen && <ReferencePage onClose={closeReferencePage} />}
-                  {isBuildSummaryOpen && <BuildSummaryPage onClose={closeBuildSummary} />}
-              </Suspense>
-
+              {/* Modals are now statically imported, so no suspense needed for them */}
+              {isReferencePageOpen && <ReferencePage onClose={closeReferencePage} />}
+              {isBuildSummaryOpen && <BuildSummaryPage onClose={closeBuildSummary} />}
               <SettingsModal />
               <GlobalNotification />
               
@@ -322,11 +308,10 @@ const AppContent: React.FC = () => {
   return (
     <>
       <BackgroundTransition currentPage={currentPage} />
-      <Suspense fallback={null}>
-        {isReferencePageOpen && <ReferencePage onClose={closeReferencePage} />}
-        {isBuildSummaryOpen && <BuildSummaryPage onClose={closeBuildSummary} />}
-        <SettingsModal />
-      </Suspense>
+      {/* Modals */}
+      {isReferencePageOpen && <ReferencePage onClose={closeReferencePage} />}
+      {isBuildSummaryOpen && <BuildSummaryPage onClose={closeBuildSummary} />}
+      <SettingsModal />
       <GlobalNotification />
       <div className="min-h-screen text-white font-sans relative">
         <div className="container mx-auto px-4 py-8 relative pb-20 z-10">
@@ -338,16 +323,15 @@ const AppContent: React.FC = () => {
           )}
 
           <ErrorBoundary>
-            <Suspense fallback={<LoadingScreen />}>
-                {currentPage === 1 && <PageOne />}
-                {currentPage === 2 && <PageTwo />}
-                {currentPage === 3 && <PageThree />}
-                {currentPage === 4 && <PageFour />}
-                {currentPage === 5 && <PageFive />}
-                {currentPage === 6 && <PageSix />}
-                
-                <PageNavigation />
-            </Suspense>
+            {/* Pages are now statically loaded */}
+            {currentPage === 1 && <PageOne />}
+            {currentPage === 2 && <PageTwo />}
+            {currentPage === 3 && <PageThree />}
+            {currentPage === 4 && <PageFour />}
+            {currentPage === 5 && <PageFive />}
+            {currentPage === 6 && <PageSix />}
+            
+            <PageNavigation />
           </ErrorBoundary>
           
         </div>

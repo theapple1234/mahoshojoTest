@@ -286,8 +286,8 @@ const CyberChoiceCard: React.FC<{
             </div>
             <div className="p-4 flex-grow flex flex-col relative">
                 <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-5 pointer-events-none"></div>
-                <h4 className={`font-cinzel text-lg font-bold mb-2 tracking-widest ${isSelected ? 'text-green-300 drop-shadow-[0_0_5px_rgba(74,222,128,0.8)]' : 'text-gray-200 group-hover:text-green-200'}`}>{title}</h4>
-                <p className="text-xs text-gray-400 leading-relaxed font-sans border-t border-green-900/30 pt-2 flex-grow">{renderFormattedText(description)}</p>
+                <h4 className={`font-cinzel text-xl font-bold mb-2 tracking-widest ${isSelected ? 'text-green-300 drop-shadow-[0_0_5px_rgba(74,222,128,0.8)]' : 'text-gray-200 group-hover:text-green-200'}`}>{title}</h4>
+                <p className="text-sm text-gray-400 leading-relaxed font-sans border-t border-green-900/30 pt-2 flex-grow">{renderFormattedText(description)}</p>
                 {children && <div className="mt-3 pt-2 border-t border-green-900/30">{children}</div>}
             </div>
             {iconButton && onIconButtonClick && isSelected && (
@@ -319,7 +319,7 @@ const SmallRoundChoiceCard: React.FC<{
             <p className={`text-xs font-mono mt-1 ${isSelected ? 'text-green-400' : 'text-gray-500'}`}>
                 {renderPersonCost(item.cost || '', language)}
             </p>
-            <p className="text-xs text-gray-400 text-center mt-3 leading-relaxed border-t border-green-900/30 pt-2 w-full flex-grow min-h-[4rem]">{renderFormattedText(item.description)}</p>
+            <p className="text-sm text-gray-400 text-center mt-3 leading-relaxed border-t border-green-900/30 pt-2 w-full flex-grow min-h-[4rem]">{renderFormattedText(item.description)}</p>
             {children && <div className="mt-3 w-full">{children}</div>}
         </div>
     );

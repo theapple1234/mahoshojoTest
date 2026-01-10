@@ -184,21 +184,21 @@ export const VortexLayout: React.FC<{ sections: any[], ctx: ICharacterContext, n
                                                     />
                                                 </div>
                                                 {item.count && item.count > 1 && (
-                                                    <span className="absolute build-summary-count-badge -bottom-1 -right-1 z-50 bg-purple-600 text-white text-[12px] font-bold px-2 py-0.5 rounded-full border-2 border-black shadow-md">x{item.count}</span>
+                                                    <span className="absolute build-summary-count-badge -bottom-1 -right-1 z-50 bg-purple-600 text-white text-xs font-bold px-2 py-0.5 rounded-full border-2 border-black shadow-md">x{item.count}</span>
                                                 )}
                                             </div>
-                                            <div className="mt-3 text-[10px] text-purple-200 text-center w-40 whitespace-normal leading-loose group-hover:text-white transition-colors z-20 min-h-[2.5em] flex flex-col items-center justify-center drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
+                                            <div className="mt-3 text-sm text-purple-200 text-center w-40 whitespace-normal leading-loose group-hover:text-white transition-colors z-20 min-h-[2.5em] flex flex-col items-center justify-center drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
                                                 <span>{item.title}</span>
                                                 {item.isBoosted && (
-                                                    <span className="text-[9px] text-amber-400 font-bold block mt-0.5 w-full whitespace-normal leading-loose">BOOSTED</span>
+                                                    <span className="text-xs text-amber-400 font-bold block mt-0.5 w-full whitespace-normal leading-loose">BOOSTED</span>
                                                 )}
                                                 {item.isMagicianActive && (
-                                                    <span className="text-[9px] text-blue-300 font-bold block mt-0.5 w-full whitespace-normal leading-loose drop-shadow-[0_0_5px_rgba(96,165,250,0.8)]">
+                                                    <span className="text-xs text-blue-300 font-bold block mt-0.5 w-full whitespace-normal leading-loose drop-shadow-[0_0_5px_rgba(96,165,250,0.8)]">
                                                         {ctx.language === 'ko' ? "MAGICIAN (마법사)" : "MAGICIAN"}
                                                     </span>
                                                 )}
-                                                {item.assignedName && <span className="text-[9px] text-cyan-300 font-bold block mt-0.5 w-full whitespace-normal leading-loose">[{item.assignedName}]</span>}
-                                                {item.uniformName && <span className="text-[9px] text-pink-300 font-bold block mt-0.5 w-full whitespace-normal leading-loose">Costume: {item.uniformName}</span>}
+                                                {item.assignedName && <span className="text-xs text-cyan-300 font-bold block mt-0.5 w-full whitespace-normal leading-loose">[{item.assignedName}]</span>}
+                                                {item.uniformName && <span className="text-xs text-pink-300 font-bold block mt-0.5 w-full whitespace-normal leading-loose">Costume: {item.uniformName}</span>}
                                             </div>
                                         </div>
                                     );
@@ -232,11 +232,11 @@ export const VortexLayout: React.FC<{ sections: any[], ctx: ICharacterContext, n
                                                 <img src={member.imageSrc} alt="" className="w-full h-full object-cover" />
                                             </div>
                                             <div className="flex-grow min-w-0">
-                                                <p className="text-xs font-bold text-purple-200 leading-loose">{member.title}</p>
-                                                {member.note && <p className="text-[10px] text-gray-400 truncate leading-loose">"{member.note}"</p>}
+                                                <p className="text-sm font-bold text-purple-200 leading-loose">{member.title}</p>
+                                                {member.note && <p className="text-xs text-gray-400 truncate leading-loose">"{member.note}"</p>}
                                                 <div className="flex flex-wrap gap-1 mt-1">
                                                     {member.traits.map((t: any) => (
-                                                        <span key={t.id} className="text-[8px] text-purple-300 mr-2 drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]">
+                                                        <span key={t.id} className="text-[10px] text-purple-300 mr-2 drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]">
                                                             • {t.title}
                                                             {t.assignedName && <span className="ml-1 font-bold text-cyan-300">[{t.assignedName}]</span>}
                                                         </span>
@@ -262,18 +262,18 @@ export const VortexLayout: React.FC<{ sections: any[], ctx: ICharacterContext, n
                                                 </div>
                                                 <div className="flex-grow min-w-0">
                                                     <div className="flex justify-between items-start mb-1">
-                                                        <span className="text-xs font-bold text-purple-200 truncate leading-[2.5]">{home.title}</span>
+                                                        <span className="text-sm font-bold text-purple-200 truncate leading-[2.5]">{home.title}</span>
                                                     </div>
-                                                    <p className="text-[10px] text-purple-400 uppercase tracking-wider mb-0.5 leading-[2.5]">{home.dominion}</p>
-                                                    <p className="text-[10px] text-gray-400 mb-1 leading-[2.5]">Type: <span className="text-gray-300">{home.type}</span></p>
+                                                    <p className="text-xs text-purple-400 uppercase tracking-wider mb-0.5 leading-[2.5]">{home.dominion}</p>
+                                                    <p className="text-xs text-gray-400 mb-1 leading-[2.5]">Type: <span className="text-gray-300">{home.type}</span></p>
                                                     <div className="space-y-0.5">
-                                                        {home.stats && <p className="text-[9px] text-cyan-400 font-mono leading-[2.5]">{home.stats}</p>}
-                                                        {home.mythicalPet && <p className="text-[9px] text-pink-400 font-mono leading-[2.5]">Pet: {home.mythicalPet}</p>}
+                                                        {home.stats && <p className="text-[10px] text-cyan-400 font-mono leading-[2.5]">{home.stats}</p>}
+                                                        {home.mythicalPet && <p className="text-[10px] text-pink-400 font-mono leading-[2.5]">Pet: {home.mythicalPet}</p>}
                                                     </div>
                                                     {home.upgrades.length > 0 && (
                                                         <div className="flex flex-wrap gap-1 mt-1.5">
                                                             {home.upgrades.map((u: any, idx: number) => (
-                                                                <span key={idx} className="text-[8px] text-blue-200 leading-[2.5] mr-2 drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]">
+                                                                <span key={idx} className="text-[10px] text-blue-200 leading-[2.5] mr-2 drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]">
                                                                     • {u.title}
                                                                     {u.assignedName && <span className="ml-1 text-cyan-300">[{u.assignedName}]</span>}
                                                                 </span>
@@ -303,9 +303,9 @@ export const VortexLayout: React.FC<{ sections: any[], ctx: ICharacterContext, n
                         {allCustomSpells.map((spell: any, i: number) => (
                             <div key={spell.id || i} className="bg-slate-900/40 p-4 rounded border border-purple-500/20">
                                 <h4 className="text-purple-300 font-bold mb-2">Custom Spell {i+1}</h4>
-                                <p className="text-gray-400 text-sm whitespace-pre-wrap">{spell.description}</p>
+                                <p className="text-gray-400 text-base whitespace-pre-wrap">{spell.description}</p>
                                 {spell.mialgrathApplied && (
-                                    <div className="mt-2 text-xs text-cyan-400 border-t border-purple-500/20 pt-2">
+                                    <div className="mt-2 text-sm text-cyan-400 border-t border-purple-500/20 pt-2">
                                         <span className="font-bold uppercase tracking-wider">Milgrath Override:</span> <span className="milgrath-override-content">{spell.mialgrathDescription}</span>
                                     </div>
                                 )}

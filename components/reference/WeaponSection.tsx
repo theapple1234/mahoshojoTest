@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useCharacterContext } from '../../context/CharacterContext';
 import * as Constants from '../../constants';
@@ -79,6 +80,14 @@ export const WeaponSection: React.FC<{
         setPoints(total);
         setDiscount(discount);
     }, [selections, setPoints, setDiscount, selectedTransformation]);
+    
+    // Clean up Attuned Spell Map if removed or count is 0
+    useEffect(() => {
+        const count = selections.perks.get('attuned_spell') || 0;
+        if (count <= 0 && selections.attunedSpellMap && selections.attunedSpellMap.size > 0) {
+            setSelections(prev => ({ ...prev, attunedSpellMap: new Set() }));
+        }
+    }, [selections.perks, selections.attunedSpellMap, setSelections]);
 
     const handleCategorySelect = (id: string) => {
         const transformingCount = selections.perks.get('transforming') || 0;
@@ -305,7 +314,7 @@ export const WeaponSection: React.FC<{
 
                 if (['transforming'].includes(item.id)) {
                      return <ReferenceItemCard key={item.id} item={item} layout="default" isSelected={isSelected} onSelect={() => {}} disabled={isPerkDisabled(item)}>
-                         {/* FIX: Avoid using replace on number by using template literal */}
+                         {/* FIX: Avoid using replace on number by using template literal */
                          <Counter label={titles.count} count={count} onCountChange={(n) => handlePerkCountChange(item.id, n)} cost={`${item.cost} ${titles.points}`} layout="small" />
                      </ReferenceItemCard>
                 }

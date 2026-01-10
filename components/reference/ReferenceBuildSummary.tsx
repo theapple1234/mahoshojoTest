@@ -591,16 +591,16 @@ export const ReferenceBuildSummary: React.FC<ReferenceBuildSummaryProps> = ({
                         {type === 'companions' && (
                             <>
                                 {selections.powerLevelMap?.size > 0 && renderSpells(selections.powerLevelMap, labels.standardSpells, 'text-cyan-400', theme, ALL_SPELLS)}
-                                {selections.signaturePowerMap?.size > 0 && renderSpells(selections.signaturePowerMap, labels.signaturePowers, 'text-yellow-400', theme, ALL_SPELLS, selections.perks.get('signature_power'))}
+                                {selections.signaturePowerMap?.size > 0 && renderSpells(selections.signaturePowerMap, labels.signaturePowers, 'text-yellow-400', theme, ALL_SPELLS, selections.perks.get('signature_power') || 0)}
                                 {selections.specialWeaponMap?.size > 0 && renderSpells(selections.specialWeaponMap, labels.weaponEnchant, 'text-orange-400', theme, ALL_SPELLS)}
-                                {selections.darkMagicianMap?.size > 0 && renderSpells(selections.darkMagicianMap, labels.forbidden, 'text-purple-400', theme, ALL_SPELLS, selections.perks.get('dark_magician'))}
+                                {selections.darkMagicianMap?.size > 0 && renderSpells(selections.darkMagicianMap, labels.forbidden, 'text-purple-400', theme, ALL_SPELLS, selections.perks.get('dark_magician') || 0)}
                             </>
                         )}
                         {type === 'weapons' && selections.attunedSpellMap?.size > 0 && (
-                            renderSpells(selections.attunedSpellMap, labels.attuned, 'text-cyan-400', theme, ALL_SPELLS, selections.perks.get('attuned_spell'))
+                            renderSpells(selections.attunedSpellMap, labels.attuned, 'text-cyan-400', theme, ALL_SPELLS, selections.perks.get('attuned_spell') || 0)
                         )}
                         {type === 'beasts' && selections.magicalBeastMap?.size > 0 && (
-                            renderSpells(selections.magicalBeastMap, labels.instincts, 'text-green-400', theme, ALL_SPELLS, selections.magicalBeastCount)
+                            renderSpells(selections.magicalBeastMap, labels.instincts, 'text-green-400', theme, ALL_SPELLS, selections.magicalBeastCount || 0)
                         )}
                     </div>
 

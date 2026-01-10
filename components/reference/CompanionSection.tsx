@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import * as Constants from '../../constants';
 import type { CompanionSelections, CompanionOption } from '../../types';
@@ -136,11 +137,12 @@ export const CompanionSection: React.FC<{
     // Clean up Special Weapon if removed
     useEffect(() => {
         if (!selections.perks.has('special_weapon')) {
-            if (selections.specialWeaponName) {
+            // Check if either name or map has data, then clear
+            if (selections.specialWeaponName || (selections.specialWeaponMap && selections.specialWeaponMap.size > 0)) {
                 setSelections(prev => ({ ...prev, specialWeaponName: null, specialWeaponMap: new Set() }));
             }
         }
-    }, [selections.perks, selections.specialWeaponName, setSelections]);
+    }, [selections.perks, selections.specialWeaponName, selections.specialWeaponMap, setSelections]);
     
     // Dark Magician Logic: Validate Sinthru selections based on other spells
     useEffect(() => {

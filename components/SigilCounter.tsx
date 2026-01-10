@@ -1,9 +1,11 @@
+
 import React, { useState, useMemo } from 'react';
 import { 
     COMMON_SIGILS_DATA, COMMON_SIGILS_DATA_KO, 
     SPECIAL_SIGILS_DATA, SPECIAL_SIGILS_DATA_KO 
 } from '../constants';
 import { useCharacterContext } from '../context/CharacterContext';
+import { useLongPress } from '../hooks/useLongPress';
 
 interface SigilCounterProps {
   counts: { kaarn: number; purth: number; juathas: number; xuth: number; sinthru: number; lekolu: number; };
@@ -18,6 +20,62 @@ interface SigilCounterProps {
 // Custom order: Lekolu moved before Sinthru
 const SIGIL_DISPLAY_ORDER = ['kaarn', 'purth', 'juathas', 'xuth', 'lekolu', 'sinthru'];
 
+const SigilItem: React.FC<{
+    id: string;
+    sigil: any;
+    count: number;
+    isCommon: boolean;
+    isActive: boolean;
+    onAction: (id: string, action: 'buy' | 'sell') => void;
+    setActiveSpecialSigil: React.Dispatch<React.SetStateAction<string | null>>;
+}> = ({ id, sigil, count, isCommon, isActive, onAction, setActiveSpecialSigil }) => {
+
+    const handleBuy = () => {
+        if (isCommon) {
+            onAction(id, 'buy');
+            setActiveSpecialSigil(null);
+        } else {
+            setActiveSpecialSigil(prev => prev === id ? null : id);
+        }
+    };
+
+    const handleSell = () => {
+        if (isCommon) {
+            onAction(id, 'sell');
+        } else {
+             // For special sigils, selling/long press just closes the menu for now or does nothing special
+             // Maybe we can make it close the menu
+             setActiveSpecialSigil(null);
+        }
+    };
+    
+    // Hybrid Interaction
+    const longPressProps = useLongPress(
+        (e) => {
+           handleSell();
+           if (navigator.vibrate) navigator.vibrate(50);
+        },
+        (e) => {
+            handleBuy();
+        },
+        { shouldPreventDefault: true, delay: 500 }
+    );
+
+    return (
+        <div 
+            className={`
+                group flex items-center justify-between gap-3 p-2 rounded-lg transition-all cursor-pointer select-none active:scale-95
+                ${isActive ? 'bg-white/20 ring-1 ring-white/50' : 'hover:bg-white/10'}
+            `}
+            {...longPressProps}
+            onContextMenu={(e) => { e.preventDefault(); handleSell(); }}
+        >
+          <img src={sigil.imageSrc} alt={sigil.title} className="w-10 h-10 object-contain drop-shadow-md group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)] transition-all" />
+          <span className={`text-xl font-bold w-8 text-center ${count > 0 ? 'text-white' : 'text-gray-600'}`}>{count}</span>
+        </div>
+    );
+};
+
 export const SigilCounter: React.FC<SigilCounterProps> = ({ 
     counts, 
     onAction,
@@ -31,7 +89,6 @@ export const SigilCounter: React.FC<SigilCounterProps> = ({
 
   const isKo = language === 'ko';
   
-  // Select localized data
   const activeCommonData = isKo ? COMMON_SIGILS_DATA_KO : COMMON_SIGILS_DATA;
   const activeSpecialData = isKo ? SPECIAL_SIGILS_DATA_KO : SPECIAL_SIGILS_DATA;
   
@@ -40,28 +97,6 @@ export const SigilCounter: React.FC<SigilCounterProps> = ({
       ...activeSpecialData
   ], [activeCommonData, activeSpecialData]);
   
-  const handleItemClick = (e: React.MouseEvent, id: string, isCommon: boolean) => {
-    e.stopPropagation();
-    if (isCommon) {
-      onAction(id, 'buy');
-      setActiveSpecialSigil(null);
-    } else {
-      // Toggle popover for special sigils
-      setActiveSpecialSigil(prev => prev === id ? null : id);
-    }
-  };
-
-  const handleContextMenu = (e: React.MouseEvent, id: string, isCommon: boolean) => {
-    if (isCommon) {
-        e.preventDefault();
-        e.stopPropagation();
-        onAction(id, 'sell');
-    } else {
-        e.preventDefault();
-        setActiveSpecialSigil(null);
-    }
-  };
-
   const getSigilColor = (id: string) => {
       switch(id) {
           case 'xuth': return 'border-red-500 text-red-100';
@@ -105,6 +140,27 @@ export const SigilCounter: React.FC<SigilCounterProps> = ({
                       
                       const count = isLekolu ? (acquiredLekoluJobs?.get(option.id) || 0) : (isSelected ? 1 : 0);
 
+                      // Helper for interaction within popover
+                      const handleOptionClick = () => {
+                         if (!isLekolu && onSpecialSigilChoice) {
+                            onSpecialSigilChoice(activeSpecialSigil, option.id);
+                         } else if (isLekolu && onLekoluJobAction) {
+                            onLekoluJobAction(option.id, 'buy');
+                         }
+                      };
+
+                      const handleOptionSell = () => {
+                          if (isLekolu && onLekoluJobAction) {
+                              onLekoluJobAction(option.id, 'sell');
+                          } else if (!isLekolu && onSpecialSigilChoice && isSelected) {
+                              onSpecialSigilChoice(activeSpecialSigil, option.id);
+                          }
+                      }
+                      
+                      // Using simple onClick/onContextMenu for the popover items as they are distinct enough
+                      // But could wrap in useLongPress if needed. Sticking to simple for popover items for now to keep code clean
+                      // unless specifically requested. The main sigil list was the primary target.
+                      
                       return (
                           <div 
                             key={option.id}
@@ -112,21 +168,8 @@ export const SigilCounter: React.FC<SigilCounterProps> = ({
                                 relative p-2 rounded border transition-all cursor-pointer group flex gap-3
                                 ${isSelected ? 'bg-white/10 border-current' : 'bg-transparent border-white/10 hover:border-white/30'}
                             `}
-                            onClick={() => {
-                                if (!isLekolu && onSpecialSigilChoice) {
-                                    onSpecialSigilChoice(activeSpecialSigil, option.id);
-                                } else if (isLekolu && onLekoluJobAction) {
-                                    onLekoluJobAction(option.id, 'buy');
-                                }
-                            }}
-                            onContextMenu={(e) => {
-                                e.preventDefault();
-                                if (isLekolu && onLekoluJobAction) {
-                                    onLekoluJobAction(option.id, 'sell');
-                                } else if (!isLekolu && onSpecialSigilChoice && isSelected) {
-                                    onSpecialSigilChoice(activeSpecialSigil, option.id);
-                                }
-                            }}
+                            onClick={handleOptionClick}
+                            onContextMenu={(e) => { e.preventDefault(); handleOptionSell(); }}
                           >
                               <img src={option.imageSrc} alt="" className="w-16 h-16 object-cover rounded flex-shrink-0 bg-black/50" />
                               <div className="flex-grow min-w-0">
@@ -180,28 +223,23 @@ export const SigilCounter: React.FC<SigilCounterProps> = ({
           const isActive = activeSpecialSigil === id;
 
           return (
-            <div 
-                key={id} 
-                className={`
-                    group flex items-center justify-between gap-3 p-2 rounded-lg transition-all cursor-pointer select-none active:scale-95
-                    ${isActive ? 'bg-white/20 ring-1 ring-white/50' : 'hover:bg-white/10'}
-                `}
-                onClick={(e) => handleItemClick(e, id, isCommon)}
-                onContextMenu={(e) => handleContextMenu(e, id, isCommon)}
-                title={isKo 
-                    ? (isCommon ? "좌클릭: 구매 (+1) | 우클릭: 판매 (-1)" : "클릭하여 미션 메뉴 열기")
-                    : (isCommon ? "Left-Click: Buy (+1) | Right-Click: Sell (-1)" : "Click to Open Mission Menu")}
-            >
-              <img src={sigil.imageSrc} alt={sigil.title} className="w-10 h-10 object-contain drop-shadow-md group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)] transition-all" />
-              <span className={`text-xl font-bold w-8 text-center ${count > 0 ? 'text-white' : 'text-gray-600'}`}>{count}</span>
-            </div>
+            <SigilItem 
+                key={id}
+                id={id}
+                sigil={sigil}
+                count={count}
+                isCommon={isCommon}
+                isActive={isActive}
+                onAction={onAction}
+                setActiveSpecialSigil={setActiveSpecialSigil}
+            />
           );
         })}
       </div>
       <p className="text-[10px] text-gray-500 text-center mt-3 italic">
         {isKo 
-            ? <>좌클릭: 구매/메뉴<br/>우클릭: 판매/닫기</>
-            : <>L-Click: Buy/Menu<br/>R-Click: Sell/Close</>
+            ? <>좌클릭/탭: 구매<br/>우클릭/홀드: 판매</>
+            : <>L-Click/Tap: Buy<br/>R-Click/Hold: Sell</>
         }
       </p>
       

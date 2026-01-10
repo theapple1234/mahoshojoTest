@@ -1,5 +1,4 @@
 
-
 import React, { useState, useRef, useEffect } from 'react';
 import { useCharacterContext } from '../../context/CharacterContext';
 import { 
@@ -60,7 +59,7 @@ const FeatureCounterCard: React.FC<{
     const textShadow = shadowColor ? `0 0 2px ${shadowColor}` : 'none';
     const titleColor = shadowColor || 'white';
     
-    const descriptionClass = fontSize === 'large' ? 'text-sm' : 'text-xs';
+    const descriptionClass = fontSize === 'large' ? 'text-base' : 'text-sm';
 
     return (
         <div className={wrapperClass}>
@@ -123,7 +122,7 @@ const FeatureToggleCard: React.FC<{
     const textShadow = shadowColor ? `0 0 2px ${shadowColor}` : 'none';
     const titleColor = shadowColor || 'white';
     
-    const descriptionClass = fontSize === 'large' ? 'text-sm' : 'text-xs';
+    const descriptionClass = fontSize === 'large' ? 'text-base' : 'text-sm';
 
     const handleIconClick = (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -568,12 +567,12 @@ export const GraciousDefeatSection: React.FC = () => {
                             const textShadow = shadowColor ? `0 0 2px ${shadowColor}` : 'none';
                             const titleColor = shadowColor || 'white';
                             
-                            const descriptionClass = fontSize === 'large' ? 'text-sm' : 'text-xs';
+                            const descriptionClass = fontSize === 'large' ? 'text-base' : 'text-sm';
 
                             return (
                                 <div key={power.id} className={wrapperClass}>
                                     <img src={power.imageSrc} alt={power.title} className="w-full aspect-[3/2] rounded-md mb-4 object-cover" />
-                                    <h4 className="font-cinzel font-bold tracking-wider text-xl" style={{ textShadow, color: titleColor }}>{power.title}</h4>
+                                    <h4 className="font-cinzel font-bold tracking-wider text-2xl" style={{ textShadow, color: titleColor }}>{power.title}</h4>
                                     <div className="w-16 h-px bg-white/10 mx-auto my-2"></div>
                                     <p className={`${descriptionClass} text-gray-400 font-medium leading-relaxed flex-grow text-left whitespace-pre-wrap`} style={{ textShadow }}>{renderFormattedText(power.description)}</p>
                                     {boostedText && <BoostedEffectBox text={boostedText} />}
@@ -641,12 +640,12 @@ export const GraciousDefeatSection: React.FC = () => {
                             const textShadow = shadowColor ? `0 0 2px ${shadowColor}` : 'none';
                             const titleColor = shadowColor || 'white';
                             
-                            const descriptionClass = fontSize === 'large' ? 'text-sm' : 'text-xs';
+                            const descriptionClass = fontSize === 'large' ? 'text-base' : 'text-sm';
 
                             return (
                                 <div key={power.id} className={wrapperClass}>
                                     <img src={power.imageSrc} alt={power.title} className="w-full aspect-[3/2] rounded-md mb-4 object-cover" />
-                                    <h4 className="font-cinzel font-bold tracking-wider text-xl" style={{ textShadow, color: titleColor }}>{power.title}</h4>
+                                    <h4 className="font-cinzel font-bold tracking-wider text-2xl" style={{ textShadow, color: titleColor }}>{power.title}</h4>
                                     <div className="w-16 h-px bg-white/10 mx-auto my-2"></div>
                                     <p className={`${descriptionClass} text-gray-400 font-medium leading-relaxed flex-grow text-left whitespace-pre-wrap`} style={{ textShadow }}>{renderFormattedText(power.description)}</p>
                                     {boostedText && <BoostedEffectBox text={boostedText} />}

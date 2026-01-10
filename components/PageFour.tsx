@@ -13,6 +13,7 @@ import { CompanionSelectionModal } from './SigilTreeOptionCard';
 import { BeastSelectionModal } from './BeastSelectionModal';
 import { VehicleSelectionModal } from './VehicleSelectionModal';
 import { WeaponSelectionModal } from './WeaponSelectionModal';
+import { useLongPress } from '../hooks/useLongPress';
 
 interface RuneCounterProps {
   ruhaiCount: number;
@@ -34,19 +35,32 @@ const RuneCounter: React.FC<RuneCounterProps> = ({ ruhaiCount, availableMialgrat
     }
   };
 
-  const handleInteraction = (e: React.MouseEvent, id: 'ruhai' | 'mialgrath', type: 'buy' | 'sell') => {
-      e.stopPropagation();
-      e.preventDefault();
-      onAction(id, type);
+  const createHybridHandler = (id: 'ruhai' | 'mialgrath') => {
+      const handleBuy = () => onAction(id, 'buy');
+      const handleSell = () => onAction(id, 'sell');
+
+      const longPressProps = useLongPress(
+          () => { handleSell(); if (navigator.vibrate) navigator.vibrate(50); },
+          () => { handleBuy(); },
+          { shouldPreventDefault: true, delay: 500 }
+      );
+
+      return {
+          ...longPressProps,
+          onContextMenu: (e: React.MouseEvent) => { e.preventDefault(); handleSell(); }
+      };
   };
+
+  const ruhaiHandlers = createHybridHandler('ruhai');
+  const mialgrathHandlers = createHybridHandler('mialgrath');
 
   const headerClass = language === 'ko' 
       ? "font-cinzel text-lg font-bold text-amber-500 mb-4 text-center tracking-[0.2em] border-b border-amber-900/30 pb-2"
-      : "font-cinzel text-xs text-amber-500 mb-4 text-center tracking-[0.2em] border-b border-amber-900/30 pb-2";
+      : "font-cinzel text-lg text-amber-500 mb-4 text-center tracking-[0.2em] border-b border-amber-900/30 pb-2";
 
   return (
     <div
-      className="fixed top-1/2 right-0 -translate-y-1/2 bg-black/80 backdrop-blur-md p-4 rounded-l-xl border-l border-t border-b border-amber-900/50 z-50 group cursor-pointer transition-all hover:border-amber-500/70 hover:shadow-[0_0_20px_rgba(245,158,11,0.2)] select-none"
+      className="fixed top-1/2 right-0 -translate-y-1/2 bg-black/80 backdrop-blur-md p-4 rounded-l-xl border-l border-t border-b border-amber-900/50 z-50 group cursor-pointer transition-all hover:border-amber-500/70 hover:shadow-[0_0_20px_rgba(245,158,11,0.2)] select-none min-w-[140px]"
       onClick={handleScroll}
       role="button"
       tabIndex={0}
@@ -56,28 +70,27 @@ const RuneCounter: React.FC<RuneCounterProps> = ({ ruhaiCount, availableMialgrat
       <h4 className={headerClass}>
           {language === 'ko' ? "룬" : "RUNES"}
       </h4>
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-2">
         <div 
-            className="flex items-center justify-between gap-4 group/item cursor-pointer hover:bg-white/5 rounded p-1"
-            onClick={(e) => handleInteraction(e, 'ruhai', 'buy')}
-            onContextMenu={(e) => handleInteraction(e, 'ruhai', 'sell')}
-            title="L-Click: Buy | R-Click: Sell"
+            className="flex items-center justify-between gap-3 group/item cursor-pointer hover:bg-white/10 rounded-lg p-2 active:scale-95 transition-all"
+            {...ruhaiHandlers}
         >
-          <img src={ruhaiMeta.imageSrc} alt={ruhaiMeta.title} className="w-8 h-8 object-contain opacity-80 group-hover/item:opacity-100 transition-opacity" />
+          <img src={ruhaiMeta.imageSrc} alt={ruhaiMeta.title} className="w-10 h-10 object-contain drop-shadow-md group-hover/item:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)] transition-all" />
           <span className="font-mono text-xl font-bold text-amber-100 w-8 text-center">{ruhaiCount}</span>
         </div>
         <div 
-            className="flex items-center justify-between gap-4 group/item cursor-pointer hover:bg-white/5 rounded p-1"
-            onClick={(e) => handleInteraction(e, 'mialgrath', 'buy')}
-            onContextMenu={(e) => handleInteraction(e, 'mialgrath', 'sell')}
-            title="L-Click: Buy | R-Click: Sell"
+            className="flex items-center justify-between gap-3 group/item cursor-pointer hover:bg-white/10 rounded-lg p-2 active:scale-95 transition-all"
+            {...mialgrathHandlers}
         >
-          <img src={mialgrathMeta.imageSrc} alt={mialgrathMeta.title} className="w-8 h-8 object-contain opacity-80 group-hover/item:opacity-100 transition-opacity" />
+          <img src={mialgrathMeta.imageSrc} alt={mialgrathMeta.title} className="w-10 h-10 object-contain drop-shadow-md group-hover/item:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)] transition-all" />
           <span className="font-mono text-xl font-bold text-amber-100 w-8 text-center">{availableMialgrathCount}</span>
         </div>
       </div>
-      <p className="text-[9px] text-gray-500 text-center mt-2 italic">
-          {language === 'ko' ? "좌클릭: 구매\n우클릭: 판매" : "L-Click: Buy\nR-Click: Sell"}
+      <p className="text-[10px] text-gray-500 text-center mt-3 italic leading-relaxed">
+          {language === 'ko' 
+            ? <>좌클릭/탭: 구매<br/>우클릭/홀드: 판매</> 
+            : <>L-Click/Tap: Buy<br/>R-Click/Hold: Sell</>
+          }
       </p>
     </div>
   );
@@ -97,21 +110,24 @@ const RuneCard: React.FC<RuneCardProps> = ({ rune, count, onAction, onAnimate, f
   const { cost, description, imageSrc, title } = rune;
   const imgRef = useRef<HTMLImageElement>(null);
 
-  const handleBuy = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleBuy = () => {
     onAction('buy');
     if (imgRef.current) {
       onAnimate(imgRef.current.getBoundingClientRect());
     }
   };
 
-  const handleSell = (e: React.MouseEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
+  const handleSell = () => {
       if (count > 0) {
           onAction('sell');
       }
   };
+
+  const longPressProps = useLongPress(
+      () => { handleSell(); if (navigator.vibrate) navigator.vibrate(50); },
+      () => { handleBuy(); },
+      { shouldPreventDefault: true, delay: 500 }
+  );
 
   const isMialgrath = rune.id === 'mialgrath';
   const glowColor = isMialgrath ? 'rgba(34, 211, 238, 0.4)' : 'rgba(245, 158, 11, 0.4)';
@@ -126,8 +142,8 @@ const RuneCard: React.FC<RuneCardProps> = ({ rune, count, onAction, onAnimate, f
   return (
     <div 
       className={`group relative flex flex-col items-center text-center p-6 transition-all duration-500 ease-in-out bg-black/60 rounded-xl h-full border backdrop-blur-sm ${borderColor} ${hoverBorderColor} cursor-pointer select-none`}
-      onClick={handleBuy}
-      onContextMenu={handleSell}
+      {...longPressProps}
+      onContextMenu={(e) => { e.preventDefault(); handleSell(); }}
       role="button"
       aria-label={`Buy ${title} (Right click to sell). Current count: ${count}`}
     >
@@ -158,7 +174,7 @@ const RuneCard: React.FC<RuneCardProps> = ({ rune, count, onAction, onAnimate, f
       
        <div className="mt-4 w-full pt-4 border-t border-gray-800">
          <p className="text-[10px] text-gray-600 uppercase tracking-widest font-mono">
-            {language === 'ko' ? "좌클릭: 획득 • 우클릭: 판매" : "Left Click: Acquire • Right Click: Sell"}
+            {language === 'ko' ? "좌클릭/탭: 획득 • 우클릭/홀드: 판매" : "L-Click/Tap: Acquire • R-Click/Hold: Sell"}
          </p>
       </div>
     </div>

@@ -273,11 +273,11 @@ export const LostBlessingPage: React.FC<LostBlessingPageProps> = ({ enableEntran
 
                                     {/* Content */}
                                     <div className="p-5 flex-grow flex flex-col">
-                                        <h3 className={`font-cinzel text-lg font-bold text-center tracking-widest mb-3 ${isSelected ? 'text-purple-300' : 'text-gray-200'}`}>
+                                        <h3 className={`font-cinzel text-[1.4rem] font-bold text-center tracking-widest mb-3 ${isSelected ? 'text-purple-300' : 'text-gray-200'}`}>
                                             {power.title}
                                         </h3>
                                         <div className="w-12 h-px bg-purple-500/30 mx-auto mb-4"></div>
-                                        <p className={`${fontSize === 'large' ? 'text-sm' : 'text-xs'} text-gray-400 leading-relaxed text-justify font-light`}>
+                                        <p className={`${fontSize === 'large' ? 'text-base' : 'text-sm'} text-gray-400 leading-relaxed text-justify font-light`}>
                                             {renderFormattedText(power.description)}
                                         </p>
                                     </div>

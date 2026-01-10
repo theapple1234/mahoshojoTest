@@ -82,7 +82,7 @@ export const ChoiceCard = React.memo<ChoiceCardProps>(({
     item, isSelected, onSelect, disabled = false, selectionColor = 'cyan', layout = 'vertical', 
     imageShape = 'rect', aspect, assignedColors = [], noBorder = false, children, 
     alwaysShowChildren = false, onIconButtonClick, iconButton, imageRounding = 'lg', 
-    objectFit, descriptionColor = 'text-gray-400', textScale = 1, descriptionSizeClass, imageAspectRatio,
+    objectFit, descriptionColor = 'text-gray-200', textScale = 1, descriptionSizeClass, imageAspectRatio,
     hideImageBorder = false, imagePaddingTop = false
 }) => {
   const { id, title, cost, description, imageSrc } = item;
@@ -102,9 +102,9 @@ export const ChoiceCard = React.memo<ChoiceCardProps>(({
           
           return parts.map((part, i) => {
               const upper = part.trim().toUpperCase();
-              let colorClass = 'text-gray-500';
-              if (upper === 'COSTS') { colorClass = "text-gray-400 font-bold uppercase text-[10px] tracking-wider"; lastType = 'costs'; }
-              else if (upper === 'GRANTS') { colorClass = "text-gray-400 font-bold uppercase text-[10px] tracking-wider"; lastType = 'grants'; }
+              let colorClass = 'text-gray-200';
+              if (upper === 'COSTS') { colorClass = "text-gray-200 font-bold uppercase text-[0.85rem] tracking-wider"; lastType = 'costs'; }
+              else if (upper === 'GRANTS') { colorClass = "text-gray-200 font-bold uppercase text-[0.85rem] tracking-wider"; lastType = 'grants'; }
               else if (upper.includes('FP') || upper === 'FREE') colorClass = "text-green-400 font-bold shadow-black drop-shadow-sm";
               else if (upper.includes('BP')) colorClass = "font-bold text-fuchsia-300 drop-shadow-[0_0_3px_rgba(216,180,254,0.6)]";
               else if (upper.includes('VARIES')) colorClass = "text-yellow-400 font-bold";
@@ -141,7 +141,7 @@ export const ChoiceCard = React.memo<ChoiceCardProps>(({
                    if (trimmed === ',') sep = ', ';
                    else if (trimmed.toLowerCase() === 'and') sep = ', ';
                    else if (trimmed.toLowerCase() === 'or') sep = ' 또는 ';
-                   return <span key={i} className="text-gray-500 mx-1">{sep}</span>;
+                   return <span key={i} className="text-gray-200 mx-1">{sep}</span>;
                }
                
                return null;
@@ -149,7 +149,7 @@ export const ChoiceCard = React.memo<ChoiceCardProps>(({
       };
 
       return (
-          <div className="text-[11px] mt-1.5 mb-0.5 bg-black/40 px-2 py-1 rounded-md border border-white/5 inline-block">
+          <div className="text-[0.85rem] mt-1.5 mb-0.5 bg-black/40 px-2 py-1 rounded-md border border-white/5 inline-block">
               {language === 'ko' ? parseKorean() : parseEnglish()}
           </div>
       );
@@ -195,12 +195,12 @@ export const ChoiceCard = React.memo<ChoiceCardProps>(({
         </div>
         
         <div className="flex flex-col justify-center p-3 flex-grow relative z-10">
-             <h4 className={`font-cinzel font-bold text-sm leading-tight transition-colors ${isSelected ? theme.textSelected : 'text-gray-200 group-hover:text-white'}`}>
+             <h4 className={`font-cinzel font-bold text-[1.2rem] leading-tight transition-colors ${isSelected ? theme.textSelected : 'text-gray-200 group-hover:text-white'}`}>
                 <span style={textScale !== 1 ? { fontSize: `${textScale * 100}%` } : undefined}>{title}</span>
             </h4>
             {cost && renderCost(cost)}
             <div className="h-px w-full bg-white/10 my-2"></div>
-            <p className="text-xs text-gray-400 leading-relaxed font-sans">{renderFormattedText(description)}</p>
+            <p className="text-xs text-gray-200 leading-relaxed font-sans">{renderFormattedText(description)}</p>
             {(isSelected || alwaysShowChildren) && children && <div className="mt-2 pt-2 border-t border-white/10 w-full">{children}</div>}
         </div>
       </div>
@@ -234,11 +234,11 @@ export const ChoiceCard = React.memo<ChoiceCardProps>(({
         </div>
         
         <div className="flex flex-col justify-center min-w-0 relative z-10">
-          <h4 className={`font-cinzel font-bold text-sm truncate pr-2 transition-colors ${isSelected ? theme.textSelected : 'text-gray-200 group-hover:text-white'}`}>
+          <h4 className={`font-cinzel font-bold text-[1rem] truncate pr-2 transition-colors ${isSelected ? theme.textSelected : 'text-gray-200 group-hover:text-white'}`}>
               <span style={textScale !== 1 ? { fontSize: `${textScale * 100}%` } : undefined}>{title}</span>
           </h4>
           {cost && renderCost(cost)}
-          <p className="text-[10px] text-gray-400 leading-tight mt-1 line-clamp-3">{renderFormattedText(description)}</p>
+          <p className="text-[0.95rem] text-gray-200 leading-tight mt-1 line-clamp-3">{renderFormattedText(description)}</p>
            {(isSelected || alwaysShowChildren) && children && <div className="mt-2">{children}</div>}
         </div>
       </div>
@@ -286,7 +286,7 @@ export const ChoiceCard = React.memo<ChoiceCardProps>(({
 
       {/* Content */}
       <div className="flex flex-col flex-grow relative z-10 px-1">
-        <h4 className={`font-cinzel font-bold text-center leading-tight transition-all duration-300 ${description ? 'text-sm mb-1' : 'text-xs'} ${isSelected ? `${theme.textSelected} ${theme.titleGlow}` : 'text-gray-200 group-hover:text-white'}`}>
+        <h4 className={`font-cinzel font-bold text-center leading-tight transition-all duration-300 ${description ? 'text-[1.4rem] mb-1' : 'text-[1.4rem]'} ${isSelected ? `${theme.textSelected} ${theme.titleGlow}` : 'text-gray-200 group-hover:text-white'}`}>
              <span style={textScale !== 1 ? { fontSize: `${textScale * 100}%` } : undefined}>{title}</span>
         </h4>
         
@@ -295,7 +295,7 @@ export const ChoiceCard = React.memo<ChoiceCardProps>(({
         {description && aspect !== 'square' && (
              <>
                 <div className={`h-px w-12 mx-auto my-2 transition-all duration-500 ${isSelected ? 'bg-white/30 w-full' : 'bg-white/10 group-hover:w-24'}`}></div>
-                <p className={`${descriptionSizeClass || 'text-[10px]'} leading-relaxed text-gray-400 ${isCircle ? 'text-center' : 'text-left'} flex-grow font-sans`}>
+                <p className={`${descriptionSizeClass || 'text-[0.95rem]'} leading-relaxed text-gray-200 ${isCircle ? 'text-center' : 'text-left'} flex-grow font-sans`}>
                     {renderFormattedText(description)}
                 </p>
              </>
