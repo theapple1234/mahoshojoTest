@@ -11,7 +11,14 @@ export interface LivingInhabitant {
 }
 
 const getSigilTypeFromImage = (imageSrc: string): keyof SigilCounts | null => {
-    const sigilImageMap: {[key: string]: keyof SigilCounts} = { 'kaarn.png': 'kaarn', 'purth.png': 'purth', 'juathas.png': 'juathas', 'xuth.png': 'xuth', 'sinthru.png': 'sinthru', 'lekolu.png': 'lekolu' };
+    const sigilImageMap: {[key: string]: string} = { 
+    'kaarn.webp': 'kaarn', 
+    'purth.webp': 'purth', 
+    'juathas.webp': 'juathas', 
+    'xuth.webp': 'xuth', 
+    'sinthru.webp': 'sinthru', 
+    'lekolu.webp': 'lekolu' 
+};
     for (const key in sigilImageMap) { if (imageSrc.endsWith(key)) { return sigilImageMap[key]; } }
     return null;
 }

@@ -19,7 +19,14 @@ import { BeastSelectionModal } from '../BeastSelectionModal';
 import { CurseEncyclopediaModal } from '../CurseEncyclopediaModal';
 
 
-const sigilImageMap: {[key: string]: string} = { 'kaarn.png': 'kaarn', 'purth.png': 'purth', 'juathas.png': 'juathas', 'xuth.png': 'xuth', 'sinthru.png': 'sinthru', 'lekolu.png': 'lekolu' };
+const sigilImageMap: {[key: string]: string} = { 
+    'kaarn.webp': 'kaarn', 
+    'purth.webp': 'purth', 
+    'juathas.webp': 'juathas', 
+    'xuth.webp': 'xuth', 
+    'sinthru.webp': 'sinthru', 
+    'lekolu.webp': 'lekolu' 
+};
 const getSigilTypeFromImage = (imageSrc: string): string | null => {
     for (const key in sigilImageMap) { if (imageSrc.endsWith(key)) { return sigilImageMap[key]; } }
     return null;

@@ -196,7 +196,7 @@ const CustomSpellInput: React.FC<{
                      <div className="relative">
                          <div className="flex items-center gap-2">
                             <span className="text-[10px] text-gray-400 font-mono tracking-tight hidden sm:inline-block">
-                                {language === 'ko' ? "참고 페이지 연결:" : "Link Reference:"}
+                                {language === 'ko' ? "참고 빌드 연결:" : "Link Reference:"}
                             </span>
                             <button 
                                 onClick={() => setIsAssignOpen(!isAssignOpen)}

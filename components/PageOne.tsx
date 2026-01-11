@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useCharacterContext } from '../context/CharacterContext';
 import { 
@@ -869,7 +868,7 @@ export const PageOne: React.FC = () => {
                             isSelected={selectedBuildTypeId === buildType.id} 
                             onSelect={handleBuildTypeSelect}
                             textScale={fontSize === 'large' ? 1.25 : 1}
-                            descriptionSizeClass={fontSize === 'large' ? 'text-sm' : undefined}
+                            descriptionSizeClass={fontSize === 'large' ? 'text-base' : undefined}
                         />
                     ))}
                 </div>
