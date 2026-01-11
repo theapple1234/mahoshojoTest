@@ -53,31 +53,29 @@ const RuneCard: React.FC<{
 
     return (
         <div 
-            className="group flex flex-col md:flex-row items-center p-6 bg-black/40 rounded-lg border border-gray-700 hover:border-gray-500 transition-all select-none active:scale-[0.99] cursor-pointer"
+            className="group flex flex-col items-center p-6 bg-black/40 rounded-lg border border-gray-700 hover:border-gray-500 transition-all select-none active:scale-[0.99] cursor-pointer h-full"
             style={{ boxShadow: `0 0 15px ${glowColor}10` }}
             {...longPressProps}
             onContextMenu={(e) => { e.preventDefault(); handleSell(); }}
         >
-             <div className="flex-shrink-0 mb-4 md:mb-0 md:mr-6 relative">
+             <div className="flex-shrink-0 mb-6 relative">
                  <img 
                     ref={imgRef}
                     src={rune.imageSrc} 
                     alt={rune.title} 
                     className="w-32 h-32 object-contain filter drop-shadow-lg transition-transform group-hover:scale-105"
                  />
-                 <div className="absolute -top-2 -right-2 bg-gray-900 border border-gray-600 rounded-full w-8 h-8 flex items-center justify-center text-white font-bold text-sm shadow-lg">
-                     {count}
-                 </div>
              </div>
-             <div className="flex-grow text-center md:text-left">
+             <div className="flex-grow text-center">
                  <h3 className="font-cinzel text-2xl font-bold text-white mb-2 tracking-wider" style={{ textShadow: `0 0 5px ${glowColor}` }}>{rune.title}</h3>
                  <p className="text-xs font-bold mb-3 italic" style={{ color: glowColor }}>{rune.cost}</p>
                  <div className={`${descriptionClass} text-gray-300 leading-relaxed`}>
                      {renderFormattedText(rune.description)}
                  </div>
-                  <div className="mt-4 pt-4 border-t border-gray-700/50 flex justify-between items-center text-[10px] text-gray-500 font-mono uppercase">
-                     <span>{language === 'ko' ? "좌클릭: 구매" : "L-Click: Buy"}</span>
-                     <span>{language === 'ko' ? "우클릭: 판매" : "R-Click: Sell"}</span>
+                  <div className="mt-4 pt-4 border-t border-gray-700/50 w-full text-center">
+                     <p className="text-[10px] text-gray-500 font-mono uppercase tracking-tight">
+                        {language === 'ko' ? "좌클릭/탭: 구매 • 우클릭/홀드: 판매" : "L-Click/Tap: Buy • R-Click/Hold: Sell"}
+                     </p>
                  </div>
              </div>
         </div>
@@ -139,13 +137,14 @@ const CustomSpellInput: React.FC<{
     spell, index, onDescriptionChange, onMialgrathToggle, onMialgrathDescriptionChange, 
     canApplyMialgrath, onOpenAssignment, onClearAssignment, showKpButton, onToggleKp, language, mialgrathImageSrc 
 }) => {
+    const [isAssignOpen, setIsAssignOpen] = useState(false);
     
     return (
         <div className="bg-black/40 border border-gray-700 rounded-lg p-4 flex flex-col gap-3 relative group">
              <div className="flex justify-between items-center mb-1">
                  <div className="flex items-center gap-2">
                     <span className="font-cinzel text-amber-500 font-bold text-lg">#{index + 1}</span>
-                    <span className="text-xs text-gray-500 uppercase tracking-widest">{language === 'ko' ? "커스텀 주문" : "Custom Spell"}</span>
+                    <span className="text-base text-white font-bold uppercase tracking-widest">{language === 'ko' ? "커스텀 주문" : "Custom Spell"}</span>
                     {spell.isRuhaiKpPaid && (
                         <span className="bg-pink-600 text-white text-[9px] px-1.5 py-0.5 rounded font-bold ml-2">KP</span>
                     )}
@@ -194,31 +193,47 @@ const CustomSpellInput: React.FC<{
                  
                  {/* Assignments Dropdown */}
                  {spell.mialgrathApplied && (
-                     <div className="relative group/assign">
-                         <button className="text-[10px] text-gray-400 hover:text-white flex items-center gap-1 transition-colors">
-                             {spell.assignedEntityName ? (
-                                 <span className="text-green-400 font-bold">{spell.assignedEntityName}</span>
-                             ) : (
-                                 <span>{language === 'ko' ? "할당..." : "Assign..."}</span>
-                             )}
-                             <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-                         </button>
-                         
-                         <div className="absolute bottom-full right-0 mb-2 w-32 bg-gray-900 border border-gray-600 rounded shadow-xl hidden group-hover/assign:block z-20">
-                             {['companion', 'beast', 'vehicle', 'weapon'].map(type => (
-                                 <button 
-                                    key={type}
-                                    onClick={() => onOpenAssignment(spell.id, type as any)}
-                                    className="w-full text-left px-3 py-2 text-[10px] text-gray-300 hover:bg-gray-800 hover:text-white uppercase tracking-wider first:rounded-t last:rounded-b"
-                                 >
-                                     {language === 'ko' ? (type === 'companion' ? '동료' : type === 'beast' ? '동물' : type === 'vehicle' ? '탈것' : '무기') : type}
-                                 </button>
-                             ))}
-                             <div className="border-t border-gray-700"></div>
-                             <button onClick={() => onClearAssignment(spell.id)} className="w-full text-left px-3 py-2 text-[10px] text-red-400 hover:bg-red-900/20 uppercase tracking-wider rounded-b">
-                                 {language === 'ko' ? "해제" : "Clear"}
-                             </button>
+                     <div className="relative">
+                         <div className="flex items-center gap-2">
+                            <span className="text-[10px] text-gray-400 font-mono tracking-tight hidden sm:inline-block">
+                                {language === 'ko' ? "참고 페이지 연결:" : "Link Reference:"}
+                            </span>
+                            <button 
+                                onClick={() => setIsAssignOpen(!isAssignOpen)}
+                                className="text-[10px] text-gray-300 hover:text-white flex items-center gap-1 transition-colors px-2 py-1 bg-black/40 border border-gray-600 rounded hover:border-cyan-500"
+                            >
+                                {spell.assignedEntityName ? (
+                                    <span className="text-green-400 font-bold max-w-[100px] truncate">{spell.assignedEntityName}</span>
+                                ) : (
+                                    <span className="italic opacity-70">{language === 'ko' ? "선택..." : "Select..."}</span>
+                                )}
+                                <svg className={`w-3 h-3 transition-transform ${isAssignOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                            </button>
                          </div>
+                         
+                         {isAssignOpen && (
+                             <>
+                                 <div className="fixed inset-0 z-10" onClick={() => setIsAssignOpen(false)}></div>
+                                 <div className="absolute bottom-full right-0 mb-2 w-32 bg-gray-900 border border-gray-600 rounded shadow-xl z-20 animate-fade-in-up">
+                                     {['companion', 'beast', 'vehicle', 'weapon'].map(type => (
+                                         <button 
+                                            key={type}
+                                            onClick={() => { onOpenAssignment(spell.id, type as any); setIsAssignOpen(false); }}
+                                            className="w-full text-left px-3 py-2 text-[10px] text-gray-300 hover:bg-gray-800 hover:text-white uppercase tracking-wider first:rounded-t last:rounded-b border-b border-gray-700 last:border-0"
+                                         >
+                                             {language === 'ko' ? (type === 'companion' ? '동료' : type === 'beast' ? '동물' : type === 'vehicle' ? '탈것' : '무기') : type}
+                                         </button>
+                                     ))}
+                                     <div className="border-t border-gray-600"></div>
+                                     <button 
+                                        onClick={() => { onClearAssignment(spell.id); setIsAssignOpen(false); }} 
+                                        className="w-full text-left px-3 py-2 text-[10px] text-red-400 hover:bg-red-900/20 uppercase tracking-wider rounded-b"
+                                    >
+                                         {language === 'ko' ? "해제" : "Clear"}
+                                     </button>
+                                 </div>
+                             </>
+                         )}
                      </div>
                  )}
              </div>

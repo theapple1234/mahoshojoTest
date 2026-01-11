@@ -21,38 +21,38 @@ export type Cost = { fp: number; bp: number };
 
 export const parseCost = (costString: string): Cost => {
   const cost: Cost = { fp: 0, bp: 0 };
-  if (!costString || costString.toLowerCase().includes('free') || costString.toLowerCase().includes('costs 0') || costString.toLowerCase().includes('variable')) {
+  if (!costString) return cost;
+  
+  const lowerStr = costString.toLowerCase();
+  if (lowerStr.includes('free') || lowerStr.includes('costs 0') || lowerStr.includes('variable') || lowerStr.includes('costs varies') || lowerStr.includes('소모값 변동')) {
     return cost;
   }
   
-  const isGrant = costString.toLowerCase().startsWith('grants');
-  
   let processedString = costString;
-  if (costString.toLowerCase().includes('or')) {
+  if (lowerStr.includes('or')) {
     processedString = costString.split(/or/i)[0];
   }
 
-  processedString = processedString.replace(/use (-?\d+)/, '$1');
+  processedString = processedString.replace(/use\s+(-?\d+)/gi, '$1');
   
-  const fpMatch = processedString.match(/(-?\d+)\s*FP/i);
-  if (fpMatch) {
-    let value = parseInt(fpMatch[1], 10);
-    if (isGrant) {
-      cost.fp = -Math.abs(value);
-    } else {
-      cost.fp = Math.abs(value);
-    }
-  }
+  const parts = processedString.split(',');
 
-  const bpMatch = processedString.match(/(-?\d+)\s*BP/i);
-  if (bpMatch) {
-    let value = parseInt(bpMatch[1], 10);
-    if (isGrant) {
-      cost.bp = -Math.abs(value);
-    } else {
-      cost.bp = Math.abs(value);
+  parts.forEach(part => {
+    const lowerPart = part.toLowerCase();
+    const isGrant = lowerPart.includes('grants') || lowerPart.includes('제공');
+
+    const fpMatch = part.match(/(-?\d+)\s*FP/i);
+    if (fpMatch) {
+      let value = parseInt(fpMatch[1], 10);
+      cost.fp += isGrant ? -Math.abs(value) : Math.abs(value);
     }
-  }
+
+    const bpMatch = part.match(/(-?\d+)\s*BP/i);
+    if (bpMatch) {
+      let value = parseInt(bpMatch[1], 10);
+      cost.bp += isGrant ? -Math.abs(value) : Math.abs(value);
+    }
+  });
   
   return cost;
 };

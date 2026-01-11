@@ -1,9 +1,10 @@
-
 import React, { useEffect } from 'react';
-import { HOUSES_DATA, HOUSE_UPGRADES_DATA, DOMINIONS, HOUSES_DATA_KO, HOUSE_UPGRADES_DATA_KO, DOMINIONS_KO } from '../constants';
-import type { MovingOutHome } from '../types';
+import { HOUSES_DATA, HOUSE_UPGRADES_DATA, DOMINIONS, DOMINIONS_KO, HOUSES_DATA_KO, HOUSE_UPGRADES_DATA_KO } from '../constants';
+import type { VacationHome } from '../types';
 import { useCharacterContext } from '../context/CharacterContext';
+import { BeastSelectionModal } from './BeastSelectionModal';
 
+// Fix: Renamed interface from VacationHomeModalProps to MovingOutModalProps to match usage below
 interface MovingOutModalProps {
     onClose: () => void;
 }
@@ -257,6 +258,10 @@ export const MovingOutModal: React.FC<MovingOutModalProps> = ({ onClose }) => {
                                                     if (isCurrentNegative && otherNegativeSelected) {
                                                         isDisabled = true;
                                                     }
+                                                    
+                                                    // Determine if we should show "Free"
+                                                    // Negative upgrades grant points, so they shouldn't be marked as free even on free slots
+                                                    const shouldShowFree = (isFirst || home.isInherited) && !isCurrentNegative;
 
                                                     return (
                                                         <div 
@@ -271,10 +276,10 @@ export const MovingOutModal: React.FC<MovingOutModalProps> = ({ onClose }) => {
                                                             <img src={upgrade.imageSrc} alt={upgrade.title} className="w-full h-32 object-contain mb-2 rounded" />
                                                             
                                                             <div className="text-xs font-bold text-gray-200 mb-1 leading-tight">{upgrade.title}</div>
-                                                            <div className={`text-[10px] ${isFirst || home.isInherited ? 'text-green-400/70 line-through' : 'text-green-400 font-bold'}`}>
+                                                            <div className={`text-[10px] ${shouldShowFree ? 'text-green-400/70 line-through' : 'text-green-400 font-bold'}`}>
                                                                 {formatCost(upgrade.cost)}
                                                             </div>
-                                                            {(isFirst || home.isInherited) && <div className="text-green-400 font-bold text-[10px] uppercase">{language === 'ko' ? "무료" : "Free"}</div>}
+                                                            {shouldShowFree && <div className="text-green-400 font-bold text-[10px] uppercase">{language === 'ko' ? "무료" : "Free"}</div>}
                                                             
                                                             {showCostToggle && (
                                                                 <div className="flex justify-center gap-2 mt-2 w-full" onClick={(e) => e.stopPropagation()}>

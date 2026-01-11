@@ -53,9 +53,9 @@ export const useCostCalculation = ({
             if (!costStr) return;
             const { fp, bp } = parseCost(costStr);
             // parseCost returns positive for costs (if "Costs ...") and negative for grants (if "Grants ...")
-            // wait, looking at utils.ts parseCost implementation:
-            // if "Grants", it returns negative values. If "Costs", positive values.
-            // So if fp is negative (grant), we add to Gained. If positive (cost), we add to Spent.
+            // utils.ts parseCost logic: 
+            // - Grants return negative values
+            // - Costs return positive values
             
             if (fp < 0) fpGained += Math.abs(fp);
             else fpSpent += fp;
@@ -147,17 +147,26 @@ export const useCostCalculation = ({
         pageOneState.selectedMagicalStyles.forEach(sId => processCost(Constants.MAGICAL_STYLES_DATA.find(i => i.id === sId)?.cost));
 
         // --- PAGE 2 ---
+        
+        // Headmaster (Always calculate)
+        processCost(Constants.HEADMASTERS_DATA.find(i => i.id === pageTwoState.selectedHeadmasterId)?.cost);
+        
+        // Teachers (Always calculate)
+        pageTwoState.selectedTeacherIds.forEach(tId => processCost(Constants.TEACHERS_DATA.find(i => i.id === tId)?.cost));
+        
+        // Duration (Always calculate)
+        processCost(Constants.DURATION_DATA.find(i => i.id === pageTwoState.selectedDurationId)?.cost);
+        
+        // Clubs (Always calculate)
+        pageTwoState.selectedClubIds.forEach(cId => processCost(Constants.CLUBS_DATA.find(i => i.id === cId)?.cost));
+        
+        // Misc Activities (Always calculate)
+        pageTwoState.selectedMiscActivityIds.forEach(aId => {
+            if (aId !== 'mentor') processCost(Constants.MISC_ACTIVITIES_DATA.find(i => i.id === aId)?.cost);
+        });
+        
+        // Classmates - Restricted to Single Player
         if (!pageOneState.isMultiplayer) {
-            processCost(Constants.HEADMASTERS_DATA.find(i => i.id === pageTwoState.selectedHeadmasterId)?.cost);
-            pageTwoState.selectedTeacherIds.forEach(tId => processCost(Constants.TEACHERS_DATA.find(i => i.id === tId)?.cost));
-            processCost(Constants.DURATION_DATA.find(i => i.id === pageTwoState.selectedDurationId)?.cost);
-            pageTwoState.selectedClubIds.forEach(cId => processCost(Constants.CLUBS_DATA.find(i => i.id === cId)?.cost));
-            
-            pageTwoState.selectedMiscActivityIds.forEach(aId => {
-                if (aId !== 'mentor') processCost(Constants.MISC_ACTIVITIES_DATA.find(i => i.id === aId)?.cost);
-            });
-            
-            // Classmates
             pageTwoState.selectedClassmateIds.forEach(cId => {
                 const cm = Constants.CLASSMATES_DATA.find(i => i.id === cId);
                 if (cm) {
@@ -277,38 +286,33 @@ export const useCostCalculation = ({
                 if (sigilType === 'purth' || sigilType === 'xuth') finalCost *= 2;
                 if (sigilType === 'juathas') finalCost = 0;
             }
-            // Refund BP, Charge KP
-            // Since we sum up ALL sigils from trees/counts in useSigilCalculation -> usedSigilCounts,
-            // and `acquiredCommonSigils` stores the inventory, we assume the user bought the sigil with BP first.
-            // Wait, the logic in UI is "Purchase with KP". 
-            // If purchased with KP, it shouldn't cost BP.
-            // The `acquiredCommonSigils` tracks total available. 
-            // `kpPaidNodes` tracks which tree nodes are paid by KP.
-            // 
-            // Correct Logic: 
-            // 1. Calculate cost of ALL active tree nodes (sigilTreeCost in hooks).
-            // 2. Subtract BP cost for nodes in `kpPaidNodes`.
-            // 3. Add KP cost for nodes in `kpPaidNodes`.
-            
-            // However, the `bpSpent` calculation above relies on `acquiredCommonSigils` (Inventory).
-            // The Inventory approach assumes you buy sigils into a pool.
-            // KP payment is direct to node.
-            // So, for every KP paid node, it consumes a sigil from inventory.
-            // If we want to simulate "Paying with KP instead of BP", we effectively refund the BP cost of that sigil.
             
             bpSpent -= finalCost;
             kpSpent += finalCost;
         });
         
         // Dominion Perks (Discounts)
-        // Halidew: Juathas -2 BP for Margra (Closed Circuits)
+        
+        // Halidew: Juathas -2 BP for Margra (Closed Circuits, Righteous Creation, Star Crossed Love)
         if (selectedDominionId === 'halidew') {
-            const margraNodes = Array.from(pageThreeState.selectedClosedCircuitsSigils).filter(id => {
+            const margraClosedCircuits = Array.from(pageThreeState.selectedClosedCircuitsSigils).filter(id => {
                 const s = Constants.CLOSED_CIRCUITS_SIGIL_TREE_DATA.find(n => n.id === id);
                 return s?.imageSrc.includes('juathas');
             });
-            bpSpent -= (margraNodes.length * 2);
+            const margraRighteousCreation = Array.from(pageThreeState.selectedRighteousCreationSigils).filter(id => {
+                const s = Constants.RIGHTEOUS_CREATION_SIGIL_TREE_DATA.find(n => n.id === id);
+                return s?.imageSrc.includes('juathas');
+            });
+            const margraStarCrossedLove = Array.from(pageThreeState.selectedStarCrossedLoveSigils).filter(id => {
+                const s = Constants.STAR_CROSSED_LOVE_SIGIL_TREE_DATA.find(n => n.id === id);
+                return s?.imageSrc.includes('juathas');
+            });
+            
+            bpSpent -= (margraClosedCircuits.length * 2);
+            bpSpent -= (margraRighteousCreation.length * 2);
+            bpSpent -= (margraStarCrossedLove.length * 2);
         }
+
         // Shinar: Sinthru -2 BP (Lost Hope)
         if (selectedDominionId === 'shinar') {
             const shinarNodes = Array.from(pageThreeState.selectedLostHopeSigils).filter(id => {
@@ -317,38 +321,54 @@ export const useCostCalculation = ({
             });
             bpSpent -= (shinarNodes.length * 2);
         }
-        // Unterseeisch: Juathas -2 BP for Fidelia (Lost Hope) - Wait, description says Fidelia.
+
+        // Unterseeisch: Juathas -2 BP for Fidelia (Lost Hope, Fallen Peace, Gracious Defeat)
         if (selectedDominionId === 'unterseeisch') {
-            const fideliaNodes = Array.from(pageThreeState.selectedLostHopeSigils).filter(id => {
+            const fideliaLostHope = Array.from(pageThreeState.selectedLostHopeSigils).filter(id => {
                 const s = Constants.LOST_HOPE_SIGIL_TREE_DATA.find(n => n.id === id);
                 return s?.imageSrc.includes('juathas');
             });
-            bpSpent -= (fideliaNodes.length * 2);
+            const fideliaFallenPeace = Array.from(pageThreeState.selectedFallenPeaceSigils).filter(id => {
+                const s = Constants.FALLEN_PEACE_SIGIL_TREE_DATA.find(n => n.id === id);
+                return s?.imageSrc.includes('juathas');
+            });
+            const fideliaGraciousDefeat = Array.from(pageThreeState.selectedGraciousDefeatSigils).filter(id => {
+                const s = Constants.GRACIOUS_DEFEAT_SIGIL_TREE_DATA.find(n => n.id === id);
+                return s?.imageSrc.includes('juathas');
+            });
+
+            bpSpent -= (fideliaLostHope.length * 2);
+            bpSpent -= (fideliaFallenPeace.length * 2);
+            bpSpent -= (fideliaGraciousDefeat.length * 2);
         }
+
         // Valsereth: Xuth -3 BP (Any) -> Already handled in Xuth base cost logic above (9 instead of 12)
         
-        // Gohwood: Juathas -2 BP for Arabella (Compelling Will)
+        // Gohwood: Juathas -2 BP for Arabella (Compelling Will, Worldly Wisdom)
+        // Note: Good Tidings has no Juathas nodes (0 cost root).
         if (selectedDominionId === 'gohwood') {
-             const arabellaNodes = Array.from(pageThreeState.selectedCompellingWillSigils).filter(id => {
+             const arabellaCompelling = Array.from(pageThreeState.selectedCompellingWillSigils).filter(id => {
                 const s = Constants.COMPELLING_WILL_SIGIL_TREE_DATA.find(n => n.id === id);
                 return s?.imageSrc.includes('juathas');
             });
-            bpSpent -= (arabellaNodes.length * 2);
+            const arabellaWorldly = Array.from(pageThreeState.selectedWorldlyWisdomSigils).filter(id => {
+                const s = Constants.WORLDLY_WISDOM_SIGIL_TREE_DATA.find(n => n.id === id);
+                return s?.imageSrc.includes('juathas');
+            });
+
+            bpSpent -= (arabellaCompelling.length * 2);
+            bpSpent -= (arabellaWorldly.length * 2);
         }
-        // Palisade: Lekolu -2 BP (Any) -> But Lekolu sigils are jobs (gain resources). 
-        // Wait, "Lekolu Sigils cost two less". 
-        // In this CYOA, Lekolu sigils are "Jobs" that COST resources to perform? 
-        // "Costs -4 BP and -6 FP per job". Yes.
+
+        // Palisade: Lekolu -2 BP (Any)
         if (selectedDominionId === 'palisade') {
-            // Count total Lekolu jobs
             bpSpent -= (lekoluTotal * 2);
         }
         // Rovines: Juathas -1 BP (Any)
         if (selectedDominionId === 'rovines') {
              // Need to count ALL Juathas nodes selected across all trees
              const allJuathas = [
-                 pageThreeState.selectedGoodTidingsTier ? 1 : 0, // Master includes Juathas? No, Standard=Kaarn, Journey=Purth, Master=Xuth. Fireborn is Juathas.
-                 // We need to check every tree.
+                 pageThreeState.selectedGoodTidingsTier ? 1 : 0, // Fireborn is Juathas
                  ...Array.from(pageThreeState.selectedCompellingWillSigils).filter(id => Constants.COMPELLING_WILL_SIGIL_TREE_DATA.find(s=>s.id===id)?.imageSrc.includes('juathas')),
                  ...Array.from(pageThreeState.selectedWorldlyWisdomSigils).filter(id => Constants.WORLDLY_WISDOM_SIGIL_TREE_DATA.find(s=>s.id===id)?.imageSrc.includes('juathas')),
                  ...Array.from(pageThreeState.selectedBitterDissatisfactionSigils).filter(id => Constants.BITTER_DISSATISFACTION_SIGIL_TREE_DATA.find(s=>s.id===id)?.imageSrc.includes('juathas')),
@@ -361,17 +381,28 @@ export const useCostCalculation = ({
              ].length;
              bpSpent -= allJuathas;
         }
-        // Jipangu: -1 BP for Drysdea (Righteous Creation)
+        // Jipangu: -1 BP/KP for Drysdea (Custom Magic / Page 4 only)
         if (selectedDominionId === 'jipangu') {
-            const drysdeaCount = pageThreeState.selectedRighteousCreationSigils.size; // "Sigils cost one less", implies all sigils
-            bpSpent -= drysdeaCount;
+            // Page 4: Custom Magic (Runes)
+            let kpRuhai = 0;
+            let kpMialgrath = 0;
+            pageFourState.customSpells.forEach(spell => {
+                if (spell.isRuhaiKpPaid) kpRuhai++;
+                if (spell.mialgrathApplied && spell.isMilgrathKpPaid) kpMialgrath++;
+            });
+
+            const ruhaiCount = pageFourState.acquiredRunes.get('ruhai') ?? 0;
+            const mialgrathCount = pageFourState.acquiredRunes.get('mialgrath') ?? 0;
+
+            const bpRuhai = Math.max(0, ruhaiCount - kpRuhai);
+            const bpMialgrath = Math.max(0, mialgrathCount - kpMialgrath);
+
+            kpSpent -= (kpRuhai + kpMialgrath);
+            bpSpent -= (bpRuhai + bpMialgrath);
         }
 
         // Cheissilith's Bargain: Juathas Free
         if (pageThreeState.selectedStarCrossedLovePacts.has('cheissiliths_bargain')) {
-             // Find total Juathas cost and subtract it (refund)
-             // Using similar logic to Rovines but more robust if we had a centralized 'used' map
-             // Simply: Calculate total Juathas used, multiply by 8, subtract from BP spent.
              const totalJuathas = pageThreeState.usedSigilCounts.juathas;
              bpSpent -= (totalJuathas * 8);
         }
@@ -391,7 +422,6 @@ export const useCostCalculation = ({
         let totalMialBp = mBp * mialgrathCount;
 
         // KP Logic for Runes (Page 4 Toggles)
-        // The `pageFourState.customSpells` tracks individual payment status
         pageFourState.customSpells.forEach((spell: any) => {
              if (spell.isRuhaiKpPaid) {
                  totalRuhaiBp -= rBp;
@@ -417,43 +447,79 @@ export const useCostCalculation = ({
         });
         // Colleagues
         pageFiveState.selectedColleagueIds.forEach(id => {
-            const c = Constants.COLLEAGUES_DATA.find(i => i.id === id);
-            if (c) {
-                let { fp, bp } = parseCost(c.cost);
-                // Refund logic for same dominion
-                const dom = Constants.DOMINIONS.find(d => d.id === selectedDominionId);
-                if (dom && c.birthplace.toUpperCase() === dom.title.toUpperCase()) {
-                    fp = Math.max(0, fp - 2);
+            const isMentor = pageTwoState.selectedMentors.some(m => m.id === id && m.type === 'premade');
+            
+            if (!isMentor) {
+                const c = Constants.COLLEAGUES_DATA.find(i => i.id === id);
+                if (c) {
+                    let { fp, bp } = parseCost(c.cost);
+                    // Refund logic for same dominion
+                    const dom = Constants.DOMINIONS.find(d => d.id === selectedDominionId);
+                    if (dom && c.birthplace.toUpperCase() === dom.title.toUpperCase()) {
+                        fp = Math.max(0, fp - 2);
+                    }
+                    fpSpent += fp;
+                    bpSpent += bp;
                 }
-                fpSpent += fp;
-                bpSpent += bp;
             }
         });
         // Custom Colleagues
         pageFiveState.customColleagues.forEach(cc => {
-             const opt = Constants.CUSTOM_COLLEAGUE_CHOICES_DATA.find(c => c.id === cc.optionId);
-             processCost(opt?.cost);
+             const isMentor = pageTwoState.selectedMentors.some(m => m.id === cc.id.toString() && m.type === 'custom');
+
+             if (!isMentor) {
+                 const opt = Constants.CUSTOM_COLLEAGUE_CHOICES_DATA.find(c => c.id === cc.optionId);
+                 processCost(opt?.cost);
+             }
         });
         // Moving Out Homes
-        pageFiveState.movingOutHomes.forEach(home => {
-             if (!home.isInherited) {
-                 fpSpent += 3; // Base cost for new home
+        pageFiveState.movingOutHomes.forEach((home, index) => {
+             const isFirst = index === 0;
+             const isInherited = home.isInherited;
+
+             if (!isInherited) {
+                 // Base Cost (3 FP): Only apply if NOT first
+                 if (!isFirst) {
+                     fpSpent += 3; 
+                 }
+                 
                  const h = Constants.HOUSES_DATA.find(i => i.id === home.houseId);
-                 processCost(h?.cost);
+                 if (h?.cost) {
+                     // For First home, waive costs (positive), keep grants (negative)
+                     if (isFirst) {
+                         const { fp, bp } = parseCost(h.cost);
+                         if (fp < 0) fpGained += Math.abs(fp);
+                         if (bp < 0) bpGained += Math.abs(bp);
+                     } else {
+                         // Standard processing
+                         processCost(h.cost);
+                     }
+                 }
              }
+
+             // Upgrades Cost
              home.upgradeIds.forEach(uId => {
                 const u = Constants.HOUSE_UPGRADES_DATA.find(i => i.id === uId);
                  if (u) {
                     if (uId === 'virtual_reality' && home.vrChamberCostType) {
-                        if (home.vrChamberCostType === 'fp') fpSpent += 5;
-                        else bpSpent += 2;
+                        // VR Chamber special handling
+                        // If it's First or Inherited, it should be free
+                        if (!isFirst && !isInherited) {
+                            if (home.vrChamberCostType === 'fp') fpSpent += 5;
+                            else bpSpent += 2;
+                        }
                     } else {
-                        processCost(u.cost);
+                        // Standard Upgrades
+                        if (isFirst || isInherited) {
+                             const { fp, bp } = parseCost(u.cost);
+                             if (fp < 0) fpGained += Math.abs(fp);
+                             if (bp < 0) bpGained += Math.abs(bp);
+                        } else {
+                            processCost(u.cost);
+                        }
                     }
                 }
              });
-             if (home.houseId === 'mansion') fpSpent += home.mansionExtraSqFt;
-             if (home.upgradeIds.has('private_island')) fpSpent += home.islandExtraMiles;
         });
 
         // --- PAGE 6 ---
@@ -467,15 +533,7 @@ export const useCostCalculation = ({
             const sinthruBpCost = selectedDominionId === 'shinar' ? 8 : 10;
             bpSpent += lostNodeCount * sinthruBpCost;
         } else {
-            // Already added to sinthru usage count in Page 3 section, so covered by general Sigil calculation?
-            // Wait, in Page 3 section above:
-            // "if (!pageThreeState.selectedStarCrossedLovePacts.has('sinthrus_contract')) { bpSpent += sinthruCount * sinthruCost; }"
-            // sinthruCount comes from acquiredCommonSigils map.
-            // The Logic in `useSigilCalculation` adds lost blessing nodes to `used` counts, but doesn't auto-buy them in `acquiredCommonSigils`.
-            // So we need to manually account for the COST of the sinthru sigils used here if they weren't "bought" in the map.
-            // Actually, the user buys Sinthru sigils in the shop. They are in the map.
-            // So `sinthruCount` includes the ones used for Lost Blessing.
-            // So it is already covered.
+            // Already added to sinthru usage count in Page 3 section
         }
 
         // Misc Costs

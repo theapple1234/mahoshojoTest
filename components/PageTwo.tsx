@@ -16,6 +16,35 @@ import { MentorSelectionModal } from './MentorSelectionModal';
 import { SchoolDirectoryModal } from './SchoolDirectoryModal';
 import type { CustomClassmateInstance, Mentor } from '../types';
 
+const getPerkExplanation = (dominionId: string | null, language: 'en' | 'ko') => {
+    const id = dominionId || 'halidew';
+    if (language === 'ko') {
+        switch (id) {
+            case 'halidew': return "마그라가 관장하는 축복(폐쇄회로, 정당한 창조, 불행한 사랑)의 표식 트리에서 자타스를 선택할 때마다 축복 점수 2점을 환급해줍니다.";
+            case 'shinar': return "신스루 표식을 선택할 때마다 축복 점수 2점을 환급해줍니다.";
+            case 'unterseeisch': return "피델리아가 관장하는 축복(잃어버린 희망, 무너진 평화, 품위있는 패배)의 표식 트리에서 자타스를 선택할 때마다 축복 점수 2점을 환급해줍니다.";
+            case 'valsereth': return "주스 표식을 선택할 때마다 축복 점수 3점을 환급해줍니다.";
+            case 'gohwood': return "아라벨라가 관장하는 축복(강렬한 의지, 경험과 지혜)의 표식 트리에서 자타스를 선택할 때마다 축복 점수 2점을 환급해줍니다.";
+            case 'palisade': return "레콜루 표식을 선택할 때마다 축복 점수 2점을 환급해줍니다.";
+            case 'rovines': return "어떤 축복이든 자타스 표식을 선택할 때마다 축복 점수 1점을 환급해줍니다.";
+            case 'jipangu': return "커스텀 마법(4페이지)의 룬을 선택할 때마다 축복 점수(또는 KP) 1점을 환급해줍니다.";
+            default: return "";
+        }
+    }
+    // English
+    switch (id) {
+        case 'halidew': return "Refunds 2 BP for every Juathas sigil selected in Blessings administered by Margra (Closed Circuits, Righteous Creation, Star Crossed Love).";
+        case 'shinar': return "Refunds 2 BP for every Sinthru sigil selected.";
+        case 'unterseeisch': return "Refunds 2 BP for every Juathas sigil selected in Blessings administered by Fidelia (Lost Hope, Fallen Peace, Gracious Defeat).";
+        case 'valsereth': return "Refunds 3 BP for every Xuth sigil selected.";
+        case 'gohwood': return "Refunds 2 BP for every Juathas sigil selected in Blessings administered by Arabella (Compelling Will, Worldly Wisdom).";
+        case 'palisade': return "Refunds 2 BP for every Lekolu sigil selected.";
+        case 'rovines': return "Refunds 1 BP for every Juathas sigil selected.";
+        case 'jipangu': return "Refunds 1 BP/KP for every Rune selected in Custom Magic (Page 4).";
+        default: return "";
+    }
+};
+
 export const PageTwo: React.FC = () => {
     const {
         selectedDominionId, isMultiplayer,
@@ -169,6 +198,8 @@ export const PageTwo: React.FC = () => {
     // Dynamic Speed Config
     const typingSpeedP1 = language === 'ko' ? 30 : 10;
     const typingSpeedP2 = language === 'ko' ? 30 : 10;
+    
+    const perkExplanation = getPerkExplanation(selectedDominionId, language);
 
     return (
         <>
@@ -277,11 +308,22 @@ export const PageTwo: React.FC = () => {
                             <div className="md:w-1/2 text-left">
                                 <h4 className="font-bold text-3xl font-cinzel text-amber-100">{userSchool.title}</h4>
                                 <div className="text-base text-gray-300 leading-relaxed mt-4">{renderFormattedText(userSchool.description)}</div>
-                                <div className="mt-6 border-t-2 border-dashed border-amber-900/50 pt-4">
-                                <p className="text-sm font-semibold text-amber-300 tracking-wider">
-                                    {language === 'ko' ? "지역 특전:" : "DOMINION PERK:"}
-                                </p>
-                                <div className="text-sm text-amber-300/80 italic">{renderFormattedText(userSchool.costBlurb)}</div>
+                                <div className="mt-6 border-t-2 border-dashed border-amber-900/50 pt-4 relative">
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <p className="text-sm font-semibold text-amber-300 tracking-wider">
+                                            {language === 'ko' ? "지역 특전:" : "DOMINION PERK:"}
+                                        </p>
+                                        <div className="group relative cursor-help">
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-amber-500 hover:text-amber-300 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-72 p-3 bg-black/90 border border-amber-500/30 rounded-lg text-xs text-gray-300 shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 text-center leading-relaxed">
+                                                {perkExplanation}
+                                                <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-black/90"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="text-sm text-amber-300/80 italic">{renderFormattedText(userSchool.costBlurb)}</div>
                                 </div>
                             </div>
                         </div>

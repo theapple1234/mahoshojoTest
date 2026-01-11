@@ -229,7 +229,7 @@ export const CharacterProvider: React.FC<{ children: ReactNode }> = ({ children 
     useEffect(() => {
         const root = document.documentElement;
         if (fontSize === 'large') {
-            root.style.fontSize = '120%'; 
+            root.style.fontSize = '125%'; 
         } else {
             root.style.fontSize = '90%';
         }
