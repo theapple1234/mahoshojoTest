@@ -149,7 +149,7 @@ const SinthruContractInterface: React.FC<{
 
                     {/* Icon */}
                     <img 
-                        src="/images/nq80Y3pk-sinthru.png" 
+                        src="/images/nq80Y3pk-sinthru.webp" 
                         alt="Sinthru Sigil" 
                         className={`
                             absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 object-contain 

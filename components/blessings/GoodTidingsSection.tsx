@@ -115,7 +115,7 @@ const PowerCard: React.FC<{
                 <div className="absolute -top-2 -left-2 z-20" title="Boosted by Oni's Blessing">
                     <div className="relative w-8 h-8 flex items-center justify-center">
                         <div className="absolute inset-0 bg-red-600 rounded-full blur-[4px] opacity-60"></div>
-                        <img src="/images/4wHGP0W5-c1.jpg" className="w-full h-full rounded-full border border-red-400 object-cover relative z-10" alt="Oni Icon" />
+                        <img src="/images/4wHGP0W5-c1.webp" className="w-full h-full rounded-full border border-red-400 object-cover relative z-10" alt="Oni Icon" />
                     </div>
                 </div>
             )}
@@ -417,9 +417,9 @@ export const GoodTidingsSection: React.FC = () => {
                 >
                     <div className="flex items-center justify-center gap-4">
                          {isOnisBlessingActive ? (
-                            <img src="/images/4wHGP0W5-c1.jpg" alt="Oni Blessing" className="w-16 h-16 rounded-full border border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)] object-cover"/>
+                            <img src="/images/4wHGP0W5-c1.webp" alt="Oni Blessing" className="w-16 h-16 rounded-full border border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)] object-cover"/>
                         ) : (
-                            <img src="/images/Dg6nz0R1-purth.png" alt="Purth Sigil" className="w-16 h-16"/>
+                            <img src="/images/Dg6nz0R1-purth.webp" alt="Purth Sigil" className="w-16 h-16"/>
                         )}
                         <div className="text-left">
                             <h4 className="font-cinzel text-lg font-bold text-amber-300 tracking-widest">
@@ -477,9 +477,9 @@ export const GoodTidingsSection: React.FC = () => {
                 >
                     <div className="flex items-center justify-center gap-4">
                         {isOnisBlessingActive ? (
-                            <img src="/images/4wHGP0W5-c1.jpg" alt="Oni Blessing" className="w-16 h-16 rounded-full border border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)] object-cover"/>
+                            <img src="/images/4wHGP0W5-c1.webp" alt="Oni Blessing" className="w-16 h-16 rounded-full border border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)] object-cover"/>
                         ) : (
-                            <img src="/images/rfs5FtF3-xuth.png" alt="Xuth Sigil" className="w-16 h-16"/>
+                            <img src="/images/rfs5FtF3-xuth.webp" alt="Xuth Sigil" className="w-16 h-16"/>
                         )}
                         <div className="text-left">
                             <h4 className="font-cinzel text-lg font-bold text-amber-300 tracking-widest">

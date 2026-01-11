@@ -203,7 +203,7 @@ export const SecretTransition: React.FC<SecretTransitionProps> = ({ onComplete }
                         <div className="relative w-full h-full">
                             <video 
                                 ref={videoRef}
-                                src="/images/Qr2mqe9.mp4" 
+                                src="https://i.imgur.com/Qr2mqe9.mp4" 
                                 className="w-full h-full object-cover crt-video"
                                 autoPlay 
                                 playsInline

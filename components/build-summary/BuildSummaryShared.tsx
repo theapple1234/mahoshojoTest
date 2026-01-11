@@ -209,7 +209,7 @@ export const CustomSpellCard: React.FC<{ spell: any, index: number, theme: any }
             {isMilgrath && (
                 <div className="absolute top-2 right-2">
                     <img 
-                        src="/images/nsKwSt0b-mialgrath.png" 
+                        src="/images/nsKwSt0b-mialgrath.webp" 
                         alt="Milgrath" 
                         className={`w-10 h-10 object-contain ${iconClass}`}
                         title="Milgrath Override"

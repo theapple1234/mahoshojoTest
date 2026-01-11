@@ -1,8 +1,11 @@
 
 /**
- * Image & Video Migration Script with Verification (ESM Version)
+ * Image Migration Script (ESM Version)
  * 
  * Usage: node tools/migrate-images.js
+ * 
+ * Downloads images from ibb.co to public/images/ and updates source code references.
+ * Video links (imgur) are ignored to save space.
  */
 
 import fs from 'fs';
@@ -21,8 +24,6 @@ const URL_PREFIX = '/images';
 
 // Regex: Capture Hash and Filename from ImgBB URL
 const IMAGE_REGEX = /https:\/\/i\.ibb\.co\/([a-zA-Z0-9]+)\/([\w%\-]+)\.(jpg|png|jpeg|gif)/g;
-// Regex: Capture ID from Imgur MP4 URL
-const VIDEO_REGEX = /https:\/\/i\.imgur\.com\/([a-zA-Z0-9]+)\.mp4/g;
 
 // CLI Interface
 const rl = readline.createInterface({
@@ -117,19 +118,6 @@ async function scanPhase() {
                 });
             });
         }
-
-        // Scan for Videos (Imgur)
-        const videoMatches = [...content.matchAll(VIDEO_REGEX)];
-        if (videoMatches.length > 0) {
-            videoMatches.forEach(m => {
-                allMatches.push({
-                    filePath,
-                    fullUrl: m[0],
-                    type: 'video',
-                    uniqueFilename: `${m[1]}.mp4`
-                });
-            });
-        }
     }
     return allMatches;
 }
@@ -189,10 +177,10 @@ async function verificationPhase() {
     const remainingLinks = matches.length;
     
     console.log(`-------------------------------------------`);
-    console.log(`Remaining remote links (ImgBB/Imgur) in code: ${remainingLinks}`);
+    console.log(`Remaining remote image links in code: ${remainingLinks}`);
     
     if (remainingLinks === 0) {
-        console.log(`✅ SUCCESS: No remote media links found in source code.`);
+        console.log(`✅ SUCCESS: No remote image links found in source code.`);
         return true;
     } else {
         console.log(`⚠️  WARNING: ${remainingLinks} links were NOT converted.`);
@@ -212,42 +200,15 @@ async function main() {
         console.log(`\n📊 Total Targets Identified: ${totalItems}`);
 
         if (totalItems === 0) {
-            console.log("No media to migrate. Entering verification...");
+            console.log("No images to migrate. Exiting.");
+            loop = false;
         } else {
             // 2. Execute
             await executionPhase(matches);
-        }
-
-        // 3. Verify loop
-        let verifying = true;
-        while (verifying) {
-            const answer = await askQuestion("\nRun verification check now? (Y/N/Quit): ");
-            const choice = answer.trim().toUpperCase();
-
-            if (choice === 'Y') {
-                const isClean = await verificationPhase();
-                if (!isClean) {
-                    const retry = await askQuestion("Incomplete migration detected. Retry download & replacement? (Y/N): ");
-                    if (retry.trim().toUpperCase() === 'Y') {
-                        verifying = false; // Break verify loop, restart main loop
-                        loop = true; 
-                    } else {
-                        console.log("Exiting with remaining items.");
-                        verifying = false;
-                        loop = false;
-                    }
-                } else {
-                    console.log("All clear. Exiting.");
-                    verifying = false;
-                    loop = false;
-                }
-            } else if (choice === 'Q' || choice === 'QUIT') {
-                verifying = false;
-                loop = false;
-            } else {
-                verifying = false;
-                loop = false;
-            }
+            
+            // 3. Verify
+            await verificationPhase();
+            loop = false;
         }
     }
     

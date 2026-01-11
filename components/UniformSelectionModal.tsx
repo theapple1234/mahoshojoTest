@@ -13,14 +13,14 @@ interface UniformSelectionModalProps {
 }
 
 const UNIFORM_SQUARE_IMAGES: Record<string, string> = {
-    'idol': '/images/WvchRHJJ-uni1square.jpg',
-    'witchy': '/images/dJX4K5L4-uni2square.png',
-    'boyish': '/images/4ZXPyyZb-uni3square.jpg',
-    'high_tech': '/images/YB1tLH4f-uni4square.jpg',
-    'animal_themed': '/images/XxZ5Sspd-uni5square.jpg',
-    'old_timey': '/images/r2hDt27q-uni6square.jpg',
-    'oriental': '/images/3mdhV9G2-uni7square.jpg',
-    'custom': '/images/vC5G31jM-uni8square.png',
+    'idol': '/images/WvchRHJJ-uni1square.webp',
+    'witchy': '/images/dJX4K5L4-uni2square.webp',
+    'boyish': '/images/4ZXPyyZb-uni3square.webp',
+    'high_tech': '/images/YB1tLH4f-uni4square.webp',
+    'animal_themed': '/images/XxZ5Sspd-uni5square.webp',
+    'old_timey': '/images/r2hDt27q-uni6square.webp',
+    'oriental': '/images/3mdhV9G2-uni7square.webp',
+    'custom': '/images/vC5G31jM-uni8square.webp',
 };
 
 export const UniformSelectionModal: React.FC<UniformSelectionModalProps> = ({

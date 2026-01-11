@@ -21,25 +21,25 @@ export const LOST_POWERS_DATA: ChoiceItem[] = [
     {
         id: 'save_point',
         title: 'SAVE POINT',
-        imageSrc: '/images/qLcyp2Fb-lost1.jpg',
+        imageSrc: '/images/qLcyp2Fb-lost1.webp',
         description: "The Mother always insisted that temporal powers were simply \"impossible\". A bold-faced lie. They experimented with them once and found they were very possible, but canned the whole experiment and sealed them away, worried what sort of Pandora's Box they were opening. Once in your life, this spell will allow you to set a \"save point\". At any point in the next 5 years, you can revert everything back to that save point at will. This destroys the save point permanently. If you die, or if the 5 years passes on its own, you'll flash back to the point automatically."
     },
     {
         id: 'anguish',
         title: 'ANGUISH',
-        imageSrc: '/images/C320LCkf-lost2.png',
+        imageSrc: '/images/C320LCkf-lost2.webp',
         description: "That Nero Inc shit has got limits. Limits on the sorts of feelings you can evoke, the experiences you can create. But with this, if you've got a Verse, you don't have any more limits. You can create emotions more intense than any that are possible within the surface verse. Sure, you can create pleasure powerful enough to fry the mind... or you can create a hellscape of agony so unspeakable it will fundamentally break the psyches of even the most legendary and stalwart of souls. Imagine getting one of those Daughters into a hell like that..."
     },
     {
         id: 'power_drain',
         title: 'POWER DRAIN',
-        imageSrc: '/images/ZRy57f0r-lost3.jpg',
+        imageSrc: '/images/ZRy57f0r-lost3.webp',
         description: "Granting powers through Theosis is easy to do, but hard as fuck to undo. They once experimented with ways to strip a mage of their powers, but the queen bitch shut it down, fearing it might lead to 'authoritarianism', the fuckin' hypocrite. We've got a hack job of our that come pretty close, though. Once you've got a mage down for the count, really knocked out cold, you can perform a ritual that strips their every power — permanently. You even get some of their powers at random after, though they only stick around temporarily."
     },
     {
         id: 'angelic_greatblade',
         title: 'ANGELIC GREATBLADE',
-        imageSrc: '/images/NgPJN7p9-lost4.jpg',
+        imageSrc: '/images/NgPJN7p9-lost4.webp',
         description: "The sword of the executioner Angels up in the Garden of Eden back when capital punishment was still a thing. It slices through mages as easy as it would mundanes — seriously, lobbing off limbs and splitting through torsos more easily than any other weapons in existence. However, they are so powerful that it's painful just to holds its handle. They are also enchanted to feel extremely heavy and exhausting to wield, and even the strongest mages will find them slow and unwieldy in combat, so they're best used to finish off weakened foes."
     }
 ];
@@ -48,25 +48,25 @@ export const LOST_POWERS_DATA_KO: ChoiceItem[] = [
     {
         id: 'save_point',
         title: '세이브 포인트',
-        imageSrc: '/images/qLcyp2Fb-lost1.jpg',
+        imageSrc: '/images/qLcyp2Fb-lost1.webp',
         description: "'어머니'는 언제나 시간 조작은 \"불가능\"하다고 못박았지. 낮짝도 두껍게 거짓말을 한 거야. 실험을 해 본 적이 있었고, 가능했어. 하지만 판도라의 상자를 열면 무슨 일이 터질지 몰라서 그냥 없었던 걸로 하고 봉인시킨 거야.\n\n이 마법은 인생에 단 한 번만 사용할 수 있고, 사용하면 \"세이브 포인트\"를 만들 수 있어. 향후 5년 동안 언제라도 세이브 포인트로 돌아갈 수 있는데, 그렇게 돌아가면 세이브 포인트는 영구히 소실되지. 네가 죽거나 5년이 아무 일 없이 흘러간다면, 그 순간 다시 세이브 포인트로 복귀하게 돼."
     },
     {
         id: 'anguish',
         title: '비련',
-        imageSrc: '/images/C320LCkf-lost2.png',
+        imageSrc: '/images/C320LCkf-lost2.webp',
         description: "네로 주식회사의 그것들은 한계가 뚜렷해. 불러일으킬 수 있는 감정이나, 만들어낼 수 있는 경험에 제한이 많아. 하지만 이 마법이 있으면 가상우주에서의 한계를 완전히 돌파할 수 있어. 아니, 진짜보다 더 강렬한 감정들을 만들어낼 수도 있지. 이를테면 뇌가 타 버릴 정도의 엄청난 쾌락이라든가... 아니면 형언할 수 없을 정도로 끔찍한 고통, 초월적으로 강인한 정신력의 소유자들까지도 망가뜨릴 수 있는 그런 생지옥을 만들어낼 수도 있지. \"딸들\" 중 하나를 거기 빠뜨리면 어떻겠어?"
     },
     {
         id: 'power_drain',
         title: '능력 흡수',
-        imageSrc: '/images/ZRy57f0r-lost3.jpg',
+        imageSrc: '/images/ZRy57f0r-lost3.webp',
         description: "테오시스로 힘을 부여하는 건 쉽지만, 그걸 되돌리는 건 더럽게 어렵단 말씀. 한 번 마법소녀의 힘을 빼앗는 실험을 해 본 적이 있긴 한데, 그년이 그런 건 두고 볼 수 없다면서 금지해 버렸지. '독재'에 악용될 가능성이 있다나... 빌어먹을 위선자 같으니. 그래도 우린 비슷한 걸 해킹으로 만들어내긴 했어. 네가 다른 마법소녀를 완전히 기절시켜 놓은 상태라면, 이 간단한 의식 한 번으로 능력 전부를 없애 버릴 수 있을 거야. 영원히. 그리고 그렇게 없앤 능력들 중 일부가 너한테 건너오지. 뭐가 넘어올지는 모르고, 시간이 지나면 결국 사라지지만."
     },
     {
         id: 'angelic_greatblade',
         title: '천사의 대검',
-        imageSrc: '/images/NgPJN7p9-lost4.jpg',
+        imageSrc: '/images/NgPJN7p9-lost4.webp',
         description: "사형이 아직 집행되던 시절에 에덴 동산에 있던 천사들이 쓰던 처형용 대검이야. 일반인, 마법소녀 가릴 것 없이 무 자르듯이 베어 버릴 수 있어. 아니, 농담이 아니라 그 어떤 무기보다 사람 몸에는 더 잘 들걸. 대신, 너무 강력한 무기라서 손잡이를 잡는 것만으로도 고통스러울 거야. 들고 휘두를 때 엄청 무겁게 느껴지는 마법이 걸려 있어서 체력이 정말 빨리 빠질 거야. 세상에서 근력이 제일 강한 마법소녀가 잡아도 전투용으로 쓰기에는 너무 느리고 거추장스럽지. 그러니까 적을 무력화한 뒤에 마무리할 때 쓰는 게 제일 좋겠지?"
     }
 ];

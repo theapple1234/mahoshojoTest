@@ -396,7 +396,7 @@ export const WorldlyWisdomSection: React.FC = () => {
                 <SectionHeader>{language === 'ko' ? "엘레노어의 기술" : "Eleanor's Techniques"}</SectionHeader>
                 <div className={`my-4 max-w-sm mx-auto p-4 border rounded-lg transition-all bg-black/20 ${ ctx.isEleanorsTechniquesBoosted ? 'border-amber-400 ring-2 ring-amber-400/50 cursor-pointer hover:border-amber-300' : isEleanorsBoostDisabled ? 'border-gray-700 opacity-50 cursor-not-allowed' : 'border-gray-700 hover:border-amber-400/50 cursor-pointer'}`} onClick={!isEleanorsBoostDisabled ? () => ctx.handleWorldlyWisdomBoostToggle('eleanorsTechniques') : undefined}>
                     <div className="flex items-center justify-center gap-4">
-                        <img src="/images/zTm8fcLb-kaarn.png" alt="Kaarn Sigil" className="w-16 h-16"/>
+                        <img src="/images/zTm8fcLb-kaarn.webp" alt="Kaarn Sigil" className="w-16 h-16"/>
                         <div className="text-left">
                             <h4 className="font-cinzel text-lg font-bold text-amber-300 tracking-widest">{ctx.isEleanorsTechniquesBoosted ? 'BOOSTED' : 'BOOST'}</h4>
                             {!ctx.isEleanorsTechniquesBoosted && <p className="text-xs text-gray-400 mt-1">
@@ -432,7 +432,7 @@ export const WorldlyWisdomSection: React.FC = () => {
                 <SectionHeader>{language === 'ko' ? "제네비브의 기술" : "Genevieve's Techniques"}</SectionHeader>
                 <div className={`my-4 max-w-sm mx-auto p-4 border rounded-lg transition-all bg-black/20 ${ ctx.isGenevievesTechniquesBoosted ? 'border-amber-400 ring-2 ring-amber-400/50 cursor-pointer hover:border-amber-300' : isGenevievesBoostDisabled ? 'border-gray-700 opacity-50 cursor-not-allowed' : 'border-gray-700 hover:border-amber-400/50 cursor-pointer'}`} onClick={!isGenevievesBoostDisabled ? () => ctx.handleWorldlyWisdomBoostToggle('genevievesTechniques') : undefined}>
                     <div className="flex items-center justify-center gap-4">
-                        <img src="/images/Dg6nz0R1-purth.png" alt="Purth Sigil" className="w-16 h-16"/>
+                        <img src="/images/Dg6nz0R1-purth.webp" alt="Purth Sigil" className="w-16 h-16"/>
                         <div className="text-left">
                             <h4 className="font-cinzel text-lg font-bold text-amber-300 tracking-widest">{ctx.isGenevievesTechniquesBoosted ? 'BOOSTED' : 'BOOST'}</h4>
                             {!ctx.isGenevievesTechniquesBoosted && <p className="text-xs text-gray-400 mt-1">
