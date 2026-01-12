@@ -28,11 +28,11 @@ const PAGE_TITLES = ['YOUR BIRTH', 'YOUR SCHOOLING', 'SIGILS & BLESSINGS', 'DESI
 // Removed PAGE_BACKGROUNDS as we use a persistent background now, but kept logic for potential overlays
 const PAGE_HEADERS = [
     null, // Page 1 header removed
-    "/images/4nrwRMyD-main1.webp", 
-    "/images/JRGRMRFH-main1.webp", 
-    "/images/sJFF0vY2-page4main.webp", 
-    "/images/RGRMNF8H-main1.webp", 
-    "/images/Jw995hSG-endmain.webp"
+    "https://cdn.jsdelivr.net/gh/theapple1234/saviapple_Seinarumagecraft_CYOA/public/images/4nrwRMyD-main1.webp", 
+    "https://cdn.jsdelivr.net/gh/theapple1234/saviapple_Seinarumagecraft_CYOA/public/images/JRGRMRFH-main1.webp", 
+    "https://cdn.jsdelivr.net/gh/theapple1234/saviapple_Seinarumagecraft_CYOA/public/images/sJFF0vY2-page4main.webp", 
+    "https://cdn.jsdelivr.net/gh/theapple1234/saviapple_Seinarumagecraft_CYOA/public/images/RGRMNF8H-main1.webp", 
+    "https://cdn.jsdelivr.net/gh/theapple1234/saviapple_Seinarumagecraft_CYOA/public/images/Jw995hSG-endmain.webp"
 ];
 
 // Icons

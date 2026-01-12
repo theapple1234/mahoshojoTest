@@ -590,7 +590,7 @@ export const BitterDissatisfactionSection: React.FC = () => {
                 <SectionHeader>{language === 'ko' ? "양조" : "Brewing"}</SectionHeader>
                 <div className={`my-4 max-w-sm mx-auto p-4 border rounded-lg transition-all bg-black/20 ${ ctx.isBrewingBoosted ? 'border-amber-400 ring-2 ring-amber-400/50 cursor-pointer hover:border-amber-300' : isBrewingBoostDisabled ? 'border-gray-700 opacity-50 cursor-not-allowed' : 'border-gray-700 hover:border-amber-400/50 cursor-pointer'}`} onClick={!isBrewingBoostDisabled ? () => ctx.handleBitterDissatisfactionBoostToggle('brewing') : undefined}>
                     <div className="flex items-center justify-center gap-4">
-                        <img src="/images/zTm8fcLb-kaarn.webp" alt="Kaarn Sigil" className="w-16 h-16"/>
+                        <img src="https://cdn.jsdelivr.net/gh/theapple1234/saviapple_Seinarumagecraft_CYOA/public/images/zTm8fcLb-kaarn.webp" alt="Kaarn Sigil" className="w-16 h-16"/>
                         <div className="text-left">
                             <h4 className="font-cinzel text-lg font-bold text-amber-300 tracking-widest">{ctx.isBrewingBoosted ? 'BOOSTED' : 'BOOST'}</h4>
                             {!ctx.isBrewingBoosted && <p className="text-xs text-gray-400 mt-1">
@@ -631,7 +631,7 @@ export const BitterDissatisfactionSection: React.FC = () => {
                 <SectionHeader>{language === 'ko' ? "영혼 연금술" : "Soul Alchemy"}</SectionHeader>
                 <div className={`my-4 max-w-sm mx-auto p-4 border rounded-lg transition-all bg-black/20 ${ ctx.isSoulAlchemyBoosted ? 'border-amber-400 ring-2 ring-amber-400/50 cursor-pointer hover:border-amber-300' : isSoulAlchemyBoostDisabled ? 'border-gray-700 opacity-50 cursor-not-allowed' : 'border-gray-700 hover:border-amber-400/50 cursor-pointer'}`} onClick={!isSoulAlchemyBoostDisabled ? () => ctx.handleBitterDissatisfactionBoostToggle('soulAlchemy') : undefined}>
                     <div className="flex items-center justify-center gap-4">
-                        <img src="/images/zTm8fcLb-kaarn.webp" alt="Kaarn Sigil" className="w-16 h-16"/>
+                        <img src="https://cdn.jsdelivr.net/gh/theapple1234/saviapple_Seinarumagecraft_CYOA/public/images/zTm8fcLb-kaarn.webp" alt="Kaarn Sigil" className="w-16 h-16"/>
                         <div className="text-left">
                             <h4 className="font-cinzel text-lg font-bold text-amber-300 tracking-widest">{ctx.isSoulAlchemyBoosted ? 'BOOSTED' : 'BOOST'}</h4>
                             {!ctx.isSoulAlchemyBoosted && <p className="text-xs text-gray-400 mt-1">
@@ -806,7 +806,7 @@ export const BitterDissatisfactionSection: React.FC = () => {
                 <SectionHeader>{language === 'ko' ? "변신술" : "Transformation"}</SectionHeader>
                 <div className={`my-4 max-w-sm mx-auto p-4 border rounded-lg transition-all bg-black/20 ${ ctx.isTransformationBoosted ? 'border-amber-400 ring-2 ring-amber-400/50 cursor-pointer hover:border-amber-300' : isTransformationBoostDisabled ? 'border-gray-700 opacity-50 cursor-not-allowed' : 'border-gray-700 hover:border-amber-400/50 cursor-pointer'}`} onClick={!isTransformationBoostDisabled ? () => ctx.handleBitterDissatisfactionBoostToggle('transformation') : undefined}>
                     <div className="flex items-center justify-center gap-4">
-                        <img src="/images/zTm8fcLb-kaarn.webp" alt="Kaarn Sigil" className="w-16 h-16"/>
+                        <img src="https://cdn.jsdelivr.net/gh/theapple1234/saviapple_Seinarumagecraft_CYOA/public/images/zTm8fcLb-kaarn.webp" alt="Kaarn Sigil" className="w-16 h-16"/>
                         <div className="text-left">
                             <h4 className="font-cinzel text-lg font-bold text-amber-300 tracking-widest">{ctx.isTransformationBoosted ? 'BOOSTED' : 'BOOST'}</h4>
                             {!ctx.isTransformationBoosted && <p className="text-xs text-gray-400 mt-1">

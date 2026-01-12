@@ -48,16 +48,16 @@ const UniformIcon: React.FC = () => (
 );
 
 const UNIFORM_SQUARE_IMAGES: Record<string, string> = {
-    'idol': '/images/WvchRHJJ-uni1square.webp',
-    'witchy': '/images/dJX4K5L4-uni2square.webp',
-    'boyish': '/images/4ZXPyyZb-uni3square.webp',
-    'high_tech': '/images/YB1tLH4f-uni4square.webp',
-    'animal_themed': '/images/XxZ5Sspd-uni5square.webp',
-    'old_timey': '/images/r2hDt27q-uni6square.webp',
-    'oriental': '/images/3mdhV9G2-uni7square.webp',
-    'custom': '/images/vC5G31jM-uni8square.webp',
+    'idol': 'https://cdn.jsdelivr.net/gh/theapple1234/saviapple_Seinarumagecraft_CYOA/public/images/WvchRHJJ-uni1square.webp',
+    'witchy': 'https://cdn.jsdelivr.net/gh/theapple1234/saviapple_Seinarumagecraft_CYOA/public/images/dJX4K5L4-uni2square.webp',
+    'boyish': 'https://cdn.jsdelivr.net/gh/theapple1234/saviapple_Seinarumagecraft_CYOA/public/images/4ZXPyyZb-uni3square.webp',
+    'high_tech': 'https://cdn.jsdelivr.net/gh/theapple1234/saviapple_Seinarumagecraft_CYOA/public/images/YB1tLH4f-uni4square.webp',
+    'animal_themed': 'https://cdn.jsdelivr.net/gh/theapple1234/saviapple_Seinarumagecraft_CYOA/public/images/XxZ5Sspd-uni5square.webp',
+    'old_timey': 'https://cdn.jsdelivr.net/gh/theapple1234/saviapple_Seinarumagecraft_CYOA/public/images/r2hDt27q-uni6square.webp',
+    'oriental': 'https://cdn.jsdelivr.net/gh/theapple1234/saviapple_Seinarumagecraft_CYOA/public/images/3mdhV9G2-uni7square.webp',
+    'custom': 'https://cdn.jsdelivr.net/gh/theapple1234/saviapple_Seinarumagecraft_CYOA/public/images/vC5G31jM-uni8square.webp',
 };
-const UNIDENTIFIED_IMAGE = '/images/HfL17Fvn-uniquestionsquare.webp';
+const UNIDENTIFIED_IMAGE = 'https://cdn.jsdelivr.net/gh/theapple1234/saviapple_Seinarumagecraft_CYOA/public/images/HfL17Fvn-uniquestionsquare.webp';
 
 // Separate Data Sets
 const ALL_POWERS_EN = [

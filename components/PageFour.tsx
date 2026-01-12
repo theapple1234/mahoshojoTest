@@ -443,7 +443,7 @@ export const PageFour: React.FC = () => {
              <div className="flex justify-center my-24 px-4">
                  <div className="relative w-full max-w-7xl rounded-xl overflow-hidden shadow-2xl border border-gray-800">
                     <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-50"></div>
-                    <img src="/images/4RLbmnFv-travler.webp" alt="Cityscape" className="w-full object-cover no-glow" />
+                    <img src="https://cdn.jsdelivr.net/gh/theapple1234/saviapple_Seinarumagecraft_CYOA/public/images/4RLbmnFv-travler.webp" alt="Cityscape" className="w-full object-cover no-glow" />
                  </div>
             </div>
 

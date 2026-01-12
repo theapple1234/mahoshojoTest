@@ -193,16 +193,16 @@ const UniformIcon: React.FC = () => (
 );
 
 const UNIFORM_SQUARE_IMAGES: Record<string, string> = {
-    'idol': '/images/WvchRHJJ-uni1square.webp',
-    'witchy': '/images/dJX4K5L4-uni2square.webp',
-    'boyish': '/images/4ZXPyyZb-uni3square.webp',
-    'high_tech': '/images/YB1tLH4f-uni4square.webp',
-    'animal_themed': '/images/XxZ5Sspd-uni5square.webp',
-    'old_timey': '/images/r2hDt27q-uni6square.webp',
-    'oriental': '/images/3mdhV9G2-uni7square.webp',
-    'custom': '/images/vC5G31jM-uni8square.webp',
+    'idol': 'https://cdn.jsdelivr.net/gh/theapple1234/saviapple_Seinarumagecraft_CYOA/public/images/WvchRHJJ-uni1square.webp',
+    'witchy': 'https://cdn.jsdelivr.net/gh/theapple1234/saviapple_Seinarumagecraft_CYOA/public/images/dJX4K5L4-uni2square.webp',
+    'boyish': 'https://cdn.jsdelivr.net/gh/theapple1234/saviapple_Seinarumagecraft_CYOA/public/images/4ZXPyyZb-uni3square.webp',
+    'high_tech': 'https://cdn.jsdelivr.net/gh/theapple1234/saviapple_Seinarumagecraft_CYOA/public/images/YB1tLH4f-uni4square.webp',
+    'animal_themed': 'https://cdn.jsdelivr.net/gh/theapple1234/saviapple_Seinarumagecraft_CYOA/public/images/XxZ5Sspd-uni5square.webp',
+    'old_timey': 'https://cdn.jsdelivr.net/gh/theapple1234/saviapple_Seinarumagecraft_CYOA/public/images/r2hDt27q-uni6square.webp',
+    'oriental': 'https://cdn.jsdelivr.net/gh/theapple1234/saviapple_Seinarumagecraft_CYOA/public/images/3mdhV9G2-uni7square.webp',
+    'custom': 'https://cdn.jsdelivr.net/gh/theapple1234/saviapple_Seinarumagecraft_CYOA/public/images/vC5G31jM-uni8square.webp',
 };
-const UNIDENTIFIED_IMAGE = '/images/HfL17Fvn-uniquestionsquare.webp';
+const UNIDENTIFIED_IMAGE = 'https://cdn.jsdelivr.net/gh/theapple1234/saviapple_Seinarumagecraft_CYOA/public/images/HfL17Fvn-uniquestionsquare.webp';
 
 const formatCost = (cost: string | undefined, language: 'en' | 'ko') => {
     if (!cost) return '';
@@ -516,7 +516,7 @@ export const PageFive: React.FC = () => {
                     <h1 className="text-5xl font-bold font-cinzel my-2 text-white drop-shadow-[0_0_10px_rgba(34,197,94,0.5)]">{activeCareerIntro.title}</h1>
                     <div className="h-px w-full bg-gradient-to-r from-transparent via-green-500/50 to-transparent my-6"></div>
                     <p className="text-gray-300 leading-relaxed whitespace-pre-wrap font-sans text-sm md:text-base">{renderFormattedText(activeCareerIntro.description)}</p>
-                    <img src="/images/99KvcyT0-main3.webp" alt="Career Path" className="mt-6 rounded-lg shadow-lg shadow-green-900/20 w-64 mx-auto lg:mx-0 border border-green-500/30 opacity-90 hover:opacity-100 transition-opacity" />
+                    <img src="https://cdn.jsdelivr.net/gh/theapple1234/saviapple_Seinarumagecraft_CYOA/public/images/99KvcyT0-main3.webp" alt="Career Path" className="mt-6 rounded-lg shadow-lg shadow-green-900/20 w-64 mx-auto lg:mx-0 border border-green-500/30 opacity-90 hover:opacity-100 transition-opacity" />
                 </div>
             </section>
             
@@ -619,7 +619,7 @@ export const PageFive: React.FC = () => {
                 <div className="mt-8">
                     <div className="relative flex flex-row items-start p-6 bg-black/80 border-2 border-green-500/30 rounded-lg gap-6 overflow-hidden">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-green-500/5 rounded-full blur-3xl"></div>
-                        <img src="/images/wNfdjNJ0-c25.webp" alt="Create your own companion" className="w-2/5 sm:w-1/3 aspect-[4/3] object-cover object-left rounded-sm flex-shrink-0" />
+                        <img src="https://cdn.jsdelivr.net/gh/theapple1234/saviapple_Seinarumagecraft_CYOA/public/images/wNfdjNJ0-c25.webp" alt="Create your own companion" className="w-2/5 sm:w-1/3 aspect-[4/3] object-cover object-left rounded-sm flex-shrink-0" />
                         <div className="flex flex-col flex-grow relative z-10">
                             <p className="text-gray-300 text-sm leading-relaxed mb-4">
                                 {renderFormattedText(language === 'ko' 

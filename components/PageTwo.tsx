@@ -206,7 +206,7 @@ export const PageTwo: React.FC = () => {
             {/* Stage II: Intro Section */}
             <section className="flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-12 mb-16 min-h-[60vh] relative">
                 <div className={`flex-shrink-0 relative transition-all duration-1000 transform ${introStage >= 2 ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'}`}>
-                    <img src="/images/YBY6X7dF-main2.webp" alt="Student" className="w-96 md:w-[36rem] rounded-full border-4 border-amber-900/50 shadow-2xl shadow-black/60" />
+                    <img src="https://cdn.jsdelivr.net/gh/theapple1234/saviapple_Seinarumagecraft_CYOA/public/images/YBY6X7dF-main2.webp" alt="Student" className="w-96 md:w-[36rem] rounded-full border-4 border-amber-900/50 shadow-2xl shadow-black/60" />
                 </div>
                 
                 <div className="max-w-2xl text-center lg:text-left relative">
@@ -256,7 +256,7 @@ export const PageTwo: React.FC = () => {
                         )}
                     </div>
                      <div className={`transition-all duration-1000 delay-500 transform ${introStage >= 5 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-                        <img src="/images/zhnmY0f0-main3.webp" alt="Classroom" className="rounded-lg shadow-lg shadow-black/50 border border-amber-900/30 w-full max-w-md mx-auto lg:mx-0" />
+                        <img src="https://cdn.jsdelivr.net/gh/theapple1234/saviapple_Seinarumagecraft_CYOA/public/images/zhnmY0f0-main3.webp" alt="Classroom" className="rounded-lg shadow-lg shadow-black/50 border border-amber-900/30 w-full max-w-md mx-auto lg:mx-0" />
                     </div>
                 </div>
             </section>
@@ -337,7 +337,7 @@ export const PageTwo: React.FC = () => {
                 {/* Boarding School Section */}
                 <div className="my-16 bg-gradient-to-b from-[#2a1d15]/90 to-[#1f1612]/90 backdrop-blur-sm border border-yellow-900/70 rounded-xl p-8 shadow-2xl shadow-black/40">
                     <div className="flex flex-col md:flex-row items-center gap-8 max-w-5xl mx-auto">
-                        <img src="/images/B2VMLm0N-boarding.webp" alt="Dormitory" className="w-full md:w-80 h-auto object-cover rounded-md flex-shrink-0 border border-amber-900/30" />
+                        <img src="https://cdn.jsdelivr.net/gh/theapple1234/saviapple_Seinarumagecraft_CYOA/public/images/B2VMLm0N-boarding.webp" alt="Dormitory" className="w-full md:w-80 h-auto object-cover rounded-md flex-shrink-0 border border-amber-900/30" />
                         <div>
                             <p className="text-gray-300 text-sm leading-relaxed mb-4">
                                 {language === 'ko' 
@@ -525,7 +525,7 @@ export const PageTwo: React.FC = () => {
                     <div className="mt-8">
                         <div className="relative flex flex-row items-start p-6 bg-black/40 border border-yellow-800/60 rounded-lg gap-6">
                             <img 
-                                src="/images/BHnbDZyY-new.webp" 
+                                src="https://cdn.jsdelivr.net/gh/theapple1234/saviapple_Seinarumagecraft_CYOA/public/images/BHnbDZyY-new.webp" 
                                 alt="Create your own companion" 
                                 className="w-2/5 sm:w-1/3 aspect-[4/3] object-cover object-left rounded-md flex-shrink-0"
                             />

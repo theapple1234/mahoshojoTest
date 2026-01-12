@@ -37,15 +37,15 @@ const Counter: React.FC<CounterProps> = ({ label, count, onCountChange, unit, co
 );
 
 const PARENT_IMAGES = [
-    '/images/PZJmzncs-parent1.webp',
-    '/images/DPffzsyr-parent2.webp'
+    'https://cdn.jsdelivr.net/gh/theapple1234/saviapple_Seinarumagecraft_CYOA/public/images/PZJmzncs-parent1.webp',
+    'https://cdn.jsdelivr.net/gh/theapple1234/saviapple_Seinarumagecraft_CYOA/public/images/DPffzsyr-parent2.webp'
 ];
 
 const SIBLING_IMAGES = [
-    '/images/m58qFCRf-sib1.webp',
-    '/images/99DpjRKC-sib2.webp',
-    '/images/7JSPLK9W-sib3.webp',
-    '/images/Fk5N4YbF-sib4.webp'
+    'https://cdn.jsdelivr.net/gh/theapple1234/saviapple_Seinarumagecraft_CYOA/public/images/m58qFCRf-sib1.webp',
+    'https://cdn.jsdelivr.net/gh/theapple1234/saviapple_Seinarumagecraft_CYOA/public/images/99DpjRKC-sib2.webp',
+    'https://cdn.jsdelivr.net/gh/theapple1234/saviapple_Seinarumagecraft_CYOA/public/images/7JSPLK9W-sib3.webp',
+    'https://cdn.jsdelivr.net/gh/theapple1234/saviapple_Seinarumagecraft_CYOA/public/images/Fk5N4YbF-sib4.webp'
 ];
 
 export const PageOne: React.FC = () => {
@@ -188,7 +188,7 @@ export const PageOne: React.FC = () => {
         <section className="flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-12 mb-16 min-h-[60vh] relative">
             <div className={`flex-shrink-0 relative transition-all duration-1000 transform ${introStage >= 1 ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'}`}>
                 <img 
-                    src="/images/DDHNTZDF-main2.webp" 
+                    src="https://cdn.jsdelivr.net/gh/theapple1234/saviapple_Seinarumagecraft_CYOA/public/images/DDHNTZDF-main2.webp" 
                     alt="Yasmin, the guide" 
                     className="w-96 md:w-[36rem] drop-shadow-2xl"
                 />
@@ -247,7 +247,7 @@ export const PageOne: React.FC = () => {
 
                 <div className={`transition-all duration-1000 delay-500 transform ${introStage >= 4 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
                     <img 
-                        src="/images/5gP1n3vK-main3.webp" 
+                        src="https://cdn.jsdelivr.net/gh/theapple1234/saviapple_Seinarumagecraft_CYOA/public/images/5gP1n3vK-main3.webp" 
                         alt="Swirling blue vortex" 
                         className="rounded-lg shadow-lg shadow-blue-500/20 w-full max-w-lg mx-auto lg:mx-0" 
                     />
@@ -288,7 +288,7 @@ export const PageOne: React.FC = () => {
                         description={language === 'ko' ? "훔쳐온 축복, 강화 마법, 기타 마법적인 혜택에 사용됩니다" : "for use on Stolen Blessings, enchantments, and other magical boons"} 
                         color="purple" 
                         title={language === 'ko' ? "축복 점수 100점으로 시작합니다" : "You start with"} 
-                        backgroundImage="/images/Q3X6rTbD-BP.webp"
+                        backgroundImage="https://cdn.jsdelivr.net/gh/theapple1234/saviapple_Seinarumagecraft_CYOA/public/images/Q3X6rTbD-BP.webp"
                     />
                     <PointCard 
                         amount={100} 
@@ -296,7 +296,7 @@ export const PageOne: React.FC = () => {
                         description={language === 'ko' ? "친구, 기회, 운 좋은 일들, 기타 물질적인 혜택에 사용됩니다" : "for use on friends, opportunities, strokes of luck, and other material comforts"} 
                         color="green" 
                         title={language === 'ko' ? "행운 점수 100점으로 시작합니다" : "You start with"} 
-                        backgroundImage="/images/fYwqrgdr-FP.webp"
+                        backgroundImage="https://cdn.jsdelivr.net/gh/theapple1234/saviapple_Seinarumagecraft_CYOA/public/images/fYwqrgdr-FP.webp"
                     />
                 </div>
                 <div className="mt-6">
@@ -315,7 +315,7 @@ export const PageOne: React.FC = () => {
                 <div className="flex flex-col md:flex-row justify-center items-start gap-12 lg:gap-24 mb-12">
                 {/* Parents Selector */}
                 <div className="flex flex-col items-center flex-1">
-                    <img src="/images/PZJmzncs-parent1.webp" className="w-40 h-40 rounded-full mb-4" alt="Parent icon" />
+                    <img src="https://cdn.jsdelivr.net/gh/theapple1234/saviapple_Seinarumagecraft_CYOA/public/images/PZJmzncs-parent1.webp" className="w-40 h-40 rounded-full mb-4" alt="Parent icon" />
                     <h3 className="font-cinzel text-xl font-bold tracking-wider">{language === 'ko' ? "부모님" : "PARENTS"}</h3>
                     <div className="flex items-center justify-center gap-4 my-2 text-white">
                     <button onClick={() => handleNumParentsChange(numParents - 1)} disabled={numParents === 0} className="px-3 py-1 rounded-md bg-gray-800/50 border border-gray-700 hover:bg-gray-700 disabled:opacity-50 transition-colors text-lg">-</button>
@@ -350,7 +350,7 @@ export const PageOne: React.FC = () => {
                 </div>
                 {/* Siblings Selector */}
                 <div className="flex flex-col items-center flex-1">
-                    <img src="/images/m58qFCRf-sib1.webp" className="w-40 h-40 rounded-full mb-4" alt="Sibling icon" />
+                    <img src="https://cdn.jsdelivr.net/gh/theapple1234/saviapple_Seinarumagecraft_CYOA/public/images/m58qFCRf-sib1.webp" className="w-40 h-40 rounded-full mb-4" alt="Sibling icon" />
                     <h3 className="font-cinzel text-xl font-bold tracking-wider">{language === 'ko' ? "형제" : "SIBLINGS"}</h3>
                     <div className="flex items-center justify-center gap-4 my-2 text-white">
                     <button onClick={() => handleNumSiblingsChange(numSiblings - 1)} disabled={numSiblings === 0} className="px-3 py-1 rounded-md bg-gray-800/50 border border-gray-700 hover:bg-gray-700 disabled:opacity-50 transition-colors text-lg">-</button>
@@ -711,7 +711,7 @@ export const PageOne: React.FC = () => {
                 <SectionHeader>{language === 'ko' ? "당신과 당신의 겉보기 자아를 디자인하십시오" : "DESIGN YOURSELF AND YOUR ALTER EGO"}</SectionHeader>
                 <div className="flex flex-col md:flex-row items-center gap-8 mb-12 max-w-6xl mx-auto px-4">
                     <div className="hidden md:block w-96 h-96 flex-shrink-0 rounded-full overflow-hidden border-4 border-gray-700 shadow-xl shadow-purple-900/20">
-                        <img src="/images/hxkBp4M6-main4.webp" alt="Alter Ego" className="w-full h-full object-cover" />
+                        <img src="https://cdn.jsdelivr.net/gh/theapple1234/saviapple_Seinarumagecraft_CYOA/public/images/hxkBp4M6-main4.webp" alt="Alter Ego" className="w-full h-full object-cover" />
                     </div>
                     <div className="flex-grow border-l-2 border-gray-600 pl-6 py-2">
                         <p className="text-gray-300 leading-relaxed text-justify text-sm">

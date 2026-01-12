@@ -513,7 +513,7 @@ export const GraciousDefeatSection: React.FC = () => {
                 <SectionHeader>{language === 'ko' ? "특성" : "Features"}</SectionHeader>
                 <div className={`my-4 max-w-sm mx-auto p-4 border rounded-lg transition-all bg-black/20 ${ ctx.isFeaturesBoosted ? 'border-amber-400 ring-2 ring-amber-400/50 cursor-pointer hover:border-amber-300' : isFeaturesBoostDisabled ? 'border-gray-700 opacity-50 cursor-not-allowed' : 'border-gray-700 hover:border-amber-400/50 cursor-pointer'}`} onClick={!isFeaturesBoostDisabled ? () => ctx.handleGraciousDefeatBoostToggle('features') : undefined}>
                     <div className="flex items-center justify-center gap-4">
-                        <img src="/images/zTm8fcLb-kaarn.webp" alt="Kaarn Sigil" className="w-16 h-16"/>
+                        <img src="https://cdn.jsdelivr.net/gh/theapple1234/saviapple_Seinarumagecraft_CYOA/public/images/zTm8fcLb-kaarn.webp" alt="Kaarn Sigil" className="w-16 h-16"/>
                         <div className="text-left">
                             <h4 className="font-cinzel text-lg font-bold text-amber-300 tracking-widest">{ctx.isFeaturesBoosted ? 'BOOSTED' : 'BOOST'}</h4>
                             {!ctx.isFeaturesBoosted && <p className="text-xs text-gray-400 mt-1">
