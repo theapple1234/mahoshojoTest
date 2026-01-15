@@ -323,16 +323,10 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
             const options: any = {
                 backgroundColor: bgColor, 
                 useCORS: true,
-                allowTaint: true,
                 scale: 2,
                 logging: false,
                 windowWidth: captureWidth, 
                 onclone: (clonedDoc: Document) => {
-                    const images = clonedDoc.querySelectorAll('img');
-                    images.forEach((img) => {
-                        img.crossOrigin = 'anonymous';
-                    });
-
                     const clonedElement = clonedDoc.querySelector('[data-capture-target]') as HTMLElement;
                     if (clonedElement) {
                         clonedElement.style.overflow = 'visible';
@@ -429,16 +423,10 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
                              const refCanvas = await window.html2canvas(item, {
                                  backgroundColor: bgColor,
                                  useCORS: true,
-                                 allowTaint: true,
                                  scale: 2,
                                  logging: false,
                                  windowWidth: refWidth,
                                  onclone: (clonedDoc: Document) => {
-                                    const images = clonedDoc.querySelectorAll('img');
-                                     images.forEach((img) => {
-                                         img.crossOrigin = 'anonymous';
-                                     });
-
                                      const clonedNode = clonedDoc.querySelector(`[data-name="${refName}"]`) as HTMLElement;
                                      if (clonedNode) {
                                         clonedNode.style.height = 'auto';
@@ -557,7 +545,7 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
                                     name="My Build"
                                     type="Full Character" 
                                     pointsSpent={pointsSpent}
-                                    visualSrc={customImage || "https://i.ibb.co/Z6tHPxPB/symbol-transparent.png"}
+                                    visualSrc={customImage || "/images/Z6tHPxPB-symbol-transparent.webp"}
                                     onImageUpload={handleImageUpload}
                                 />
                             )}

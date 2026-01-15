@@ -21,28 +21,28 @@ export const RETIREMENT_CHOICES_DATA: ChoiceItem[] = [
         title: 'ENTER THE AETHER',
         cost: '',
         description: "The Aether is a megaverse almost comparable to our own which we managed to connect to through the Greater Net during the V.A.P.; however, being part of our local network, it's considered a subverse and is thus affected by our destabilization problems. It is described as a patchwork quilt of countless procedurally generated verses, each with their own strange denizens, mysteries to be solved and adventures to be had. The societies there work entirely different from our own, so it might be a breath of fresh air if our world is feeling dull. Best for the adventurous types, though it can be dangerous.",
-        imageSrc: 'https://cdn.jsdelivr.net/gh/theapple1234/saviapple_Seinarumagecraft_CYOA/public/images/v45DyXN1-d1.webp'
+        imageSrc: '/images/v45DyXN1-d1.webp'
     },
     {
         id: 'enter_sunset_city',
         title: 'ENTER SUNSET CITY',
         cost: '',
         description: "Sunset City is the nickname of a megaverse created by the combined resources of Red-Jade Council, initially devised for themselves but eventually opened up to the general public once they had the processing power. Unlike our world and the Aether, it is a place of absolute relaxation, and you feel a sort of tranquility just walking along its beautiful streets. Its appearance changes from person to person depending on your preferences, and there's leagues of virtual assistants mulling around ready to follow your demands. No adventuring, but lots of relaxing, swimming, gaming, and etc to be had.",
-        imageSrc: 'https://cdn.jsdelivr.net/gh/theapple1234/saviapple_Seinarumagecraft_CYOA/public/images/fbR41bq-d2.webp'
+        imageSrc: '/images/fbR41bq-d2.webp'
     },
     {
         id: 'experience_reincarnation',
         title: 'EXPERIENCE REINCARNATION',
         cost: '',
         description: "Don't quite want to abandon this world just yet? You can always just be reborn as a brand new mage, and relive your childhood all over again with a different loving family. The exact extent of your memory retention is up to you. Maybe you want to keep your past memories up to a certain point? Maybe just certain pleasant memories while scrapping the bad ones? Just enough to retain your personality? Or maybe you want a complete blank slate? It's pretty much up to you. You can also choose whether the public will know your previous identity, or if they'll all just be told that you're a brand new mage.",
-        imageSrc: 'https://cdn.jsdelivr.net/gh/theapple1234/saviapple_Seinarumagecraft_CYOA/public/images/gXmq9Sp-d3.webp'
+        imageSrc: '/images/gXmq9Sp-d3.webp'
     },
     {
         id: 'give_yourself_unto_the_void',
         title: 'GIVE YOURSELF UNTO THE VOID',
         cost: '',
         description: "Oh. You want to...? Well, I don't judge. But I must make it absolutely clear that this is {i}game{/i} over. It's the exact sort of death you'd experience if you died in combat: an endless, eternal oblivion. You're just going to be gone. It's odd, but a few people do choose this option, for their own reasons. We make sure their last moments are filled with untold bliss as their minds are filled with all of their loveliest memories played a million times over in an instant, before they sink into the cool waters of oblivion.\n\nJust know that we'll miss you...",
-        imageSrc: 'https://cdn.jsdelivr.net/gh/theapple1234/saviapple_Seinarumagecraft_CYOA/public/images/932tfRMM-d4.webp'
+        imageSrc: '/images/932tfRMM-d4.webp'
     },
 ];
 
@@ -52,28 +52,28 @@ export const RETIREMENT_CHOICES_DATA_KO: ChoiceItem[] = [
         title: '에테르 속으로',
         cost: '',
         description: "에테르는 우리 우주만큼이나 거대한 초우주입니다. 가상 승천 프로젝트를 진행하던 중 어떻게 연결할 수 있게 되었죠. 하지만 에테르는 우리 네트워크의 일부로 종속된 취급을 받아서 우리 우주의 불안정화 문제를 같이 겪고 있습니다. 에테르는 일정한 절차를 통해 생성된 수많은 가상 우주의 집합체입니다. 각각의 가상 우주에는 신비한 거주자들과, 해결해야 할 수많은 미스테리와 모험들이 가득합니다. 사회 체계 역시 우리의 것과는 완전히 다르기 때문에, 이곳에 질린 이들에게는 신선한 자극이 될 수도 있습니다. 모험심 가득한 마녀들에게 최고지만, 위험할 수 있다는 건 명심하셔야 해요.",
-        imageSrc: 'https://cdn.jsdelivr.net/gh/theapple1234/saviapple_Seinarumagecraft_CYOA/public/images/v45DyXN1-d1.webp'
+        imageSrc: '/images/v45DyXN1-d1.webp'
     },
     {
         id: 'enter_sunset_city',
         title: '일몰의 도시로',
         cost: '',
         description: "일몰의 도시는 홍옥의 의회에서 만들어낸 초우주의 별명입니다. 원래는 의원들만의 공간으로 설계되었습니다만, 충분한 처리 능력이 확보되지 대중에게 개방되었습니다. 에테르나 우리의 현실 세계외는 다르게, 그곳에는 평화와 안식만이 가득합니다. 도시의 아름다운 거리를 걷다 보면 평온함을 느낄 수 있을 거에요. 도시의 모습은 각자의 기호에 맞춰 변화하고, 수많은 관리자들이 당신의 시중을 들기 위해 대기하고 있습니다. 딱히 모험이랄 것은 없지만, 휴식, 수영, 소소한 게임 같은 것들이라면 원없이 할 수 있을 겁니다.",
-        imageSrc: 'https://cdn.jsdelivr.net/gh/theapple1234/saviapple_Seinarumagecraft_CYOA/public/images/fbR41bq-d2.webp'
+        imageSrc: '/images/fbR41bq-d2.webp'
     },
     {
         id: 'experience_reincarnation',
         title: '환생',
         cost: '',
         description: "이 세계를 버리기에는 아직 이른가요? 언제든 새로운 마법소녀로 태어날 수 있습니다. 또 다른 가족의 품에서 사랑받으며 어린 시절을 다시 보낼 수 있는 것이죠. 전생의 기억을 어디까지 간직할지는 당신의 선택에 달렸습니다. 특정 시기까지만 남겨 둘 수도, 좋은 기억만 남기고 나쁜 기억은 버릴 수도, 당신의 성격을 유지할 정도로만 남길 수도 있고, 아예 완전히 새로운 시작을 할 수도 있죠. 게다가 사람들에게 당신의 전생을 알릴 수도, 아니면 그냥 새로운 마법소녀라고만 할 수도 있습니다.",
-        imageSrc: 'https://cdn.jsdelivr.net/gh/theapple1234/saviapple_Seinarumagecraft_CYOA/public/images/gXmq9Sp-d3.webp'
+        imageSrc: '/images/gXmq9Sp-d3.webp'
     },
     {
         id: 'give_yourself_unto_the_void',
         title: '공허',
         cost: '',
         description: "어, 정말 그걸...? 음, 제가 뭐라고 할 입장은 아닙니다. 하지만 이건 끝이라는 걸 꼭 말씀드려야겠네요. 마치 싸우다가 전사하는 것처럼, 끝없는 망각 속으로 빠지는 겁니다. 그냥, 사라지는 거에요. 흔한 건 아니지만 이쪽을 고르는 사람들도 몇 명 있고, 각자 자신들만의 이유가 있을 겁니다. 저희 쪽에서는 그들의 마지막 순간을 가장 황홀하게 해 드린답니다. 망각 속으로 빠지기 전에 그 사람의 최고의 기억을 백만 번 겹쳐서 재생시켜 드리죠.\n\n이것만은 알아 두세요. 당신이 그리울 거에요...",
-        imageSrc: 'https://cdn.jsdelivr.net/gh/theapple1234/saviapple_Seinarumagecraft_CYOA/public/images/932tfRMM-d4.webp'
+        imageSrc: '/images/932tfRMM-d4.webp'
     },
 ];
 
@@ -88,7 +88,7 @@ Do you think we're merely sadists? Have you seen her quarters? She practically l
 Damn it, think about what you're doing. Do you know what things were like before? We'd been forsaken by our only god. The planet dried up, and almost every harvest died in the scorching heat. Globe-spanning wars were fought over what little resources remained, despotic warlords having entire populations massacred over a single well's worth of water. Plagues battered the few wartorn survivors, leaving living corpses limping through the streets, their flesh sloughing from their bones. What were we supposed to do? We're not proud of what we've done, but it was a grim necessity. None of us would be here otherwise.
 
 Would you really doom the entire world for the sake of a single child?`,
-    imageSrc: 'https://cdn.jsdelivr.net/gh/theapple1234/saviapple_Seinarumagecraft_CYOA/public/images/GfZ2DQwh-d5.webp'
+    imageSrc: '/images/GfZ2DQwh-d5.webp'
 }];
 
 export const CHILD_OF_GOD_DATA_KO: ChoiceItem[] = [{
@@ -102,5 +102,5 @@ export const CHILD_OF_GOD_DATA_KO: ChoiceItem[] = [{
 제발 좀, 생각 좀 해 보세요. 예전에 어땠는지 알기나 해요? 우리의 유일한 신이 우릴 버렸다구요. 행성은 말라 비틀어지고, 농작물은 다 시들어 버렸어요. 그 얼마 안 남은 자원을 두고 전 지구가 편을 갈라 싸웠어요. 흉악한 군대 두목들은 우물물 하나를 두고 수천, 수만 명을 학살했어요. 그렇게 살아남은 사람들은 역병에 걸려 고통받았고, 살아 있는 시체들이 절뚝대면서 거리를 돌아다녔어요. 뼈에서 막 살점이 떨어져 나갔다구요. 우리가 뭘 했어야 했을까요? 이게 자랑스러워할 일은 아니지만, 꼭 해야만 하는 일이었어요. 그게 아니면 우리 모두 여기 없었을 거에요.
 
 정말 한 아이 때문에 세계를 파멸시킬 생각인가요?`,
-    imageSrc: 'https://cdn.jsdelivr.net/gh/theapple1234/saviapple_Seinarumagecraft_CYOA/public/images/GfZ2DQwh-d5.webp'
+    imageSrc: '/images/GfZ2DQwh-d5.webp'
 }];

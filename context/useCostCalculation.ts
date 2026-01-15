@@ -406,6 +406,33 @@ export const useCostCalculation = ({
              const totalJuathas = pageThreeState.usedSigilCounts.juathas;
              bpSpent -= (totalJuathas * 8);
         }
+        
+        // --- ENGRAVING COSTS & REFUNDS ---
+        const processEngraving = (
+            override: string | null,
+            isActive: boolean,
+            hasJuathas: boolean
+        ) => {
+            if (!isActive) return;
+            const engraving = override ?? pageThreeState.selectedBlessingEngraving;
+            
+            if (engraving === 'weapon') {
+                fpSpent += 5;
+                if (hasJuathas) {
+                    bpSpent -= 1;
+                }
+            }
+        };
+
+        processEngraving(pageThreeState.goodTidingsEngraving, !!pageThreeState.selectedGoodTidingsTier, false);
+        processEngraving(pageThreeState.compellingWillEngraving, pageThreeState.selectedCompellingWillSigils.size > 0, pageThreeState.selectedCompellingWillSigils.has('manipulator'));
+        processEngraving(pageThreeState.worldlyWisdomEngraving, pageThreeState.selectedWorldlyWisdomSigils.size > 0, pageThreeState.selectedWorldlyWisdomSigils.has('arborealist'));
+        processEngraving(pageThreeState.bitterDissatisfactionEngraving, pageThreeState.selectedBitterDissatisfactionSigils.size > 0, pageThreeState.selectedBitterDissatisfactionSigils.has('fireborn'));
+        processEngraving(pageThreeState.lostHopeEngraving, pageThreeState.selectedLostHopeSigils.size > 0, pageThreeState.selectedLostHopeSigils.has('young_witch'));
+        processEngraving(pageThreeState.fallenPeaceEngraving, pageThreeState.selectedFallenPeaceSigils.size > 0, pageThreeState.selectedFallenPeaceSigils.has('left_brained'));
+        processEngraving(pageThreeState.graciousDefeatEngraving, pageThreeState.selectedGraciousDefeatSigils.size > 0, pageThreeState.selectedGraciousDefeatSigils.has('gd_fireborn'));
+        processEngraving(pageThreeState.closedCircuitsEngraving, pageThreeState.selectedClosedCircuitsSigils.size > 0, pageThreeState.selectedClosedCircuitsSigils.has('script_kiddy'));
+        processEngraving(pageThreeState.righteousCreationEngraving, pageThreeState.selectedRighteousCreationSigils.size > 0, pageThreeState.selectedRighteousCreationSigils.has('rookie_engineer'));
 
         // --- PAGE 4 ---
         // Runes

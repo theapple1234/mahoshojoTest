@@ -101,7 +101,7 @@ export const VortexLayout: React.FC<{ sections: any[], ctx: ICharacterContext, n
                     )}
                      <div 
                         className="w-full h-full bg-center bg-cover bg-no-repeat"
-                        style={{ backgroundImage: `url(${visualSrc || "https://cdn.jsdelivr.net/gh/theapple1234/saviapple_Seinarumagecraft_CYOA/public/images/Z6tHPxPB-symbol-transparent.webp"})` }}
+                        style={{ backgroundImage: `url(${visualSrc || "/images/Z6tHPxPB-symbol-transparent.webp"})` }}
                      />
                 </div>
 
