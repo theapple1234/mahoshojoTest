@@ -323,7 +323,7 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
             const options: any = {
                 backgroundColor: bgColor, 
                 useCORS: true,
-                scale: 3,
+                scale: 2.5,
                 logging: false,
                 windowWidth: captureWidth, 
                 onclone: (clonedDoc: Document) => {
