@@ -1,8 +1,10 @@
+
 import React, { useState, useEffect } from 'react';
 import { BEAST_CATEGORIES, BEAST_SIZES, BEAST_PERKS, COMPANION_PERSONALITY_TRAITS } from '../constants';
-import type { BeastSelections } from '../types';
+import type { AllBuilds, BeastSelections } from '../types';
 import { useCharacterContext } from '../context/CharacterContext';
-import { db } from '../utils/db'; // Import DB
+
+const STORAGE_KEY = 'seinaru_magecraft_builds';
 
 const calculateBeastPoints = (selections: BeastSelections): number => {
     let total = 0;
@@ -65,47 +67,61 @@ export const BeastSelectionModal: React.FC<BeastSelectionModalProps> = ({
     requiredPerkId,
     colorTheme = 'purple'
 }) => {
-    const { language, selectedNecromancy, selectedArcaneConstructsPowers, selectedNaniteControls } = useCharacterContext();
+    const { 
+        language,
+        selectedNecromancy,
+        selectedArcaneConstructsPowers,
+        selectedNaniteControls
+    } = useCharacterContext();
     const [beastBuilds, setBeastBuilds] = useState<Record<string, { points: number }>>({});
 
     useEffect(() => {
-        const fetchBuilds = async () => {
+        const savedBuildsJSON = localStorage.getItem(STORAGE_KEY);
+        if (savedBuildsJSON) {
             try {
-                const builds = await db.getReferenceBuildsByType('beasts');
+                const parsedBuilds: AllBuilds = JSON.parse(savedBuildsJSON);
+                const beasts = parsedBuilds.beasts || {};
                 const buildsWithPoints: Record<string, { points: number }> = {};
                 
                 const hasRoboticist = selectedArcaneConstructsPowers.has('roboticist_i');
                 const hasNaniteForm = selectedNaniteControls.has('nanite_form');
                 const hasUndeadBeast = selectedNecromancy.has('undead_beast');
 
-                for (const build of builds) {
-                    const hydratedData = hydrateBeastData(build.data);
-                    
-                    if (categoryFilter && !hydratedData.category.includes(categoryFilter)) {
-                        continue;
-                    }
-                    if (requiredPerkId && !hydratedData.perks.has(requiredPerkId)) {
-                        continue;
-                    }
-                    if (excludedPerkIds && excludedPerkIds.some(perkId => hydratedData.perks.has(perkId))) {
-                        continue;
-                    }
-                    if (hydratedData.perks.has('automaton_perk') && !hasRoboticist && !hasNaniteForm) {
-                        continue;
-                    }
-                    if (hydratedData.perks.has('undead_perk') && !hasUndeadBeast) {
-                        continue;
-                    }
+                for (const name in beasts) {
+                    const build = beasts[name];
+                    if (build.version === 1) {
+                        const hydratedData = hydrateBeastData(build.data);
+                        
+                        if (categoryFilter && !hydratedData.category.includes(categoryFilter)) {
+                            continue;
+                        }
 
-                    const points = calculateBeastPoints(hydratedData);
-                    buildsWithPoints[build.name] = { points };
+                        if (requiredPerkId && !hydratedData.perks.has(requiredPerkId)) {
+                            continue;
+                        }
+
+                        if (excludedPerkIds && excludedPerkIds.some(perkId => hydratedData.perks.has(perkId))) {
+                            continue;
+                        }
+
+                        // Validate Perk Unlock Conditions
+                        if (hydratedData.perks.has('automaton_perk') && !hasRoboticist && !hasNaniteForm) {
+                            continue;
+                        }
+
+                        if (hydratedData.perks.has('undead_perk') && !hasUndeadBeast) {
+                            continue;
+                        }
+
+                        const points = calculateBeastPoints(hydratedData);
+                        buildsWithPoints[name] = { points };
+                    }
                 }
                 setBeastBuilds(buildsWithPoints);
             } catch (error) {
-                console.error("Failed to parse beast builds from DB:", error);
+                console.error("Failed to parse beast builds from storage:", error);
             }
-        };
-        fetchBuilds();
+        }
     }, [categoryFilter, excludedPerkIds, requiredPerkId, selectedNecromancy, selectedArcaneConstructsPowers, selectedNaniteControls]);
 
     useEffect(() => {
@@ -114,19 +130,45 @@ export const BeastSelectionModal: React.FC<BeastSelectionModalProps> = ({
                 onClose();
             }
         };
+
         window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
     }, [onClose]);
 
-    // ... (rest unchanged)
     const themeClasses = {
-        purple: { border: 'border-purple-700/80', headerBorder: 'border-purple-900/50', titleText: 'text-purple-200', closeBtn: 'text-purple-200/70 hover:text-white', infoText: 'text-purple-300/80', selectedItem: 'border-purple-400 ring-2 ring-purple-400/50', hoverItem: 'hover:border-purple-400/50', footerBorder: 'border-purple-900/50' },
-        cyan: { border: 'border-cyan-700/80', headerBorder: 'border-cyan-900/50', titleText: 'text-cyan-200', closeBtn: 'text-cyan-200/70 hover:text-white', infoText: 'text-cyan-300/80', selectedItem: 'border-cyan-400 ring-2 ring-cyan-400/50', hoverItem: 'hover:border-cyan-400/50', footerBorder: 'border-cyan-900/50' }
+        purple: {
+            border: 'border-purple-700/80',
+            headerBorder: 'border-purple-900/50',
+            titleText: 'text-purple-200',
+            closeBtn: 'text-purple-200/70 hover:text-white',
+            infoText: 'text-purple-300/80',
+            selectedItem: 'border-purple-400 ring-2 ring-purple-400/50',
+            hoverItem: 'hover:border-purple-400/50',
+            footerBorder: 'border-purple-900/50'
+        },
+        cyan: {
+            border: 'border-cyan-700/80',
+            headerBorder: 'border-cyan-900/50',
+            titleText: 'text-cyan-200',
+            closeBtn: 'text-cyan-200/70 hover:text-white',
+            infoText: 'text-cyan-300/80',
+            selectedItem: 'border-cyan-400 ring-2 ring-cyan-400/50',
+            hoverItem: 'hover:border-cyan-400/50',
+            footerBorder: 'border-cyan-900/50'
+        }
     };
+
     const currentTheme = themeClasses[colorTheme] || themeClasses.purple;
+    
+    // Localization
     const msgSelectAny = language === 'ko' ? "동물 빌드를 선택하세요." : "Select any beast build.";
     const msgLimit = language === 'ko' ? `${pointLimit} 동물 점수 이하인 빌드를 선택하세요.` : `Select a beast build that costs ${pointLimit} Beast Points or less.`;
-    const msgCategory = categoryFilter ? (language === 'ko' ? ` 카테고리 필수: ${categoryFilter === 'humanoid' ? '인간형' : categoryFilter.toUpperCase()}.` : ` Must have category: ${categoryFilter.toUpperCase()}.`) : "";
+    const msgCategory = categoryFilter 
+        ? (language === 'ko' ? ` 카테고리 필수: ${categoryFilter === 'humanoid' ? '인간형' : categoryFilter.toUpperCase()}.` : ` Must have category: ${categoryFilter.toUpperCase()}.`) 
+        : "";
+    
     const requiredPerk = requiredPerkId ? BEAST_PERKS.find(p => p.id === requiredPerkId)?.title : "";
     const msgPerk = requiredPerk ? (language === 'ko' ? ` 특성 필수: ${requiredPerk}.` : ` Must have perk: ${requiredPerk}.`) : "";
     const msgExcluded = excludedPerkIds && excludedPerkIds.length > 0 ? (language === 'ko' ? " 제한된 특성(*)을 사용하지 않아야 합니다." : " Ensure it does not use restricted perks (*).") : "";
@@ -135,14 +177,36 @@ export const BeastSelectionModal: React.FC<BeastSelectionModalProps> = ({
     const msgClickToAssign = language === 'ko' ? '클릭하여 할당' : 'Click to assign this beast';
 
     return (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[101] flex items-center justify-center p-4" onClick={onClose} role="dialog" aria-modal="true">
-            <div className={`bg-[#100c14] border-2 ${currentTheme.border} rounded-xl shadow-lg w-full max-w-2xl max-h-[80vh] flex flex-col`} onClick={(e) => e.stopPropagation()}>
+        <div
+            className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[101] flex items-center justify-center p-4"
+            onClick={onClose}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="beast-modal-title"
+        >
+            <div
+                className={`bg-[#100c14] border-2 ${currentTheme.border} rounded-xl shadow-lg w-full max-w-2xl max-h-[80vh] flex flex-col`}
+                onClick={(e) => e.stopPropagation()}
+            >
                 <header className={`flex items-center justify-between p-4 border-b ${currentTheme.headerBorder}`}>
-                    <h2 className={`font-cinzel text-2xl ${currentTheme.titleText}`}>{title}</h2>
-                    <button onClick={onClose} className={`${currentTheme.closeBtn} text-3xl font-bold transition-colors`}>&times;</button>
+                    <h2 id="beast-modal-title" className={`font-cinzel text-2xl ${currentTheme.titleText}`}>
+                        {title}
+                    </h2>
+                    <button
+                        onClick={onClose}
+                        className={`${currentTheme.closeBtn} text-3xl font-bold transition-colors`}
+                        aria-label="Close"
+                    >
+                        &times;
+                    </button>
                 </header>
                 <main className="p-6 overflow-y-auto">
-                    <p className={`text-center text-sm ${currentTheme.infoText} mb-4 italic`}>{pointLimit === Infinity ? msgSelectAny : msgLimit}{msgCategory}{msgPerk}{msgExcluded}</p>
+                    <p className={`text-center text-sm ${currentTheme.infoText} mb-4 italic`}>
+                        {pointLimit === Infinity ? msgSelectAny : msgLimit}
+                        {msgCategory}
+                        {msgPerk}
+                        {msgExcluded}
+                    </p>
                     <div className="space-y-3">
                         {Object.keys(beastBuilds).length > 0 ? (
                             Object.keys(beastBuilds).map((name) => {
@@ -150,18 +214,48 @@ export const BeastSelectionModal: React.FC<BeastSelectionModalProps> = ({
                                 const isSelected = name === currentBeastName;
                                 const isDisabled = pointLimit !== Infinity && points > pointLimit;
                                 const costColor = isDisabled ? 'text-red-500' : 'text-green-400';
+                                
                                 return (
-                                    <div key={name} onClick={() => !isDisabled && onSelect(name)} className={`p-3 bg-slate-900/70 border rounded-md flex justify-between items-center transition-colors ${isDisabled ? 'border-gray-700 opacity-60 cursor-not-allowed' : isSelected ? `${currentTheme.selectedItem} cursor-pointer` : `border-gray-800 ${currentTheme.hoverItem} cursor-pointer`}`} role="button" aria-disabled={isDisabled} aria-pressed={isSelected}>
-                                        <div><h3 className="font-semibold text-white">{name}</h3><p className="text-xs text-gray-400">{isDisabled ? msgCostExceeds : msgClickToAssign}</p></div>
-                                        <span className={`font-bold text-lg ${costColor}`}>{points} BP</span>
+                                    <div
+                                        key={name}
+                                        onClick={() => !isDisabled && onSelect(name)}
+                                        className={`p-3 bg-slate-900/70 border rounded-md flex justify-between items-center transition-colors ${
+                                            isDisabled 
+                                                ? 'border-gray-700 opacity-60 cursor-not-allowed'
+                                                : isSelected
+                                                    ? `${currentTheme.selectedItem} cursor-pointer`
+                                                    : `border-gray-800 ${currentTheme.hoverItem} cursor-pointer`
+                                        }`}
+                                        role="button"
+                                        aria-disabled={isDisabled}
+                                        aria-pressed={isSelected}
+                                    >
+                                        <div>
+                                            <h3 className="font-semibold text-white">{name}</h3>
+                                            <p className="text-xs text-gray-400">
+                                                {isDisabled ? msgCostExceeds : msgClickToAssign}
+                                            </p>
+                                        </div>
+                                        <span className={`font-bold text-lg ${costColor}`}>
+                                            {points} BP
+                                        </span>
                                     </div>
                                 );
                             })
-                        ) : (<p className="text-center text-gray-500 italic py-8">{msgNoBuilds}</p>)}
+                        ) : (
+                            <p className="text-center text-gray-500 italic py-8">
+                                {msgNoBuilds}
+                            </p>
+                        )}
                     </div>
                 </main>
                  <footer className={`p-3 border-t ${currentTheme.footerBorder} text-center`}>
-                    <button onClick={() => onSelect(null)} className="px-4 py-2 text-sm font-cinzel bg-gray-800/50 border border-gray-700 rounded-md hover:bg-gray-700 transition-colors">{language === 'ko' ? "할당 해제" : "Clear Assignment"}</button>
+                    <button
+                        onClick={() => onSelect(null)}
+                        className="px-4 py-2 text-sm font-cinzel bg-gray-800/50 border border-gray-700 rounded-md hover:bg-gray-700 transition-colors"
+                    >
+                        {language === 'ko' ? "할당 해제" : "Clear Assignment"}
+                    </button>
                 </footer>
             </div>
         </div>

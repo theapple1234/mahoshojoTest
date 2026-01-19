@@ -18,13 +18,15 @@ import type {
     AllBuilds, 
     SavedBuildData 
 } from '../types';
-import { db } from '../utils/db'; // New DB import
 
+// Add type declaration for html2canvas from CDN
 declare global {
   interface Window {
     html2canvas: any;
   }
 }
+
+const STORAGE_KEY = 'seinaru_magecraft_builds';
 
 const BUILD_TYPES: BuildType[] = ['companions', 'weapons', 'beasts', 'vehicles'];
 
@@ -46,12 +48,13 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
     // Metadata State
     const [allBuilds, setAllBuilds] = useState<AllBuilds>({ companions: {}, weapons: {}, beasts: {}, vehicles: {} });
     const [currentName, setCurrentName] = useState('');
+    // Tracks the name of the file originally loaded. Null if "fresh" or reset.
     const [originalLoadedName, setOriginalLoadedName] = useState<string | null>(null);
 
     const [pointsSpent, setPointsSpent] = useState(0);
     const [discount, setDiscount] = useState(0);
     const [template, setTemplate] = useState<'default' | 'temple' | 'vortex' | 'terminal'>('default');
-    const [isTransparent, setIsTransparent] = useState(false);
+    const [isTransparent, setIsTransparent] = useState(false); // Transparency mode for peeking
     
     const fileInputRef = useRef<HTMLInputElement>(null);
     const summaryRef = useRef<HTMLDivElement>(null);
@@ -59,25 +62,29 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
 
     const language = ctx.language;
 
-    // Load Builds asynchronously on mount and refresh trigger
+    // Refresh builds whenever buildsRefreshTrigger changes (e.g. after a load)
     useEffect(() => {
-        const fetchBuilds = async () => {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
             try {
-                const builds = await db.getAllReferenceBuilds();
-                setAllBuilds(builds);
+                const parsed = JSON.parse(saved);
+                const normalized: AllBuilds = {
+                    companions: parsed.companions || {},
+                    weapons: parsed.weapons || {},
+                    beasts: parsed.beasts || {},
+                    vehicles: parsed.vehicles || {}
+                };
+                setAllBuilds(normalized);
             } catch (e) {
-                console.error("Failed to load builds from DB", e);
+                console.error("Failed to load builds", e);
             }
-        };
-        fetchBuilds();
-    }, [ctx.buildsRefreshTrigger]);
+        }
+    }, [ctx.buildsRefreshTrigger]); // Listen to trigger
 
-    const saveBuildToDB = async (name: string, data: any) => {
-        await db.saveReferenceBuild(activeTab, name, data);
-        // Refresh local state immediately
-        const builds = await db.getAllReferenceBuilds();
+    const saveBuildsToStorage = (builds: AllBuilds) => {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(builds));
         setAllBuilds(builds);
-        // Refresh context for cost updates
+        // Trigger a refresh in context to update costs if applicable
         ctx.refreshBuildCosts();
     };
 
@@ -89,63 +96,57 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
     }
 
     const updateInternalBuildReferences = (newBuilds: AllBuilds, oldName: string, newName: string) => {
-        // This function previously mutated the in-memory allBuilds object for subsequent saving.
-        // With IndexedDB, we need to find affected records and update them individually.
-        // However, updating dependent builds in DB is complex. 
-        // For simplicity in migration, we will iterate the `newBuilds` state (which mirrors DB) 
-        // find dependencies, and issue update calls.
-        
-        const updates: Promise<void>[] = [];
-
+        // When renaming a Beast, update Companions referencing it
         if (activeTab === 'beasts') {
-            Object.keys(newBuilds.companions).forEach(compName => {
-                const comp = newBuilds.companions[compName];
+            Object.values(newBuilds.companions).forEach(comp => {
                 if (comp.data.inhumanFormBeastName === oldName) {
-                    const newData = { ...comp.data, inhumanFormBeastName: newName };
-                    updates.push(db.saveReferenceBuild('companions', compName, newData));
+                    comp.data.inhumanFormBeastName = newName;
                 }
             });
         }
+        // When renaming a Weapon, update Companions referencing it
         if (activeTab === 'weapons') {
-             Object.keys(newBuilds.companions).forEach(compName => {
-                const comp = newBuilds.companions[compName];
+             Object.values(newBuilds.companions).forEach(comp => {
                 if (comp.data.specialWeaponName === oldName) {
-                    const newData = { ...comp.data, specialWeaponName: newName };
-                    updates.push(db.saveReferenceBuild('companions', compName, newData));
+                    comp.data.specialWeaponName = newName;
                 }
             });
         }
-        
-        return Promise.all(updates);
     };
 
-    const saveToName = async (name: string, originalName?: string) => {
+    const saveToName = (name: string, originalName?: string) => {
         const dataToSave = getPayload();
+        const buildData: SavedBuildData = {
+            version: 1,
+            data: dataToSave
+        };
+        const newBuilds = { ...allBuilds };
         
-        // If renaming, delete old and update dependencies
+        // If renaming, delete the old entry and update references
         if (originalName && originalName !== name) {
-            await db.deleteReferenceBuild(activeTab, originalName);
+            delete newBuilds[activeTab][originalName];
             
-            // Context update
+            // 1. Update Context References (Application State)
             ctx.updateReferenceName(activeTab, originalName, name);
             
-            // DB Dependencies update
-            // We use the current state of allBuilds to find dependencies
-            await updateInternalBuildReferences(allBuilds, originalName, name);
+            // 2. Update Internal Build References (Saved Data)
+            updateInternalBuildReferences(newBuilds, originalName, name);
         }
         
-        await saveBuildToDB(name, dataToSave);
+        newBuilds[activeTab][name] = buildData;
+        saveBuildsToStorage(newBuilds);
         
         const msgSaved = language === 'ko' ? `"${name}" 빌드가 저장되었습니다!` : `Saved ${activeTab.slice(0, -1)} "${name}"!`;
         alert(msgSaved);
         setCurrentName(name);
-        setOriginalLoadedName(name);
+        setOriginalLoadedName(name); // Update loaded state to the new name
     };
 
     const handleChangeThisFile = () => {
         if (!currentName.trim()) return;
         if (!originalLoadedName) return;
 
+        // If renaming, checking if target name exists
         if (currentName !== originalLoadedName) {
             if (allBuilds[activeTab][currentName]) {
                 const msgConfirm = language === 'ko' ? `"${currentName}" 빌드가 이미 존재합니다. 덮어쓰시겠습니까?` : `Build "${currentName}" already exists. Overwrite?`;
@@ -168,7 +169,7 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
             const msgConfirm = language === 'ko' ? `"${nameToSave}" 빌드가 이미 존재합니다. 덮어쓰시겠습니까?` : `Build "${nameToSave}" already exists. Overwrite?`;
             if (!confirm(msgConfirm)) return;
         }
-        saveToName(nameToSave);
+        saveToName(nameToSave); // No original name passed implies new entry
     };
 
     const handleInitialSave = () => {
@@ -224,21 +225,18 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
         
         const data = build.data;
         setCurrentName(name);
-        setOriginalLoadedName(name); 
+        setOriginalLoadedName(name); // Mark as loaded
         loadDataIntoView(activeTab, data);
     };
 
-    const handleDelete = async (name: string) => {
+    const handleDelete = (name: string) => {
         const msgConfirm = language === 'ko' ? `정말로 "${name}" 빌드를 삭제하시겠습니까?` : `Are you sure you want to delete "${name}"?`;
         if (!confirm(msgConfirm)) return;
+        const newBuilds = { ...allBuilds };
+        delete newBuilds[activeTab][name];
+        saveBuildsToStorage(newBuilds);
         
-        await db.deleteReferenceBuild(activeTab, name);
-        
-        // Refresh local state
-        const builds = await db.getAllReferenceBuilds();
-        setAllBuilds(builds);
-        ctx.refreshBuildCosts();
-        
+        // If deleted currently loaded file, reset
         if (originalLoadedName === name) {
             handleReset();
         }
@@ -246,13 +244,14 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
 
     const handleReset = () => {
         setCurrentName('');
-        setOriginalLoadedName(null);
+        setOriginalLoadedName(null); // Clear loaded state
         if (activeTab === 'companions') setCompanionSelections(INITIAL_COMPANION);
         else if (activeTab === 'weapons') setWeaponSelections(INITIAL_WEAPON);
         else if (activeTab === 'beasts') setBeastSelections(INITIAL_BEAST);
         else if (activeTab === 'vehicles') setVehicleSelections(INITIAL_VEHICLE);
     };
 
+    // When changing tabs, reset state
     const handleTabChange = (type: BuildType) => {
         setActiveTab(type);
         handleReset();
@@ -277,20 +276,24 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
         // Dependency gathering
         const buildsToExport: { type: BuildType, name: string, data: SavedBuildData }[] = [];
         
+        // Add main build
         buildsToExport.push({
             type: activeTab,
             name: currentName,
             data: { version: 1, data: payload }
         });
 
+        // If Companion, check for referenced Beast/Weapon
         if (activeTab === 'companions') {
             const comp = companionSelections;
+            // Check Beast
             if (comp.inhumanFormBeastName) {
                 const beastBuild = allBuilds.beasts[comp.inhumanFormBeastName];
                 if (beastBuild) {
                     buildsToExport.push({ type: 'beasts', name: comp.inhumanFormBeastName, data: beastBuild });
                 }
             }
+            // Check Weapon
             if (comp.specialWeaponName) {
                 const weaponBuild = allBuilds.weapons[comp.specialWeaponName];
                 if (weaponBuild) {
@@ -325,7 +328,7 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
         if (!file) return;
 
         const reader = new FileReader();
-        reader.onload = async (event) => {
+        reader.onload = (event) => {
             try {
                 const jsonStr = event.target?.result as string;
                 if (ctx.setDebugFileContent) ctx.setDebugFileContent(jsonStr);
@@ -334,31 +337,27 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
                 const json = JSON.parse(jsonStr);
                 
                 if (json.seinaruMeta === "multi-export" && json.builds && Array.isArray(json.builds)) {
-                    // Bulk save to DB
+                    const newAllBuilds = { ...allBuilds };
                     let importCount = 0;
-                    const promises = json.builds.map(async (b: any) => {
+
+                    json.builds.forEach((b: any) => {
                         if (b.type && b.name && b.data && BUILD_TYPES.includes(b.type)) {
-                            await db.saveReferenceBuild(b.type, b.name, b.data.data); // data.data because saved format is {version, data: {...}}
+                            newAllBuilds[b.type as BuildType][b.name] = b.data;
                             importCount++;
                         }
                     });
                     
-                    await Promise.all(promises);
+                    saveBuildsToStorage(newAllBuilds);
                     
-                    // Refresh state
-                    const newBuilds = await db.getAllReferenceBuilds();
-                    setAllBuilds(newBuilds);
-                    ctx.refreshBuildCosts();
-
                     if (json.mainBuild && json.mainBuild.type && json.mainBuild.name) {
                         const targetName = json.mainBuild.name;
                         const targetType = json.mainBuild.type as BuildType;
-                        const mainData = newBuilds[targetType][targetName]?.data;
+                        const mainData = newAllBuilds[targetType][targetName]?.data;
                         
                         if (mainData) {
                             setActiveTab(targetType);
                             setCurrentName(targetName);
-                            setOriginalLoadedName(targetName);
+                            setOriginalLoadedName(targetName); // Treat as loaded
                             loadDataIntoView(targetType, mainData);
                             const msgSuccess = language === 'ko' ? `${importCount}개의 빌드를 가져왔습니다. "${targetName}" 빌드를 로드합니다.` : `Imported ${importCount} builds. Loaded "${targetName}".`;
                             alert(msgSuccess);
@@ -373,7 +372,7 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
                     return;
                 }
 
-                // Legacy Single Export
+                // Handle legacy single-export format
                 if (json.seinaruMeta === "single-export" && json.type && json.payload) {
                     const type = json.type as BuildType;
                     const name = json.name;
@@ -388,18 +387,21 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
                         const msgOverwrite = language === 'ko' ? `기존의 "${name}" 빌드를 덮어쓰시겠습니까?` : `Overwrite existing "${name}"?`;
                         if (!confirm(msgOverwrite)) return;
                     }
-                    
-                    await db.saveReferenceBuild(type, name, payload.data);
-                    
-                    const newBuilds = await db.getAllReferenceBuilds();
-                    setAllBuilds(newBuilds);
-                    ctx.refreshBuildCosts();
 
+                    const newAllBuilds: AllBuilds = {
+                        ...allBuilds,
+                        [type]: {
+                            ...allBuilds[type],
+                            [name]: payload,
+                        },
+                    };
+
+                    saveBuildsToStorage(newAllBuilds);
                     const msgSuccess = language === 'ko' ? `"${name}" 빌드를 ${type} 항목으로 가져왔습니다!` : `Imported "${name}" into ${type}!`;
                     alert(msgSuccess);
                     setActiveTab(type);
                     setCurrentName(name);
-                    setOriginalLoadedName(name);
+                    setOriginalLoadedName(name); // Treat as loaded
                     loadDataIntoView(type, payload.data);
                     return;
                 }
@@ -418,7 +420,6 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
     };
 
     const handleDownloadImage = async () => {
-        // ... (Image download logic remains the same, implementation omitted for brevity as it doesn't touch storage)
         if (!summaryRef.current || !window.html2canvas) {
             const msgError = language === 'ko' ? "이미지 생성 기능을 준비 중입니다. 잠시 후 다시 시도해 주세요." : 'Image generation feature is not ready. Please try again in a moment.';
             alert(msgError);
@@ -434,13 +435,18 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
                 scale: 2,
             };
 
+            // Apply adjustments for non-vortex templates
             if (template !== 'vortex') {
                 options.onclone = (clonedDoc: Document) => {
                     const style = clonedDoc.createElement('style');
                     style.innerHTML = `
+                        /* Loose leading for all text */
                         h1, h2, h3, h4, h5, h6, p, span, label, button, a, li, div {
                             line-height: 2 !important;
                         }
+                        
+                        /* Position shift up 7px for primary text elements to counteract leading expansion */
+                        /* div > span targets direct span children of divs like Counters to shift them too */
                         h1, h2, h3, h4, h5, h6, p, label, button, a, li, div > span {
                             position: relative;
                             top: -7px;
@@ -482,10 +488,8 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
     const netPoints = pointsSpent - discount;
 
     // Checks if the build with 'targetName' is currently used anywhere in the app
-    // ... (rest of usage checking logic matches previous logic, omitted for brevity as it reads from Context which is fine)
-    // IMPORTANT: It reads from `allBuilds` state which is now populated from DB in useEffect.
     const getBuildUsages = (targetName: string): string[] => {
-         if (!targetName) return [];
+        if (!targetName) return [];
         const usages: string[] = [];
         
         if (activeTab === 'companions') {
@@ -501,9 +505,7 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
             if (ctx.mentee?.type === 'custom' && ctx.mentee.name === targetName) usages.push(`제자`);
         }
         
-        // ... (Other tabs checking logic) ...
-        // Simply re-using existing logic since context is passed in
-         if (activeTab === 'beasts') {
+        if (activeTab === 'beasts') {
             if (ctx.mythicalPetBeastName === targetName) usages.push(`신비한 애완동물`);
             if (ctx.inhumanAppearanceBeastName === targetName) usages.push(`인간이 아닌 모습`);
             if (ctx.mageFamiliarBeastName === targetName) usages.push(`패밀리어`);
@@ -518,7 +520,7 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
             if (ctx.naniteFormBeastName === targetName) usages.push(`나나이트 형체`);
             if (ctx.onisBlessingGuardianName === targetName) usages.push(`오니 수호자`);
             ctx.customSpells.forEach((spell, idx) => { if (spell.mialgrathApplied && spell.assignedEntityType === 'beast' && spell.assignedEntityName === targetName) usages.push(`밀그라스 주문 #${idx+1}`); });
-             // Check saved references in `allBuilds` (state populated from DB)
+             // Check saved references
             Object.entries(allBuilds.companions).forEach(([compName, comp]) => {
                 const cData = (comp as SavedBuildData).data;
                 if (cData.inhumanFormBeastName === targetName) usages.push(`${compName}의 인외 형상`);
@@ -557,27 +559,112 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
 
         return usages;
     };
-    
-    // ... getValidationErrors logic is unchanged (reads from context/local state) ...
-    // ... (getValidationErrors omitted for brevity, logic identical to previous file)
-    const getValidationErrors = (targetName: string): string[] => { return [] }; // Placeholder for snippet context, actual code retains logic
+
+    // Validates current selections against constraints of a specific name usage
+    const getValidationErrors = (targetName: string): string[] => {
+        if (!targetName) return [];
+        const errors: string[] = [];
+        const points = netPoints;
+
+        // --- COMPANIONS ---
+        if (activeTab === 'companions') {
+            const data = companionSelections;
+            ctx.blessedCompanions.forEach((assignedName, memberId) => { if (assignedName === targetName) { if (data.category !== 'mage') errors.push(`축복받은 가족 구성원 (${memberId}): 반드시 '마법소녀'여야 합니다.`); if (points > 35) errors.push(`축복받은 가족 구성원 (${memberId}): 비용(${points})이 35를 초과합니다.`); } });
+            ctx.customClassmates.forEach(c => { if (c.companionName === targetName) { const limit = c.optionId === 'custom_classmate_25' ? 25 : c.optionId === 'custom_classmate_35' ? 35 : 50; if (points > limit) errors.push(`커스텀 클래스메이트: 비용(${points})이 ${limit}을 초과합니다.`); } });
+            ctx.humanMarionetteCompanionNames.forEach((name, idx) => { if (name === targetName) { if (data.category !== 'puppet') errors.push(`퍼펫 #${idx+1}: 반드시 '퍼펫'이어야 합니다.`); const limit = Math.floor((100 + (ctx.isSoulAlchemyBoosted ? 20 : 0)) / (ctx.humanMarionetteCount || 1)); if (points > limit) errors.push(`퍼펫 #${idx+1}: 비용(${points})이 ${limit}을 초과합니다.`); } });
+            if (ctx.roboticistCompanionName === targetName) { if (!data.category?.includes('automaton')) errors.push(`로봇술사 II: 반드시 '오토마톤'이어야 합니다.`); if (points > 50) errors.push(`로봇술사 II: 비용(${points})이 50을 초과합니다.`); }
+            if (ctx.undeadThrallCompanionName === targetName) { if (!data.category?.includes('undead')) errors.push(`언데드 노예: 반드시 '언데드'여야 합니다.`); const limit = ctx.blackMagicBoostSigil ? 60 : 50; if (points > limit) errors.push(`언데드 노예: 비용(${points})이 ${limit}을 초과합니다.`); }
+            ctx.verseAttendantCompanionNames.forEach((name, idx) => { if (name === targetName) { if (data.category !== 'puppet') errors.push(`가상 우주 관리자 #${idx+1}: 반드시 '퍼펫'이어야 합니다.`); const limit = 50 + (ctx.isFeaturesBoosted ? 50 : 0); if (points > limit) errors.push(`가상 우주 관리자 #${idx+1}: 비용(${points})이 ${limit}을 초과합니다.`); } });
+            ctx.customSpells.forEach((spell, idx) => { if (spell.mialgrathApplied && spell.assignedEntityType === 'companion' && spell.assignedEntityName === targetName) { if (points > 100) errors.push(`밀그라스 주문 #${idx+1}: 비용(${points})이 100을 초과합니다.`); } });
+            if (ctx.joysOfParentingCompanionName === targetName) { if (data.category !== 'mage') errors.push(`자녀: 반드시 '마법소녀'여야 합니다.`); if (points > 50) errors.push(`자녀: 비용(${points})이 50을 초과합니다.`); }
+            ctx.customColleagues.forEach(c => { if (c.companionName === targetName) { const limit = c.optionId === 'custom_colleague_25' ? 25 : c.optionId === 'custom_colleague_35' ? 35 : 50; if (points > limit) errors.push(`커스텀 동료: 비용(${points})이 ${limit}을 초과합니다.`); } });
+            if (ctx.mentee?.type === 'custom' && ctx.mentee.name === targetName) { if (points > ctx.mentee.originalCost) errors.push(`제자: 비용(${points})이 ${ctx.mentee.originalCost}을 초과합니다.`); }
+        }
+        
+        // --- BEASTS ---
+        if (activeTab === 'beasts') {
+            const data = beastSelections;
+            if (ctx.mythicalPetBeastName === targetName && points > 30) errors.push(`신비한 애완동물: 비용(${points})이 30을 초과합니다.`);
+            if (ctx.inhumanAppearanceBeastName === targetName) { if (points > 40) errors.push(`인간이 아닌 모습: 비용(${points})이 40을 초과합니다.`); if (data.perks.has('chatterbox_beast')) errors.push(`인간이 아닌 모습: 수다쟁이 선택 불가.`); if (data.perks.has('magical_beast')) errors.push(`인간이 아닌 모습: 마수 선택 불가.`); }
+            if (ctx.mageFamiliarBeastName === targetName) { let limit = 30; if (ctx.selectedSoulAlchemy.has('mages_familiar_ii')) limit = 60; if (ctx.selectedSoulAlchemy.has('mages_familiar_iii')) limit = 90; if (ctx.isSoulAlchemyBoosted) limit += 10; if (points > limit) errors.push(`패밀리어: 비용(${points})이 ${limit}을 초과합니다.`); }
+            ctx.beastmasterBeastNames.forEach((name, idx) => { if (name === targetName) { const limit = ctx.totalBeastPoints / (ctx.beastmasterCount || 1); if (points > limit) errors.push(`패밀리어 #${idx+1}: 비용(${points})이 ${Math.floor(limit)}을 초과합니다.`); } });
+            if (ctx.shedHumanityBeastName === targetName) { let limit = 50; if (ctx.selectedTransformation.has('shed_humanity_ii')) limit = 80; if (ctx.isTransformationBoosted) limit += 10; if (points > limit) errors.push(`괴수화 형태: 비용(${points})이 ${limit}을 초과합니다.`); if (data.perks.has('chatterbox_beast')) errors.push(`괴수화 형태: 수다쟁이 선택 불가.`); if (data.perks.has('magical_beast')) errors.push(`괴수화 형태: 마수 선택 불가.`); }
+            if (ctx.malrayootsMageFormName === targetName && points > 70) errors.push(`말레이우트 (마법소녀 전용): 비용(${points})이 70을 초과합니다.`);
+            if (ctx.malrayootsUniversalFormName === targetName && points > 40) errors.push(`말레이우트 (일반용): 비용(${points})이 40을 초과합니다.`);
+            if (ctx.roboticistIBeastName === targetName) { if (points > 40) errors.push(`오토마톤: 비용(${points})이 40을 초과합니다.`); if (!data.perks.has('automaton_perk')) errors.push(`오토마톤: '오토마톤' 특성 필수.`); if (data.perks.has('chatterbox_beast')) errors.push(`오토마톤: 수다쟁이 선택 불가.`); if (data.perks.has('magical_beast')) errors.push(`오토마톤: 마수 선택 불가.`); }
+            if (ctx.undeadBeastName === targetName) { const limit = ctx.isNecromancyBoosted ? 70 : 60; if (points > limit) errors.push(`언데드 야수: 비용(${points})이 ${limit}을 초과합니다.`); if (!data.perks.has('undead_perk')) errors.push(`언데드 야수: '언데드' 특성 필수.`); if (data.perks.has('chatterbox_beast')) errors.push(`언데드 야수: 수다쟁이 선택 불가.`); if (data.perks.has('magical_beast')) errors.push(`언데드 야수: 마수 선택 불가.`); }
+            ctx.livingInhabitants.forEach((inhabitant, idx) => { if (inhabitant.beastName === targetName) { const limit = inhabitant.type === 'populated' ? (40 + (ctx.isFeaturesBoosted ? 10 : 0)) : (70 + (ctx.isFeaturesBoosted ? 10 : 0)); if (points > limit) errors.push(`우주의 마수 #${idx+1}: 비용(${points})이 ${limit}을 초과합니다.`); } });
+            if (ctx.overlordBeastName === targetName) { if (data.perks.has('chatterbox_beast')) errors.push(`최고존엄: 수다쟁이 선택 불가.`); if (data.perks.has('magical_beast')) errors.push(`최고존엄: 마수 선택 불가.`); }
+            if (ctx.naniteFormBeastName === targetName) { const limit = ctx.isNaniteControlBoosted ? 50 : 40; if (points > limit) errors.push(`나나이트 형체: 비용(${points})이 ${limit}을 초과합니다.`); if (!data.category.includes('humanoid')) errors.push(`나나이트 형체: 반드시 인간형이어야 합니다.`); if (data.perks.has('chatterbox_beast')) errors.push(`나나이트 형체: 수다쟁이 선택 불가.`); if (data.perks.has('magical_beast')) errors.push(`나나이트 형체: 마수 선택 불가.`); }
+            if (ctx.onisBlessingGuardianName === targetName && points > 100) errors.push(`오니 수호자: 비용(${points})이 100을 초과합니다.`);
+            ctx.customSpells.forEach((spell, idx) => { if (spell.mialgrathApplied && spell.assignedEntityType === 'beast' && spell.assignedEntityName === targetName) { if (points > 100) errors.push(`밀그라스 주문 #${idx+1}: 비용(${points})이 100을 초과합니다.`); } });
+            Object.entries(allBuilds.companions).forEach(([compName, comp]) => { const cData = (comp as SavedBuildData).data; if (cData.inhumanFormBeastName === targetName) { if (points > 40) errors.push(`인외의 형상 (${compName}): 비용이 40을 초과합니다.`); if (data.perks.has('chatterbox_beast')) errors.push(`인외의 형상 (${compName}): 수다쟁이 선택 불가.`); if (data.perks.has('magical_beast')) errors.push(`인외의 형상 (${compName}): 마수 선택 불가.`); } });
+            ctx.vacationHomes.forEach((home, idx) => { if (home.mythicalPetName === targetName && points > 30) errors.push(`휴가지 #${idx+1} 애완동물: 비용이 30을 초과합니다.`); });
+        }
+
+        // --- WEAPONS ---
+        if (activeTab === 'weapons') {
+             const engravingUsers = [
+                { id: 'Good Tidings', name: ctx.goodTidingsWeaponName },
+                { id: 'Compelling Will', name: ctx.compellingWillWeaponName },
+                { id: 'Worldly Wisdom', name: ctx.worldlyWisdomWeaponName },
+                { id: 'Bitter Dissatisfaction', name: ctx.bitterDissatisfactionWeaponName },
+                { id: 'Lost Hope', name: ctx.lostHopeWeaponName },
+                { id: 'Fallen Peace', name: ctx.fallenPeaceWeaponName },
+                { id: 'Gracious Defeat', name: ctx.graciousDefeatWeaponName },
+                { id: 'Closed Circuits', name: ctx.closedCircuitsWeaponName },
+                { id: 'Righteous Creation', name: ctx.righteousCreationWeaponName },
+             ];
+             engravingUsers.forEach(u => { if (u.name === targetName) { if (points > 20) errors.push(`${u.id} 각인 무기: 비용(${points})이 20을 초과합니다.`); } });
+             if (ctx.thermalWeaponryWeaponName === targetName) { const limit = ctx.isMetathermicsBoosted ? 35 : 30; if (points > limit) errors.push(`열 병기: 비용(${points})이 ${limit}을 초과합니다.`); if (!weaponSelections.category.includes('bladed_melee') && !weaponSelections.category.includes('blunt_melee')) errors.push(`열 병기: 반드시 근접 무기여야 합니다.`); if (!weaponSelections.perks.has('thermal_supercharge')) errors.push(`열 병기: '열에너지 과충전' 특성 필수.`); }
+             if (ctx.weaponsmithWeaponName === targetName && points > 40) errors.push(`역작 무기: 비용(${points})이 40을 초과합니다.`);
+             if (ctx.heavilyArmedWeaponName === targetName) { const limit = ctx.isNaniteControlBoosted ? 40 : 30; if (points > limit) errors.push(`나나이트 무기: 비용(${points})이 ${limit}을 초과합니다.`); if (!weaponSelections.perks.has('physically_attached')) errors.push(`나나이트 무기: '신체 부착' 특성 필수.`); }
+             ctx.customSpells.forEach((spell, idx) => { if (spell.mialgrathApplied && spell.assignedEntityType === 'weapon' && spell.assignedEntityName === targetName) { if (points > 100) errors.push(`밀그라스 주문 #${idx+1}: 비용(${points})이 100을 초과합니다.`); } });
+             Object.entries(allBuilds.companions).forEach(([compName, comp]) => { const cData = (comp as SavedBuildData).data; if (cData.specialWeaponName === targetName) { if (points > 20) errors.push(`특별한 무기 (${compName}): 비용이 20을 초과합니다.`); } });
+        }
+
+        // --- VEHICLES ---
+        if (activeTab === 'vehicles') {
+             if (ctx.assignedVehicleName === targetName && points > 30) errors.push(`당신만의 탈것: 비용(${points})이 30을 초과합니다.`);
+             if (ctx.masterMechanicVehicleName === targetName) { const limit = ctx.selectedMagitechPowers.has('master_mechanic_ii') ? 100 : 50; if (points > limit) errors.push(`전문 기계공 탈것: 비용(${points})이 ${limit}을 초과합니다.`); }
+             ctx.customSpells.forEach((spell, idx) => { if (spell.mialgrathApplied && spell.assignedEntityType === 'vehicle' && spell.assignedEntityName === targetName) { if (points > 100) errors.push(`밀그라스 주문 #${idx+1}: 비용(${points})이 100을 초과합니다.`); } });
+        }
+
+        return errors;
+    };
 
     // Calculate validation errors for the UI state
     const validationErrors = useMemo(() => {
         const errors: string[] = [];
         const targetUsages = getBuildUsages(currentName);
         if (targetUsages.length > 0) {
-            // Re-integrate logic in actual file if copying
-            // const violations = getValidationErrors(currentName);
-            // if (violations.length > 0) { ... }
+            const violations = getValidationErrors(currentName);
+            if (violations.length > 0) {
+                errors.push(`"${currentName}" 덮어쓰기 시 할당 조건 위반:`);
+                violations.forEach(v => errors.push(v));
+            }
         }
         return errors;
     }, [currentName, originalLoadedName, activeTab, companionSelections, weaponSelections, beastSelections, vehicleSelections, pointsSpent, ctx, allBuilds]);
 
-
     const isEditMode = !!originalLoadedName;
+    const isRename = isEditMode && currentName !== originalLoadedName;
+
     const containerBgClass = template === 'temple' ? 'bg-[#f8f5f2]' : (template === 'default' ? 'bg-[#0a0f1e]' : 'bg-black');
     
+    // Theme colors for Appendix Header
+    const appendixHeaderClass = 
+        template === 'terminal' ? 'text-green-500 border-green-500/50' :
+        template === 'temple' ? 'text-amber-800 border-amber-800/30' :
+        template === 'vortex' ? 'text-purple-400 border-purple-500/50' : 
+        'text-cyan-200 border-cyan-500/50';
+
+    const appendixDividerClass =
+        template === 'terminal' ? 'border-green-900/50' :
+        template === 'temple' ? 'border-amber-900/20' :
+        template === 'vortex' ? 'border-purple-900/50' :
+        'border-cyan-900/30';
+
     const transLabels = {
         refPage: language === 'ko' ? "참고 페이지" : "REFERENCE PAGE",
         totalPoints: language === 'ko' ? "총 사용 포인트" : "Total Points",
@@ -601,30 +688,51 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
 
     return (
         <div className={`fixed inset-0 bg-[#0a101f] z-[100] overflow-y-auto overflow-x-hidden transition-opacity duration-300 ${isTransparent ? 'opacity-15 pointer-events-none' : 'opacity-100'}`}>
+             {/* Header */}
             <header className="sticky top-0 z-50 bg-[#0a101f]/95 backdrop-blur-md border-b border-gray-800 p-4 flex justify-between items-center pointer-events-auto">
-                {/* ... Header content identical to original ... */}
                 <div className="flex items-center gap-4">
                     <h2 className="font-cinzel text-2xl text-white tracking-widest">{transLabels.refPage}</h2>
                     <div className="flex bg-black/40 rounded p-1">
-                        {BUILD_TYPES.map(type => (
-                            <button
-                                key={type}
-                                onClick={() => handleTabChange(type)}
-                                className={`px-4 py-2 text-sm font-bold uppercase rounded transition-all ${activeTab === type ? 'bg-cyan-900/50 text-cyan-200 shadow-sm' : 'text-gray-500 hover:text-gray-300'}`}
-                            >
-                                {language === 'ko' ? (type === 'companions' ? '동료' : type === 'weapons' ? '무기' : type === 'beasts' ? '동물' : '탈것') : type}
-                            </button>
-                        ))}
+                        {BUILD_TYPES.map(type => {
+                            const tabName = language === 'ko' ? (type === 'companions' ? '동료' : type === 'weapons' ? '무기' : type === 'beasts' ? '동물' : '탈것') : type;
+                            return (
+                                <button
+                                    key={type}
+                                    onClick={() => handleTabChange(type)}
+                                    className={`px-4 py-2 text-sm font-bold uppercase rounded transition-all ${activeTab === type ? 'bg-cyan-900/50 text-cyan-200 shadow-sm' : 'text-gray-500 hover:text-gray-300'}`}
+                                >
+                                    {tabName}
+                                </button>
+                            );
+                        })}
                     </div>
                 </div>
                 <div className="flex items-center gap-4">
-                     <div className="text-right mr-4">
-                        <p className="text-xs text-gray-500 font-mono uppercase tracking-widest">{transLabels.totalPoints}</p>
-                        <p className="text-2xl font-bold font-mono text-green-400">{pointsSpent}</p>
+                    <div className="text-right mr-4">
+                        <p className="text-xs text-gray-500 font-mono uppercase tracking-widest">
+                            {transLabels.totalPoints}
+                        </p>
+                        <p className="text-2xl font-bold font-mono text-green-400">
+                            {pointsSpent}
+                        </p>
                         {discount > 0 && <p className="text-[10px] text-green-500">({transLabels.discPoints}: {discount})</p>}
                     </div>
-                    <button onClick={() => setIsTransparent(!isTransparent)} className="text-gray-400 hover:text-white transition-colors p-1 rounded">
-                         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                    {/* Transparency Toggle */}
+                    <button 
+                        onClick={() => setIsTransparent(!isTransparent)} 
+                        className="text-gray-400 hover:text-white transition-colors p-1 rounded"
+                        title={isTransparent ? (language === 'ko' ? "복귀" : "Restore View") : (language === 'ko' ? "배경 보기" : "Peek Behind")}
+                    >
+                         {isTransparent ? (
+                             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                             </svg>
+                         ) : (
+                             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                             </svg>
+                         )}
                     </button>
                     <button onClick={onClose} className="text-gray-400 hover:text-white text-3xl">&times;</button>
                 </div>
@@ -658,7 +766,7 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
 
                 {/* Main Content */}
                 <main className="flex-grow p-4 lg:p-8">
-                    {/* Control Bar - uses new saveToName logic */}
+                     {/* Control Bar */}
                     <div className="mb-8 flex flex-wrap gap-4 items-center bg-black/40 p-4 rounded-lg border border-gray-800">
                         <input 
                             type="text" 
@@ -670,18 +778,57 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
                         
                         {isEditMode ? (
                             <>
-                                <button onClick={handleChangeThisFile} disabled={validationErrors.length > 0} className="px-4 py-2 bg-green-900/40 text-green-300 border border-green-700 hover:bg-green-800/50 rounded transition-colors">{transLabels.changeThis}</button>
+                                <div className="relative group">
+                                    <button 
+                                        onClick={handleChangeThisFile} 
+                                        disabled={validationErrors.length > 0} 
+                                        className={`px-4 py-2 border rounded transition-colors ${
+                                            validationErrors.length > 0 
+                                                ? 'bg-red-900/20 border-red-700 text-red-500 cursor-not-allowed opacity-50' 
+                                                : 'bg-green-900/40 text-green-300 border-green-700 hover:bg-green-800/50'
+                                        }`}
+                                    >
+                                        {transLabels.changeThis}
+                                    </button>
+                                    {validationErrors.length > 0 && (
+                                        <div className="absolute bottom-full right-0 mb-2 w-72 p-3 bg-red-900/90 text-white text-xs rounded shadow-lg z-50 border border-red-500 animate-fade-in-up-toast">
+                                            <p className="font-bold border-b border-white/20 pb-1 mb-1">
+                                                {language === 'ko' ? "작업 차단됨:" : "Action Blocked:"}
+                                            </p>
+                                            <ul className="list-disc pl-4 space-y-0.5">
+                                                {validationErrors.map((e, i) => <li key={i}>{e}</li>)}
+                                            </ul>
+                                        </div>
+                                    )}
+                                </div>
                                 <button onClick={handleSaveAsNew} className="px-4 py-2 bg-blue-900/30 text-blue-200 border border-blue-700/50 rounded hover:bg-blue-800/40 transition-colors">{transLabels.saveAsNew}</button>
                             </>
                         ) : (
-                            <button onClick={handleInitialSave} disabled={validationErrors.length > 0} className="px-4 py-2 bg-green-900/40 text-green-300 border border-green-700 rounded hover:bg-green-800/50 transition-colors">{transLabels.save}</button>
+                             <div className="relative group">
+                                <button 
+                                    onClick={handleInitialSave} 
+                                    disabled={validationErrors.length > 0} 
+                                    className={`px-4 py-2 bg-green-900/40 text-green-300 border border-green-700 rounded hover:bg-green-800/50 transition-colors ${validationErrors.length > 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                >
+                                    {transLabels.save}
+                                </button>
+                                {validationErrors.length > 0 && (
+                                    <div className="absolute bottom-full right-0 mb-2 w-72 p-3 bg-red-900/90 text-white text-xs rounded shadow-lg z-50 border border-red-500 animate-fade-in-up-toast">
+                                        <p className="font-bold border-b border-white/20 pb-1 mb-1">{language === 'ko' ? "덮어쓰기 불가:" : "Cannot overwrite:"}</p>
+                                        <ul className="list-disc pl-4 space-y-0.5">
+                                            {validationErrors.map((e, i) => <li key={i}>{e}</li>)}
+                                        </ul>
+                                    </div>
+                                )}
+                             </div>
                         )}
 
                         <div className="h-6 w-px bg-gray-700 mx-2"></div>
+
                         <button onClick={handleReset} className="px-4 py-2 bg-gray-800 text-gray-300 border border-gray-600 rounded hover:bg-gray-700 transition-colors">{transLabels.reset}</button>
                         <button onClick={handleExport} className="px-4 py-2 bg-indigo-900/40 text-indigo-300 border border-indigo-700 rounded hover:bg-indigo-800/50 transition-colors">{transLabels.export}</button>
                         <button onClick={scrollToPreview} className="px-4 py-2 bg-purple-900/40 text-purple-300 border border-purple-700 rounded hover:bg-purple-800/50 transition-colors">{transLabels.downloadImg}</button>
-                        
+                    
                         {isSunForgerActive && (
                             <div className="flex items-center gap-2 ml-auto border-l border-gray-700 pl-4">
                                 <span className="text-xs text-yellow-500 font-bold uppercase">{transLabels.sunForger}</span>
@@ -690,27 +837,30 @@ export const ReferencePage: React.FC<{ onClose: () => void }> = ({ onClose }) =>
                                     <span className="px-2 text-yellow-300 font-mono text-sm">{(currentSelections as any).bpSpent} BP</span>
                                     <button onClick={() => handleBpSpentChange((currentSelections as any).bpSpent + 1)} className="px-2 text-gray-400 hover:text-white">+</button>
                                 </div>
+                                <span className="text-xs text-gray-500">= -{(currentSelections as any).bpSpent * 2} Pts</span>
                             </div>
                         )}
                     </div>
                     
-                    {/* Render Content Sections */}
+                    {/* Sections */}
                     {activeTab === 'companions' && <CompanionSection setPoints={setPointsSpent} selections={companionSelections} setSelections={setCompanionSelections} />}
                     {activeTab === 'weapons' && <WeaponSection setPoints={setPointsSpent} setDiscount={setDiscount} selections={weaponSelections} setSelections={setWeaponSelections} />}
                     {activeTab === 'beasts' && <BeastSection setPoints={setPointsSpent} selections={beastSelections} setSelections={setBeastSelections} />}
                     {activeTab === 'vehicles' && <VehicleSection setPoints={setPointsSpent} selections={vehicleSelections} setSelections={setVehicleSelections} />}
 
-                    {/* Preview Area */}
+                    {/* Preview Summary */}
                     <div className="mt-12 pt-8 border-t border-gray-800 scroll-mt-32" ref={previewSectionRef}>
                          <div className="flex flex-col md:flex-row items-center justify-between mb-6">
                             <h3 className="font-cinzel text-xl text-gray-500 text-center md:text-left">{transLabels.preview}</h3>
                             <div className="flex items-center gap-4 mt-4 md:mt-0">
+                                {/* Template Selector */}
                                 <div className="flex bg-black/40 rounded p-1 border border-gray-700">
                                     <button onClick={() => setTemplate('default')} className={`px-3 py-1 text-xs rounded transition-colors ${template === 'default' ? 'bg-cyan-900/60 text-cyan-200' : 'text-gray-500 hover:text-gray-300'}`}>Arcane</button>
                                     <button onClick={() => setTemplate('temple')} className={`px-3 py-1 text-xs rounded transition-colors ${template === 'temple' ? 'bg-amber-900/60 text-amber-200' : 'text-gray-500 hover:text-gray-300'}`}>Temple</button>
                                     <button onClick={() => setTemplate('vortex')} className={`px-3 py-1 text-xs rounded transition-colors ${template === 'vortex' ? 'bg-purple-900/60 text-purple-200' : 'text-gray-500 hover:text-gray-300'}`}>Vortex</button>
                                     <button onClick={() => setTemplate('terminal')} className={`px-3 py-1 text-xs rounded transition-colors ${template === 'terminal' ? 'bg-green-900/60 text-green-200' : 'text-gray-500 hover:text-gray-300'}`}>Terminal</button>
                                 </div>
+                                {/* Download Button */}
                                 <button 
                                     onClick={handleDownloadImage}
                                     className="flex items-center gap-2 px-4 py-2 bg-cyan-900/30 border border-cyan-500/50 rounded text-cyan-200 hover:bg-cyan-800/50 hover:text-white transition-all text-xs font-bold font-cinzel"

@@ -92,8 +92,13 @@ export const CharacterProvider: React.FC<{ children: ReactNode }> = ({ children 
         }
     }, [selectedDominionId, addDebugLog]);
 
-    // Initialization Effect: Persistence is now handled by IndexedDB, do not clear on mount
-    // The previous localStorage.removeItem was removed to support persistent data across reloads via DB
+    // Initialization Effect: Clear Reference Builds
+    useEffect(() => {
+        const STORAGE_KEY = 'seinaru_magecraft_builds';
+        localStorage.removeItem(STORAGE_KEY);
+        setBuildsRefreshTrigger(prev => prev + 1); // Ensure listeners update to empty state
+        addDebugLog("[Init] Reference builds storage cleared for new session.");
+    }, [addDebugLog]);
 
     // Page State Hooks
     const pageOneState = usePageOneState();

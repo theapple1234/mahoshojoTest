@@ -1,15 +1,17 @@
+
 import React, { useEffect, useState } from 'react';
 import { CLASSMATES_DATA, CLASSMATES_DATA_KO, CUSTOM_CLASSMATE_CHOICES_DATA, CUSTOM_CLASSMATE_CHOICES_DATA_KO, COMPANION_CATEGORIES, COMPANION_RELATIONSHIPS, COMPANION_PERSONALITY_TRAITS, COMPANION_PERKS, COMPANION_POWER_LEVELS } from '../constants';
-import type { Mentee, CompanionSelections } from '../types';
+import type { Mentee, AllBuilds, CompanionSelections } from '../types';
 import { useCharacterContext } from '../context/CharacterContext';
-import { db } from '../utils/db'; // Import DB
 
 interface StudentSelectionModalProps {
     onClose: () => void;
     onSelect: (mentee: Mentee) => void;
     currentMenteeId: string | null;
-    selectedClassmateIds: Set<string>;
+    selectedClassmateIds: Set<string>; // To visually distinguish or filter already selected classmates from Page 2
 }
+
+const STORAGE_KEY = 'seinaru_magecraft_builds';
 
 const calculateCompanionPoints = (selections: CompanionSelections): number => {
     let total = 0;
@@ -23,9 +25,13 @@ const calculateCompanionPoints = (selections: CompanionSelections): number => {
         const item = allItems.find(i => i.id === perkId);
         if (item) {
             let cost = item.cost ?? 0;
+            // Simplified signature power cost logic matching ReferencePage
             if (perkId === 'signature_power' && count > 0) {
+                // 5 + (count - 1) * 10
+                cost = 0; // Handled by total accumulation logic if we implemented full complexity, but here we approximate or use base.
+                // Re-implementing specific logic for accurate filtering:
                 total += 5 + (count - 1) * 10;
-                return;
+                return; // Skip default addition
             }
             total += cost * count; 
         }
@@ -67,36 +73,38 @@ export const StudentSelectionModal: React.FC<StudentSelectionModalProps> = ({
         };
         window.addEventListener('keydown', handleKeyDown);
         
-        // Load Reference Companions Async
-        const fetchCompanions = async () => {
+        // Load Reference Companions
+        const savedBuildsJSON = localStorage.getItem(STORAGE_KEY);
+        if (savedBuildsJSON) {
             try {
-                const builds = await db.getReferenceBuildsByType('companions');
+                const parsedBuilds: AllBuilds = JSON.parse(savedBuildsJSON);
+                const companions = parsedBuilds.companions || {};
                 const list: {name: string, points: number, imageSrc?: string}[] = [];
                 
-                for (const build of builds) {
-                    const hydratedData = hydrateCompanionData(build.data);
-                    const points = calculateCompanionPoints(hydratedData);
-                    list.push({ 
-                        name: build.name, 
-                        points,
-                        imageSrc: hydratedData.customImage || undefined
-                    });
+                for (const name in companions) {
+                    const build = companions[name];
+                    if (build.version === 1) {
+                        const hydratedData = hydrateCompanionData(build.data);
+                        const points = calculateCompanionPoints(hydratedData);
+                        list.push({ 
+                            name, 
+                            points,
+                            imageSrc: hydratedData.customImage || undefined
+                        });
+                    }
                 }
                 setReferenceCompanions(list);
             } catch (error) {
-                console.error("Failed to parse companion builds from DB:", error);
+                console.error("Failed to parse companion builds from storage:", error);
             }
-        };
-        
-        fetchCompanions();
+        }
 
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [onClose, selectedTier]);
 
-    // ... (Rest of logic remains identical) ...
-    // parseCost, handleSelectTier, handleSelectReference, handleSelectClassmate functions
     const parseCost = (costStr: string) => {
         if (language === 'ko') {
+             // Example: "행운 점수 -4"
              const match = costStr.match(/(-?\d+)/);
              return match ? Math.abs(parseInt(match[1], 10)) : 0;
         }
@@ -117,7 +125,7 @@ export const StudentSelectionModal: React.FC<StudentSelectionModalProps> = ({
 
     const handleSelectReference = (comp: {name: string, points: number}) => {
         if (!selectedTier) return;
-        const id = `ref:${comp.name}`; 
+        const id = `ref:${comp.name}`; // Unique ID for reference based selection
         onSelect({ 
             id, 
             type: 'custom', 
@@ -130,6 +138,7 @@ export const StudentSelectionModal: React.FC<StudentSelectionModalProps> = ({
         onSelect({ id, type: 'classmate', name, originalCost: cost });
     };
 
+    // Green Theme Classes
     const theme = {
         border: 'border-green-700/80',
         headerBorder: 'border-green-900/50',
@@ -186,7 +195,11 @@ export const StudentSelectionModal: React.FC<StudentSelectionModalProps> = ({
                 <main className="p-6 overflow-y-auto space-y-8">
                     {!selectedTier ? (
                         <>
-                            <p className="text-gray-400 text-sm italic text-center">{titles.desc}</p>
+                            <p className="text-gray-400 text-sm italic text-center">
+                                {titles.desc}
+                            </p>
+
+                            {/* Create New Section */}
                             <div>
                                 <h3 className="text-lg font-bold text-white mb-4 border-b border-gray-700 pb-2">{titles.createNew}</h3>
                                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -194,8 +207,13 @@ export const StudentSelectionModal: React.FC<StudentSelectionModalProps> = ({
                                         const originalCost = parseCost(option.cost);
                                         const discountedCost = Math.max(0, originalCost - 1);
                                         const isSelected = currentMenteeId === option.id;
+
                                         return (
-                                            <div key={option.id} onClick={() => handleSelectTier(option)} className={`p-4 rounded-lg border cursor-pointer transition-all hover:bg-gray-800 hover:border-green-500/50 ${isSelected ? 'bg-green-900/40 border-green-400 ring-1 ring-green-400' : 'bg-gray-900/50 border-gray-700'}`}>
+                                            <div 
+                                                key={option.id}
+                                                onClick={() => handleSelectTier(option)}
+                                                className={`p-4 rounded-lg border cursor-pointer transition-all hover:bg-gray-800 hover:border-green-500/50 ${isSelected ? 'bg-green-900/40 border-green-400 ring-1 ring-green-400' : 'bg-gray-900/50 border-gray-700'}`}
+                                            >
                                                 <h4 className="font-bold text-white text-sm mb-1">{option.description}</h4>
                                                 <div className="flex justify-between items-center text-xs mt-2">
                                                     <span className="text-gray-500 line-through">{originalCost} FP</span>
@@ -206,16 +224,26 @@ export const StudentSelectionModal: React.FC<StudentSelectionModalProps> = ({
                                     })}
                                 </div>
                             </div>
+
+                            {/* Existing Classmates Section */}
                             <div>
                                 <h3 className="text-lg font-bold text-white mb-4 border-b border-gray-700 pb-2">{titles.chooseExisting}</h3>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                                     {activeClassmates.map(classmate => {
-                                        if (selectedClassmateIds.has(classmate.id) && currentMenteeId !== classmate.id) return null;
+                                        if (selectedClassmateIds.has(classmate.id) && currentMenteeId !== classmate.id) {
+                                            return null; 
+                                        }
+
                                         const originalCost = parseCost(classmate.cost);
                                         const discountedCost = Math.max(0, originalCost - 1);
                                         const isSelected = currentMenteeId === classmate.id;
+
                                         return (
-                                            <div key={classmate.id} onClick={() => handleSelectClassmate(classmate.id, classmate.name, originalCost)} className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${isSelected ? 'bg-green-900/40 border-green-400 ring-1 ring-green-400' : 'bg-gray-900/50 border-gray-700 hover:border-green-500/50'}`}>
+                                            <div 
+                                                key={classmate.id}
+                                                onClick={() => handleSelectClassmate(classmate.id, classmate.name, originalCost)}
+                                                className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${isSelected ? 'bg-green-900/40 border-green-400 ring-1 ring-green-400' : 'bg-gray-900/50 border-gray-700 hover:border-green-500/50'}`}
+                                            >
                                                 <img src={classmate.imageSrc} alt={classmate.name} className="w-12 h-12 rounded-full object-cover" />
                                                 <div className="flex-grow">
                                                     <h4 className="font-bold text-white text-sm">{classmate.name}</h4>
@@ -231,34 +259,71 @@ export const StudentSelectionModal: React.FC<StudentSelectionModalProps> = ({
                             </div>
                         </>
                     ) : (
+                        // Build Selection View
                         <div className="space-y-4">
                             <p className={`text-center text-sm ${theme.infoText} mb-4 italic`}>
-                                {language === 'ko' ? `${selectedTier.limit}점 이하의 동료 빌드를 선택하세요.` : `Select a companion build that costs ${selectedTier.limit} CP or less.`}
+                                {language === 'ko' 
+                                    ? `${selectedTier.limit}점 이하의 동료 빌드를 선택하세요.`
+                                    : `Select a companion build that costs ${selectedTier.limit} CP or less.`
+                                }
                             </p>
+                            
                             <div className="space-y-3">
                                 {referenceCompanions.length > 0 ? (
                                     referenceCompanions.map((comp, idx) => {
                                         const isOverLimit = comp.points > selectedTier.limit;
                                         return (
-                                            <div key={`${comp.name}-${idx}`} onClick={() => !isOverLimit && handleSelectReference(comp)} className={`p-3 bg-slate-900/70 border rounded-md flex justify-between items-center transition-colors ${isOverLimit ? 'opacity-60 cursor-not-allowed border-gray-700/50' : `border-gray-800 ${theme.hoverItem} cursor-pointer group`}`} role="button" aria-disabled={isOverLimit}>
+                                            <div 
+                                                key={`${comp.name}-${idx}`}
+                                                onClick={() => !isOverLimit && handleSelectReference(comp)}
+                                                className={`p-3 bg-slate-900/70 border rounded-md flex justify-between items-center transition-colors 
+                                                    ${isOverLimit 
+                                                        ? 'opacity-60 cursor-not-allowed border-gray-700/50' 
+                                                        : `border-gray-800 ${theme.hoverItem} cursor-pointer group`
+                                                    }
+                                                `}
+                                                role="button"
+                                                aria-disabled={isOverLimit}
+                                            >
                                                 <div>
                                                     <h3 className={`font-semibold transition-colors ${isOverLimit ? 'text-gray-400' : 'text-white group-hover:text-green-300'}`}>{comp.name}</h3>
-                                                    <p className="text-xs text-gray-500">{isOverLimit ? `${titles.costExceeds} ${selectedTier.limit} pts` : titles.clickToAssign}</p>
+                                                    <p className="text-xs text-gray-500">
+                                                        {isOverLimit 
+                                                            ? `${titles.costExceeds} ${selectedTier.limit} pts` 
+                                                            : titles.clickToAssign
+                                                        }
+                                                    </p>
                                                 </div>
                                                 <span className={`font-bold text-lg ${isOverLimit ? 'text-red-500' : 'text-green-400'}`}>{comp.points} CP</span>
                                             </div>
                                         );
                                     })
                                 ) : (
-                                    <p className="text-center text-gray-500 italic py-8 border border-dashed border-gray-700 rounded-lg">
-                                        {titles.noBuilds}<br/>{titles.goRef}
+                                    <p className="text-center text-gray-500 italic py-8">
+                                        {titles.noBuilds}
+                                    </p>
+                                )}
+                                
+                                {referenceCompanions.length === 0 && (
+                                     <p className="text-center text-gray-500 italic py-8 border border-dashed border-gray-700 rounded-lg">
+                                        {titles.noBuilds}<br/>
+                                        {titles.goRef}
                                     </p>
                                 )}
                             </div>
                         </div>
                     )}
                 </main>
-                {selectedTier && <footer className={`p-3 border-t ${theme.footerBorder} text-center`}><button onClick={() => setSelectedTier(null)} className="px-4 py-2 text-sm font-cinzel bg-gray-800/50 border border-gray-700 rounded-md hover:bg-gray-700 transition-colors">{titles.back}</button></footer>}
+                {selectedTier && (
+                    <footer className={`p-3 border-t ${theme.footerBorder} text-center`}>
+                        <button
+                            onClick={() => setSelectedTier(null)}
+                            className="px-4 py-2 text-sm font-cinzel bg-gray-800/50 border border-gray-700 rounded-md hover:bg-gray-700 transition-colors"
+                        >
+                            {titles.back}
+                        </button>
+                    </footer>
+                )}
             </div>
         </div>
     );

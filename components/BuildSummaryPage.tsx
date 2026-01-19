@@ -1,3 +1,4 @@
+
 import React, { useRef, useState, useEffect, useMemo } from 'react';
 import { useCharacterContext } from '../context/CharacterContext';
 import * as Constants from '../constants';
@@ -9,10 +10,11 @@ import { TerminalLayout } from './build-summary/TerminalLayout';
 import { SaveDiskIcon, FileExportIcon, DownloadIcon, TemplateIcon } from './build-summary/BuildSummaryShared';
 import { ReferenceBuildSummary } from './reference/ReferenceBuildSummary';
 import type { AllBuilds, BuildType } from '../types';
-import { db, DBSaveSlot } from '../utils/db'; // New Import
 
 type TemplateType = 'default' | 'temple' | 'vortex' | 'terminal';
 const STORAGE_KEY = 'seinaru_magecraft_builds';
+const DB_NAME = 'SeinaruMagecraftFullSaves';
+const DB_VERSION = 2;
 const SLOTS_PER_PAGE = 10;
 const TOTAL_PAGES = 10;
 
@@ -26,7 +28,14 @@ declare global {
   }
 }
 
-// ... (calculateReferencePoints and GeneratingOverlay helpers unchanged) ...
+interface SaveSlot {
+    id: number;
+    name: string;
+    timestamp: string;
+    character: any;
+    reference: any;
+    version: string;
+}
 
 // -- Helper: Quick Point Calculation for Reference Items --
 const calculateReferencePoints = (type: BuildType, data: any): number => {
@@ -151,28 +160,55 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
 
     // Slot Browser Save States
     const [isSlotOverlayOpen, setIsSlotOverlayOpen] = useState(false);
-    const [slotsData, setSlotsData] = useState<Record<number, DBSaveSlot>>({});
+    const [slotsData, setSlotsData] = useState<Record<number, SaveSlot>>({});
     const [currentSlotPage, setCurrentSlotPage] = useState(1);
 
-    // Initial Load of Reference Builds (Async from DB)
     useEffect(() => {
-        const fetchBuilds = async () => {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
             try {
-                const builds = await db.getAllReferenceBuilds();
-                setReferenceBuilds(builds);
+                const parsed = JSON.parse(saved);
+                setReferenceBuilds({
+                    companions: parsed.companions || {},
+                    weapons: parsed.weapons || {},
+                    beasts: parsed.beasts || {},
+                    vehicles: parsed.vehicles || {}
+                });
             } catch (e) {
                 console.error("Failed to load builds", e);
             }
-        };
-        fetchBuilds();
+        }
     }, []);
 
     const pointsSpent = 100 - ctx.blessingPoints; 
 
+    // --- Slot DB Interaction ---
+    const initDB = () => {
+        return new Promise<IDBDatabase>((resolve, reject) => {
+            const request = indexedDB.open(DB_NAME, DB_VERSION);
+            request.onupgradeneeded = (event) => {
+                const db = (event.target as IDBOpenDBRequest).result;
+                if (!db.objectStoreNames.contains('save_slots')) {
+                    db.createObjectStore('save_slots', { keyPath: 'id' });
+                }
+            };
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject(request.error);
+        });
+    };
+
     const fetchSlots = async () => {
         try {
-            const slots = await db.getGameSlots();
-            setSlotsData(slots);
+            const db = await initDB();
+            const tx = db.transaction('save_slots', 'readonly');
+            const store = tx.objectStore('save_slots');
+            const request = store.getAll();
+            request.onsuccess = () => {
+                const slots = request.result as SaveSlot[];
+                const slotMap: Record<number, SaveSlot> = {};
+                slots.forEach(slot => { slotMap[slot.id] = slot; });
+                setSlotsData(slotMap);
+            };
         } catch (error) {
             console.error("Error fetching slots:", error);
         }
@@ -185,19 +221,23 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
         const buildName = prompt(ctx.language === 'en' ? "Enter a name for this save:" : "저장할 파일의 이름을 입력하세요:");
         if (!buildName) return;
 
-        try {
-            // Fetch reference builds fresh from DB to include
-            const currentReferenceBuilds = await db.getAllReferenceBuilds();
-            const saveData: DBSaveSlot = {
-                id: slotId,
-                name: buildName,
-                timestamp: new Date().toISOString(),
-                character: ctx.serializeState(),
-                reference: currentReferenceBuilds,
-                version: '1.0'
-            };
+        const saveData: SaveSlot = {
+            id: slotId,
+            name: buildName,
+            timestamp: new Date().toISOString(),
+            character: ctx.serializeState(),
+            reference: JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'),
+            version: '1.0'
+        };
 
-            await db.saveGameSlot(saveData);
+        try {
+            const db = await initDB();
+            const tx = db.transaction('save_slots', 'readwrite');
+            await new Promise<void>((resolve, reject) => {
+                const req = tx.objectStore('save_slots').put(saveData);
+                req.onsuccess = () => resolve();
+                req.onerror = () => reject(req.error);
+            });
             alert(ctx.language === 'en' ? "Saved successfully." : "저장되었습니다.");
             fetchSlots();
         } catch (error: any) {
@@ -208,7 +248,13 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
     const handleDeleteSlot = async (slotId: number) => {
         if (!confirm(ctx.language === 'en' ? "Delete this save?" : "정말 삭제하시겠습니까?")) return;
         try {
-            await db.deleteGameSlot(slotId);
+            const db = await initDB();
+            const tx = db.transaction('save_slots', 'readwrite');
+            await new Promise<void>((resolve, reject) => {
+                const req = tx.objectStore('save_slots').delete(slotId);
+                req.onsuccess = () => resolve();
+                req.onerror = () => reject(req.error);
+            });
             fetchSlots();
         } catch (error: any) {
             alert("Error: " + error.message);
@@ -247,7 +293,6 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
         link.click();
     };
 
-    // ... (handleDownload function remains mostly same, just uses state populated from DB) ...
     const handleDownload = async (includeReference: boolean) => {
         if (!summaryContentRef.current || !window.html2canvas) {
             alert('Image generation feature is not ready. Please try again in a moment.');
@@ -284,12 +329,19 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
                 onclone: (clonedDoc: Document) => {
                     const clonedElement = clonedDoc.querySelector('[data-capture-target]') as HTMLElement;
                     
+                    // ================= [수정 시작] =================
+                    // 1. 그라데이션이 포함된 요소들을 찾아서 배경을 제거하거나 단색으로 변경
+                    // Tailwind의 bg-[radial-gradient...] 클래스를 가진 요소들을 타겟팅합니다.
                     const gradientElements = clonedDoc.querySelectorAll('[class*="radial-gradient"]');
+                    
                     gradientElements.forEach((el: any) => {
+                        // 그라데이션 이미지 제거
                         el.style.backgroundImage = 'none';
+                        // 필요한 경우 배경색을 투명 혹은 검정으로 설정 (Vortex/Arcane 배경색에 맞춤)
                         el.style.backgroundColor = 'transparent'; 
                     });
 
+                    // 2. 혹시 인라인 스타일로 들어가 있을 경우를 대비해 div 전체 검사 (안전장치)
                     const allDivs = clonedDoc.querySelectorAll('div');
                     allDivs.forEach((div: any) => {
                         const bgImage = div.style.backgroundImage || window.getComputedStyle(div).backgroundImage;
@@ -297,6 +349,7 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
                             div.style.backgroundImage = 'none';
                         }
                     });
+                    // ================= [수정 끝] =================
 
                     if (clonedElement) {
                         clonedElement.style.overflow = 'visible';
@@ -439,12 +492,11 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
         }
     };
     
-    const handleSaveToFile = async () => {
+    const handleSaveToFile = () => {
         const filename = generateDownloadFilename();
-        const currentReferenceBuilds = await db.getAllReferenceBuilds();
         const fullSaveData = {
             character: ctx.serializeState(),
-            reference: currentReferenceBuilds,
+            reference: JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'),
             version: '1.0'
         };
         const blob = new Blob([JSON.stringify(fullSaveData, null, 2)], { type: 'application/json' });
@@ -475,26 +527,6 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
         template === 'temple' ? 'border-amber-900/20' :
         template === 'vortex' ? 'border-purple-900/50' :
         'border-cyan-900/30';
-    
-    const transLabels = {
-        // ... (unchanged)
-        refPage: ctx.language === 'ko' ? "참고 페이지" : "REFERENCE PAGE",
-        totalPoints: ctx.language === 'ko' ? "총 사용 포인트" : "Total Points",
-        discPoints: ctx.language === 'ko' ? "할인된 포인트" : "Discounted Points",
-        savedBuilds: (type: string) => ctx.language === 'ko' ? `저장된 ${type}` : `Saved ${type}`,
-        noSaved: ctx.language === 'ko' ? "저장된 빌드가 없습니다." : "No saved builds.",
-        buildName: ctx.language === 'ko' ? "빌드 이름..." : "Build Name...",
-        changeThis: ctx.language === 'ko' ? "수정하기" : "Change This File",
-        saveAsNew: ctx.language === 'ko' ? "새 빌드로 저장하기" : "Save as New",
-        save: ctx.language === 'ko' ? "저장" : "Save",
-        reset: ctx.language === 'ko' ? "초기화" : "Reset",
-        export: ctx.language === 'ko' ? "내보내기" : "Export",
-        downloadImg: ctx.language === 'ko' ? "이미지 다운로드" : "Download IMG",
-        sunForger: ctx.language === 'ko' ? "태양 제련사의 선물" : "Sun Forger's Boon",
-        preview: ctx.language === 'ko' ? "미리보기" : "PREVIEW",
-        saveImage: ctx.language === 'ko' ? "이미지 저장" : "SAVE IMAGE",
-        import: ctx.language === 'ko' ? "가져오기" : "Import"
-    };
 
     return (
         <div className="fixed inset-0 bg-[#000000]/95 backdrop-blur-md z-[101] p-0 md:p-4 flex justify-center items-center" role="dialog" aria-modal="true">
@@ -516,7 +548,10 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
                             </h2>
                         </div>
                     </div>
-                    <button onClick={onClose} className="group flex items-center justify-center w-8 h-8 rounded-full border border-gray-700 hover:border-red-500 transition-colors">
+                    <button 
+                        onClick={onClose} 
+                        className="group flex items-center justify-center w-8 h-8 rounded-full border border-gray-700 hover:border-red-500 transition-colors"
+                    >
                         <span className="text-gray-400 group-hover:text-red-500 text-xl leading-none">&times;</span>
                     </button>
                 </header>
@@ -669,6 +704,7 @@ export const BuildSummaryPage: React.FC<{ onClose: () => void }> = ({ onClose })
                                 <FileExportIcon /> <span>{ctx.language === 'ko' ? "JSON 내보내기" : "EXPORT JSON"}</span>
                             </button>
                             
+                            {/* UPDATED Browser Save Button to open slot interface */}
                             <button 
                                 onClick={() => { setIsSlotOverlayOpen(true); fetchSlots(); }}
                                 className="flex items-center justify-center gap-3 px-6 py-4 font-mono text-sm font-bold bg-indigo-900/40 border-2 border-indigo-500 rounded-xl text-indigo-100 hover:bg-indigo-800 hover:text-white hover:border-indigo-300 transition-all active:scale-95 shadow-lg"
